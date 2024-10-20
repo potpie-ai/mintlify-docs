@@ -25,17 +25,19 @@
     "name": "Star us on GitHub ⭐️ ",
     "url": "https://dashboard.mintlify.com"
   },
+
   "tabs": [
     {
-      "name": "Open-source-version",
-      "url": "open-source/"
+      "name": "Open Source",
+      "url": "open-source"
     }
   ],
+
   "anchors": [
     {
       "name": "Documentation",
       "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "url": "https://docs.potpie.ai"
     },
     {
       "name": "Community",
@@ -53,8 +55,13 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "quickstart",
-        "development"
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Open Source",
+      "pages": [
+        "/open-source/getting-started"
       ]
     },
     {

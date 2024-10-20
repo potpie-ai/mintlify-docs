@@ -1,71 +1,84 @@
 ---
 title: Introduction
-description: 'Welcome to the home of your new documentation'
+description: 'Welcome to Potpie!'
 ---
 
 <img
   className="block dark:hidden"
-  src="/images/hero-light.svg"
-  alt="Hero Light"
+  src="/images/homepage.png"
+  alt="Homepage"
 />
 <img
   className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
+  src="/images/homepage.png"
+  alt="Homepage"
 />
 
-## Setting up
+## What is Potpie?
 
-The first step to world-class documentation is setting up your editing environments.
+Build AI agents for your codebase in minuites. 
+
+Potpie deeply understands your codebase by breaking down your code into its constituting parts and building a knowledge graph out of your code's components. 
+We generate inferences at every level of your codebase so that we can comprehensively answer questions about your codebase. 
+
+Potpie provides purpose built agents that are expert on your codebase to perform engineering tasks for you, and also provides the platform for you to build your own custom agents using tools that interface with the knowledge graph.
+
 
 <CardGroup cols={2}>
   <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
+    title="Expert agents for your codebase"
+    icon="comment-dots"
+    href="https://app.potpie.ai"
   >
-    Get your docs set up locally for easy development
+    Use our pre-built agents to answer questions, generate test plans, and more
   </Card>
   <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
+    title="Custom Agents"
+    icon="screwdriver-wrench"
+    href="https://app.potpie.ai"
   >
-    Preview your changes before you push to make sure they're perfect
+    Build your own agents to automate your workflows
   </Card>
 </CardGroup>
 
-## Make it yours
+## Purpose built agents
 
-Update your docs to your brand and add valuable content for the best user conversion.
+We provide purpose built agents that are expert on your codebase to perform engineering tasks for you.
 
 <CardGroup cols={2}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
+    title="QnA Agent"
+    icon="question"
+    href="/agents/qna-agent"
   >
-    Customize your docs to your company's colors and brands
+    Answer questions about your codebase
+  </Card>
+    <Card
+    title="Debugging Agent"
+    icon="bug"
+    href="/agents/debugging-agent"
+  >
+    Debug errors in your codebase iteratively
   </Card>
   <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    title="Integration Test Agent"
+    icon="magnifying-glass"
+    href="/agents/integration-test-agent"
   >
-    Automatically generate endpoints from an OpenAPI spec
+    Automatically generate integration test plans for your codebase
   </Card>
   <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/components/accordion"
+    title="Unit Test Agent"
+    icon="square-check"
+    href="/agents/unit-test-agent"
   >
-    Build interactive features and designs to guide your users
+    Automatically generate unit test plans for your codebase
   </Card>
   <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
+    title="Code Changes Agent"
+    icon="code-compare"
+    href="/agents/code-changes-agent"
   >
-    Check out our showcase of our favorite documentation
+    Automatically generate code changes for your codebase
   </Card>
 </CardGroup>
