@@ -70,6 +70,15 @@
       ]
     },
     {
+      "group": "Custom Agents",
+      "pages": [
+        "custom-agents/Introduction",
+        "custom-agents/Configuration and development",
+        "custom-agents/tools"
+       
+      ]
+    },
+    {
       "group": "API Documentation",
       "pages": [
         "api-reference/introduction"
