@@ -1,0 +1,37 @@
+---
+title: 'Introduction'
+description: 'What are Potpie custom agents?'
+---
+
+## Introduction
+
+### What are agents?
+
+In the realm of LLMs, agents are autonomous entities designed to execute tasks, retrieve pertinent information, and make informed decisions based on the data at hand. These agents are capable of undertaking operations that necessitate advanced reasoning and decision-making capabilities.
+They perform tasks by "reasoning" using LLMs and leveraging "tools" that are provided to them.
+
+### What are custom agents?
+
+Potpie custom agents are a powerful way to perform repeatable tasks on your codebase which require precise context, reasoning and decision making. They are used to perform tasks and retrieve information that are not supported by the default Potpie agents. 
+Potpie's custom agents are powered by [CrewAI](https://github.com/crewaiinc/crewai). 
+
+Sample use cases include:
+- Analyzing code to suggest optimizations and improvements
+- Automatically generating boilerplate code for new features
+- Conducting code reviews and providing feedback on best practices
+- Extracting and summarizing documentation from code comments
+- Identifying and reporting security vulnerabilities in the codebase
+- Refactoring code to enhance readability and maintainability
+- Creating unit tests based on existing code logic
+- Assisting in migration of code to newer frameworks or libraries
+
+
+## Building Blocks of Custom Agents:
+
+
+| **Attribute**        | **Description**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|
+| **System Instructions**   | This is the set of instructions that the agent will follow to perform a task. It includes details like the goal of the task, the output format, and other relevant guidelines to be provided to the agent. |
+| **Agent Info**            | This is the information about the agent that is used to perform the task. It includes details like the name of the agent, the role of the agent, and backstory for the agent. |
+| **Tasks**                 | Tasks outline the steps that the agent will take to perform the task. An agent can have multiple tasks associated with it. |
+| **Tools**                 | Tools are mapped to tasks and are used to perform actions that are necessary to complete the task. They are functions with specific purposes.|
