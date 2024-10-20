@@ -1,4 +1,26 @@
 ---
 title: 'Tools'
-description: 'Description of your new file.'
+description: 'Tools are the building blocks of custom agents. They are used to perform tasks and retrieve information.'
 ---
+
+## Introduction
+
+Potpie's tools empower your custom agents with the ability to interact with the underlying knowledge graph and potpie infrastructure. This documentation outlines how to integrate, and leverage these tools within your custom agents.
+
+## Where are tools used?
+
+Potpie custom agents are powered by [Langchain](https://langchain.com/). Potpie provides a set of tools that can be used to interact with the underlying knowledge graph and potpie infrastructure. These tools can be used within the `tools` property of the "Task" section of your custom agent definition.
+
+
+## Available tools
+
+Potpie provides the following tools:
+- **[get_code_from_probable_node_name](/custom-agents/tools/get_code_from_probable_node_name)**: Retrieves code snippets based on a probable node name from the knowledge graph.
+- **[get_code_from_node_id](/custom-agents/tools/get_code_from_node_id)**: Fetches code snippets associated with a specific node ID.
+- **[get_code_from_multiple_node_ids](/custom-agents/tools/get_code_from_multiple_node_ids)**: Allows retrieval of code snippets for multiple node IDs simultaneously.
+- **[ask_knowledge_graph_queries](/custom-agents/tools/ask_knowledge_graph_queries)**: Executes vector similarity search queries against the knowledge graph to obtain relevant information.
+- **[get_nodes_from_tags](/custom-agents/tools/get_nodes_from_tags)**: Retrieves nodes that are associated with specific tags in the knowledge graph.
+- **[get_code_from_node_name](/custom-agents/tools/get_code_from_node_name)**: Obtains code snippets linked to a specific node name.
+- **[get_code_graph_from_node_id](/custom-agents/tools/get_code_graph_from_node_id)**: Fetches the code graph structure related to a particular node ID (works best with py, js, ts).
+- **[get_code_graph_from_node_name](/custom-agents/tools/get_code_graph_from_node_name)**: Retrieves the code graph structure associated with a specific node name (works best with py, js, ts).
+- **[change_detection](/custom-agents/tools/change_detection)**: Detects changes in the current branch w.r.t the default branch of the repository and retrieves updated function details.

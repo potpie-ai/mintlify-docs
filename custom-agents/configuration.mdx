@@ -1,0 +1,35 @@
+---
+title: 'Configuration and Development'
+description: 'How to build your own custom agents with Potpie'
+---
+
+## Creating a Custom Agent
+
+To create a custom agent in Potpie, you'll need to define the agent's characteristics and the tasks it will perform. Here's a step-by-step guide:
+
+### 1. Define the System Instructions
+
+The system instructions are the instructions that the agent will follow to perform a task. They include details like the goal of the task, the output format, and other relevant guidelines.
+
+### 2. Define the Agent
+
+Create an `Agent` object with the following key attributes:
+
+#### Agent Attributes:
+- `role`: Defines the agent's function.
+- `goal`: The individual objective that the agent aims to achieve.
+- `backstory`: Provides context to the agent's role and goal.
+
+### 3. Create Tasks
+
+Define the tasks that your agent will perform:
+
+#### Task Attributes:
+- `description`: A clear, concise statement of what the task entails.
+- `expected_output`: A detailed description of what the task's completion looks like.
+- `tools`: The functions or capabilities the agent can utilize to perform the task.
+
+
+## Conclusion
+
+Creating a custom agent in CrewAI involves defining the agent's characteristics, creating tasks, and optionally providing custom tools. By carefully crafting the agent's role, goal, and backstory, along with clear task descriptions and expected outputs, you can create highly specialized agents capable of performing complex tasks within your AI system.

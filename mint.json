@@ -28,7 +28,7 @@
   "tabs": [
     {
       "name": "Open-source-version",
-      "url": "open-source"
+      "url": "open-source/"
     }
   ],
   "anchors": [
@@ -60,9 +60,9 @@
     {
       "group": "How to use Agents",
       "pages": [
-        "agents/Introduction",
+        "agents/introduction",
         "agents/debugging-agent",
-        "agents/qanda-agent",
+        "agents/qna-agent",
         "agents/integration-test-agent",
         "agents/unit-test-agent",
         "agents/code-changes-agent"
@@ -72,24 +72,24 @@
     {
       "group": "Custom Agents",
       "pages": [
-        "custom-agents/Introduction",
-        "custom-agents/Configuration and development",
-        "custom-agents/tools"
+        "custom-agents/introduction",
+        "custom-agents/configuration",
+        {
+          "group": "Tools",
+          "pages": [
+            "custom-agents/tools",
+            "custom-agents/tools/get_code_from_probable_node_name",
+            "custom-agents/tools/get_code_from_node_id",
+            "custom-agents/tools/get_code_from_multiple_node_ids",
+            "custom-agents/tools/ask_knowledge_graph_queries",
+            "custom-agents/tools/get_nodes_from_tags",
+            "custom-agents/tools/get_code_from_node_name",
+            "custom-agents/tools/get_code_graph_from_node_id",
+            "custom-agents/tools/get_code_graph_from_node_name",
+            "custom-agents/tools/change_detection"
+          ]
+        }
        
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/introduction"
-      ]
-    },
-    {
-      "group": "Endpoint Examples",
-      "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
       ]
     }
   ],

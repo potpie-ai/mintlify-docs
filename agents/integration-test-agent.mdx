@@ -1,4 +1,30 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Integration Test Agent'
+description: 'Generate integration test plans and code for paths in your codebase'
 ---
+
+# Integration Test Agent
+
+The Integration Test Agent specializes in generating integration test plans and test code for code snippets from the knowledge graph based on given function names of entry points. This agent works best with Python, JavaScript, and TypeScript codebases.
+
+## Capabilities
+
+- Generate integration test plans for API endpoints or complex functions
+- Create integration test code based on the generated plans
+- Understand the flow of your application from given entry points
+- Assist in mocking dependencies and services for integration tests
+
+## How to Use 
+
+To use the Integration Test Agent, provide the entry point reference using the `@` symbol followed by the function name. Here are some example prompts:
+
+1. "Generate a test plan for the POST /documents/{collection_name} API at @create_document"
+2. "This test fails to mock the MongoService class method, update the mocked path in all tests to follow the format `path.to.file.Class.function`"
+
+## Best Practices
+
+- Clearly specify the entry point or API endpoint you want to test
+- Provide additional context about the expected behavior of the function or API
+- Iterate on the generated test plans and code, asking for modifications or improvements as needed
+
+By using the Integration Test Agent, you can quickly create comprehensive integration tests for your application, ensuring that different components work together as expected.
