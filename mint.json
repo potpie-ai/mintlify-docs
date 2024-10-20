@@ -65,7 +65,7 @@
         "agents/qanda-agent",
         "agents/integration-test-agent",
         "agents/unit-test-agent",
-        "agents/code-changes-agent",
+        "agents/code-changes-agent"
        
       ]
     },
