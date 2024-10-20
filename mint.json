@@ -18,17 +18,17 @@
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "url": "mailto:hi@potpie.ai."
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
+    "name": "Star us on GitHub ⭐️ ",
     "url": "https://dashboard.mintlify.com"
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "Open-source version",
+      "url": "open-source"
     }
   ],
   "anchors": [
@@ -39,13 +39,13 @@
     },
     {
       "name": "Community",
-      "icon": "slack",
+      "icon": "discord",
       "url": "https://mintlify.com/community"
     },
     {
       "name": "Blog",
       "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "url": "https://www.potpie.ai/blog"
     }
   ],
   "navigation": [
@@ -58,14 +58,15 @@
       ]
     },
     {
-      "group": "Essentials",
+      "group": "How to use Agents",
       "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "agents/Introduction",
+        "agents/debugging-agent",
+        "agents/qanda-agent",
+        "agents/integration-test-agent",
+        "agents/unit-test-agent",
+        "agents/code-changes-agent",
+       
       ]
     },
     {
@@ -84,8 +85,8 @@
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://linkedin.com/company/mintlify"
+    "x": "https://x.com/potpiedotai",
+    "github": "https://github.com/potpie-ai/potpie",
+    "linkedin": "https://www.linkedin.com/company/potpieai"
   }
 }
