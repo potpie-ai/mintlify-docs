@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "name": "Potpie",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/dark.png",
+    "light": "/logo/light.png"
   },
   "favicon": "/favicon.svg",
   "colors": {
@@ -23,7 +23,7 @@
   ],
   "topbarCtaButton": {
     "name": "Star us on GitHub ⭐️ ",
-    "url": "https://dashboard.mintlify.com"
+    "url": "https://github.com/potpie-ai/potpie"
   },
 
   "tabs": [
@@ -32,6 +32,8 @@
       "url": "open-source"
     }
   ],
+  "openapi": "https://production-api.potpie.ai/openapi.json",
+
 
   "anchors": [
     {
@@ -61,7 +63,7 @@
     {
       "group": "Open Source",
       "pages": [
-        "/open-source/getting-started"
+        "open-source/getting-started"
       ]
     },
     {

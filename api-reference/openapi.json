@@ -1,195 +1,2195 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+      "title": "FastAPI",
+      "version": "0.1.0"
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+      "/api/v1/signup": {
+          "post": {
+              "tags": [
+                  "Auth"
+              ],
+              "summary": "Signup",
+              "operationId": "signup_api_v1_signup_post",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
                   }
-                }
               }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
       },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+      "/api/v1/user/conversations": {
+          "get": {
+              "tags": [
+                  "User"
+              ],
+              "summary": "Get Conversations For User",
+              "operationId": "get_conversations_for_user_api_v1_user_conversations_get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "start",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "default": 0,
+                          "title": "Start"
+                      }
+                  },
+                  {
+                      "name": "limit",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "default": 10,
+                          "title": "Limit"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "type": "array",
+                                  "items": {
+                                      "$ref": "#/components/schemas/UserConversationListResponse"
+                                  },
+                                  "title": "Response Get Conversations For User Api V1 User Conversations Get"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
               }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
+      },
+      "/api/v1/parse": {
+          "post": {
+              "tags": [
+                  "Parsing"
+              ],
+              "summary": "Parse Directory",
+              "operationId": "parse_directory_api_v1_parse_post",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/ParsingRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/parsing-status/{project_id}": {
+          "get": {
+              "tags": [
+                  "Parsing"
+              ],
+              "summary": "Get Parsing Status",
+              "operationId": "get_parsing_status_api_v1_parsing_status__project_id__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "project_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Project Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/": {
+          "post": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Create Conversation",
+              "operationId": "create_conversation_api_v1_conversations__post",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/CreateConversationRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/CreateConversationResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/info/": {
+          "get": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Get Conversation Info",
+              "operationId": "get_conversation_info_api_v1_conversations__conversation_id__info__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/ConversationInfoResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/messages/": {
+          "get": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Get Conversation Messages",
+              "operationId": "get_conversation_messages_api_v1_conversations__conversation_id__messages__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  },
+                  {
+                      "name": "start",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "default": 0,
+                          "title": "Start"
+                      }
+                  },
+                  {
+                      "name": "limit",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "default": 10,
+                          "title": "Limit"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "type": "array",
+                                  "items": {
+                                      "$ref": "#/components/schemas/MessageResponse"
+                                  },
+                                  "title": "Response Get Conversation Messages Api V1 Conversations  Conversation Id  Messages  Get"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/message/": {
+          "post": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Post Message",
+              "operationId": "post_message_api_v1_conversations__conversation_id__message__post",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "requestBody": {
+                  "required": true,
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/MessageRequest"
+                          }
+                      }
+                  }
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/regenerate/": {
+          "post": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Regenerate Last Message",
+              "operationId": "regenerate_last_message_api_v1_conversations__conversation_id__regenerate__post",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "requestBody": {
+                  "required": true,
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/RegenerateRequest"
+                          }
+                      }
+                  }
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/MessageResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/": {
+          "delete": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Delete Conversation",
+              "operationId": "delete_conversation_api_v1_conversations__conversation_id___delete",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "type": "object",
+                                  "title": "Response Delete Conversation Api V1 Conversations  Conversation Id   Delete"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/stop/": {
+          "post": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Stop Generation",
+              "operationId": "stop_generation_api_v1_conversations__conversation_id__stop__post",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "type": "object",
+                                  "title": "Response Stop Generation Api V1 Conversations  Conversation Id  Stop  Post"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/conversations/{conversation_id}/rename/": {
+          "patch": {
+              "tags": [
+                  "Conversations"
+              ],
+              "summary": "Rename Conversation",
+              "operationId": "rename_conversation_api_v1_conversations__conversation_id__rename__patch",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "conversation_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Conversation Id"
+                      }
+                  }
+              ],
+              "requestBody": {
+                  "required": true,
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/RenameConversationRequest"
+                          }
+                      }
+                  }
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "type": "object",
+                                  "title": "Response Rename Conversation Api V1 Conversations  Conversation Id  Rename  Patch"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/prompts/": {
+          "post": {
+              "tags": [
+                  "Prompts"
+              ],
+              "summary": "Create Prompt",
+              "operationId": "create_prompt_api_v1_prompts__post",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "requestBody": {
+                  "required": true,
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/PromptCreate"
+                          }
+                      }
+                  }
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/PromptResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "get": {
+              "tags": [
+                  "Prompts"
+              ],
+              "summary": "List Prompts",
+              "operationId": "list_prompts_api_v1_prompts__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "query",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "anyOf": [
+                              {
+                                  "type": "string"
+                              },
+                              {
+                                  "type": "null"
+                              }
+                          ],
+                          "title": "Query"
+                      }
+                  },
+                  {
+                      "name": "skip",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "default": 0,
+                          "title": "Skip"
+                      }
+                  },
+                  {
+                      "name": "limit",
+                      "in": "query",
+                      "required": false,
+                      "schema": {
+                          "type": "integer",
+                          "maximum": 100,
+                          "minimum": 1,
+                          "default": 10,
+                          "title": "Limit"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/PromptListResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/prompts/{prompt_id}": {
+          "put": {
+              "tags": [
+                  "Prompts"
+              ],
+              "summary": "Update Prompt",
+              "operationId": "update_prompt_api_v1_prompts__prompt_id__put",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "prompt_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Prompt Id"
+                      }
+                  }
+              ],
+              "requestBody": {
+                  "required": true,
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/PromptUpdate"
+                          }
+                      }
+                  }
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/PromptResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "delete": {
+              "tags": [
+                  "Prompts"
+              ],
+              "summary": "Delete Prompt",
+              "operationId": "delete_prompt_api_v1_prompts__prompt_id__delete",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "prompt_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Prompt Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "get": {
+              "tags": [
+                  "Prompts"
+              ],
+              "summary": "Fetch Prompt",
+              "operationId": "fetch_prompt_api_v1_prompts__prompt_id__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "prompt_id",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Prompt Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/PromptResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/secrets": {
+          "put": {
+              "tags": [
+                  "Secret Manager"
+              ],
+              "summary": "Update Secret",
+              "operationId": "update_secret_api_v1_secrets_put",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/UpdateSecretRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          },
+          "post": {
+              "tags": [
+                  "Secret Manager"
+              ],
+              "summary": "Create Secret",
+              "operationId": "create_secret_api_v1_secrets_post",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/CreateSecretRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/secrets/{provider}": {
+          "get": {
+              "tags": [
+                  "Secret Manager"
+              ],
+              "summary": "Get Secret For Provider",
+              "operationId": "get_secret_for_provider_api_v1_secrets__provider__get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "provider",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "enum": [
+                              "openai",
+                              "anthropic"
+                          ],
+                          "type": "string",
+                          "title": "Provider"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "delete": {
+              "tags": [
+                  "Secret Manager"
+              ],
+              "summary": "Delete Secret",
+              "operationId": "delete_secret_api_v1_secrets__provider__delete",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "provider",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "enum": [
+                              "openai",
+                              "anthropic"
+                          ],
+                          "type": "string",
+                          "title": "Provider"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/projects/list": {
+          "get": {
+              "tags": [
+                  "Projects"
+              ],
+              "summary": "Get Project List",
+              "operationId": "get_project_list_api_v1_projects_list_get",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/projects": {
+          "delete": {
+              "tags": [
+                  "Projects"
+              ],
+              "summary": "Delete Project",
+              "operationId": "delete_project_api_v1_projects_delete",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "project_id",
+                      "in": "query",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "title": "Project Id"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/search": {
+          "post": {
+              "tags": [
+                  "Search"
+              ],
+              "summary": "Search Codebase",
+              "operationId": "search_codebase_api_v1_search_post",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/SearchRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/SearchResponse"
+                              }
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/github/user-repos": {
+          "get": {
+              "tags": [
+                  "Github"
+              ],
+              "summary": "Get User Repos",
+              "operationId": "get_user_repos_api_v1_github_user_repos_get",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/github/get-branch-list": {
+          "get": {
+              "tags": [
+                  "Github"
+              ],
+              "summary": "Get Branch List",
+              "operationId": "get_branch_list_api_v1_github_get_branch_list_get",
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ],
+              "parameters": [
+                  {
+                      "name": "repo_name",
+                      "in": "query",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "description": "Repository name",
+                          "title": "Repo Name"
+                      },
+                      "description": "Repository name"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      },
+      "/api/v1/list-available-agents/": {
+          "get": {
+              "tags": [
+                  "Agents"
+              ],
+              "summary": "List Available Agents",
+              "operationId": "list_available_agents_api_v1_list_available_agents__get",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "items": {
+                                      "$ref": "#/components/schemas/AgentInfo"
+                                  },
+                                  "type": "array",
+                                  "title": "Response List Available Agents Api V1 List Available Agents  Get"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/list-available-llms/": {
+          "get": {
+              "tags": [
+                  "Providers"
+              ],
+              "summary": "List Available Llms",
+              "operationId": "list_available_llms_api_v1_list_available_llms__get",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "items": {
+                                      "$ref": "#/components/schemas/ProviderInfo"
+                                  },
+                                  "type": "array",
+                                  "title": "Response List Available Llms Api V1 List Available Llms  Get"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/api/v1/set-global-ai-provider/": {
+          "post": {
+              "tags": [
+                  "Providers"
+              ],
+              "summary": "Set Global Ai Provider",
+              "operationId": "set_global_ai_provider_api_v1_set_global_ai_provider__post",
+              "requestBody": {
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/SetProviderRequest"
+                          }
+                      }
+                  },
+                  "required": true
+              },
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  },
+                  "422": {
+                      "description": "Validation Error",
+                      "content": {
+                          "application/json": {
+                              "schema": {
+                                  "$ref": "#/components/schemas/HTTPValidationError"
+                              }
+                          }
+                      }
+                  }
+              },
+              "security": [
+                  {
+                      "HTTPBearer": []
+                  }
+              ]
+          }
+      },
+      "/health": {
+          "get": {
+              "tags": [
+                  "Health"
+              ],
+              "summary": "Health Check",
+              "operationId": "health_check_health_get",
+              "responses": {
+                  "200": {
+                      "description": "Successful Response",
+                      "content": {
+                          "application/json": {
+                              "schema": {}
+                          }
+                      }
+                  }
+              }
+          }
       }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+      "schemas": {
+          "AgentInfo": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id"
+                  },
+                  "name": {
+                      "type": "string",
+                      "title": "Name"
+                  },
+                  "description": {
+                      "type": "string",
+                      "title": "Description"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "name",
+                  "description"
+              ],
+              "title": "AgentInfo"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "ConversationInfoResponse": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id"
+                  },
+                  "title": {
+                      "type": "string",
+                      "title": "Title"
+                  },
+                  "status": {
+                      "$ref": "#/components/schemas/ConversationStatus"
+                  },
+                  "project_ids": {
+                      "items": {
+                          "type": "string"
+                      },
+                      "type": "array",
+                      "title": "Project Ids"
+                  },
+                  "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "title": "Created At"
+                  },
+                  "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "title": "Updated At"
+                  },
+                  "total_messages": {
+                      "type": "integer",
+                      "title": "Total Messages"
+                  },
+                  "agent_ids": {
+                      "items": {
+                          "type": "string"
+                      },
+                      "type": "array",
+                      "title": "Agent Ids"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "title",
+                  "status",
+                  "project_ids",
+                  "created_at",
+                  "updated_at",
+                  "total_messages",
+                  "agent_ids"
+              ],
+              "title": "ConversationInfoResponse"
+          },
+          "ConversationStatus": {
+              "type": "string",
+              "enum": [
+                  "active",
+                  "archived",
+                  "deleted"
+              ],
+              "title": "ConversationStatus"
+          },
+          "CreateConversationRequest": {
+              "properties": {
+                  "user_id": {
+                      "type": "string",
+                      "title": "User Id"
+                  },
+                  "title": {
+                      "type": "string",
+                      "title": "Title"
+                  },
+                  "status": {
+                      "$ref": "#/components/schemas/ConversationStatus"
+                  },
+                  "project_ids": {
+                      "items": {
+                          "type": "string"
+                      },
+                      "type": "array",
+                      "title": "Project Ids"
+                  },
+                  "agent_ids": {
+                      "items": {
+                          "type": "string"
+                      },
+                      "type": "array",
+                      "title": "Agent Ids"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "user_id",
+                  "title",
+                  "status",
+                  "project_ids",
+                  "agent_ids"
+              ],
+              "title": "CreateConversationRequest"
+          },
+          "CreateConversationResponse": {
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "title": "Message"
+                  },
+                  "conversation_id": {
+                      "type": "string",
+                      "title": "Conversation Id"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "message",
+                  "conversation_id"
+              ],
+              "title": "CreateConversationResponse"
+          },
+          "CreateSecretRequest": {
+              "properties": {
+                  "api_key": {
+                      "type": "string",
+                      "title": "Api Key"
+                  },
+                  "provider": {
+                      "type": "string",
+                      "enum": [
+                          "openai",
+                          "anthropic"
+                      ],
+                      "title": "Provider"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "api_key",
+                  "provider"
+              ],
+              "title": "CreateSecretRequest"
+          },
+          "HTTPValidationError": {
+              "properties": {
+                  "detail": {
+                      "items": {
+                          "$ref": "#/components/schemas/ValidationError"
+                      },
+                      "type": "array",
+                      "title": "Detail"
+                  }
+              },
+              "type": "object",
+              "title": "HTTPValidationError"
+          },
+          "MessageRequest": {
+              "properties": {
+                  "content": {
+                      "type": "string",
+                      "title": "Content"
+                  },
+                  "node_ids": {
+                      "anyOf": [
+                          {
+                              "items": {
+                                  "$ref": "#/components/schemas/NodeContext"
+                              },
+                              "type": "array"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Node Ids"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "content"
+              ],
+              "title": "MessageRequest"
+          },
+          "MessageResponse": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id"
+                  },
+                  "conversation_id": {
+                      "type": "string",
+                      "title": "Conversation Id"
+                  },
+                  "content": {
+                      "type": "string",
+                      "title": "Content"
+                  },
+                  "sender_id": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Sender Id"
+                  },
+                  "type": {
+                      "$ref": "#/components/schemas/MessageType"
+                  },
+                  "reason": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Reason"
+                  },
+                  "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "title": "Created At"
+                  },
+                  "status": {
+                      "$ref": "#/components/schemas/MessageStatus"
+                  },
+                  "citations": {
+                      "anyOf": [
+                          {
+                              "items": {
+                                  "type": "string"
+                              },
+                              "type": "array"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Citations"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "conversation_id",
+                  "content",
+                  "type",
+                  "created_at",
+                  "status"
+              ],
+              "title": "MessageResponse"
+          },
+          "MessageStatus": {
+              "type": "string",
+              "enum": [
+                  "ACTIVE",
+                  "ARCHIVED",
+                  "DELETED"
+              ],
+              "title": "MessageStatus"
+          },
+          "MessageType": {
+              "type": "string",
+              "enum": [
+                  "AI_GENERATED",
+                  "HUMAN",
+                  "SYSTEM_GENERATED"
+              ],
+              "title": "MessageType"
+          },
+          "NodeContext": {
+              "properties": {
+                  "node_id": {
+                      "type": "string",
+                      "title": "Node Id"
+                  },
+                  "name": {
+                      "type": "string",
+                      "title": "Name"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "node_id",
+                  "name"
+              ],
+              "title": "NodeContext"
+          },
+          "ParsingRequest": {
+              "properties": {
+                  "repo_name": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Repo Name"
+                  },
+                  "repo_path": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Repo Path"
+                  },
+                  "branch_name": {
+                      "type": "string",
+                      "title": "Branch Name"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "branch_name"
+              ],
+              "title": "ParsingRequest"
+          },
+          "PromptCreate": {
+              "properties": {
+                  "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "title": "Text",
+                      "description": "The text content of the prompt"
+                  },
+                  "type": {
+                      "$ref": "#/components/schemas/PromptType",
+                      "description": "Type of the prompt (System or Human)"
+                  },
+                  "status": {
+                      "anyOf": [
+                          {
+                              "$ref": "#/components/schemas/PromptStatusType"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "description": "Status of the prompt (active or inactive)",
+                      "default": "ACTIVE"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "text",
+                  "type"
+              ],
+              "title": "PromptCreate"
+          },
+          "PromptListResponse": {
+              "properties": {
+                  "prompts": {
+                      "items": {
+                          "$ref": "#/components/schemas/PromptResponse"
+                      },
+                      "type": "array",
+                      "title": "Prompts"
+                  },
+                  "total": {
+                      "type": "integer",
+                      "title": "Total"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "prompts",
+                  "total"
+              ],
+              "title": "PromptListResponse"
+          },
+          "PromptResponse": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id",
+                      "description": "Unique identifier of the prompt"
+                  },
+                  "text": {
+                      "type": "string",
+                      "title": "Text",
+                      "description": "The text content of the prompt"
+                  },
+                  "type": {
+                      "$ref": "#/components/schemas/PromptType",
+                      "description": "Type of the prompt (System or Human)"
+                  },
+                  "version": {
+                      "type": "integer",
+                      "title": "Version",
+                      "description": "Version number of the prompt"
+                  },
+                  "status": {
+                      "$ref": "#/components/schemas/PromptStatusType",
+                      "description": "Status of the prompt (active or inactive)"
+                  },
+                  "created_by": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Created By",
+                      "description": "ID of the user who created the prompt"
+                  },
+                  "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "title": "Created At",
+                      "description": "Timestamp of when the prompt was created"
+                  },
+                  "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "title": "Updated At",
+                      "description": "Timestamp of when the prompt was last updated"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "text",
+                  "type",
+                  "version",
+                  "status",
+                  "created_at",
+                  "updated_at"
+              ],
+              "title": "PromptResponse"
+          },
+          "PromptStatusType": {
+              "type": "string",
+              "enum": [
+                  "ACTIVE",
+                  "INACTIVE"
+              ],
+              "title": "PromptStatusType"
+          },
+          "PromptType": {
+              "type": "string",
+              "enum": [
+                  "SYSTEM",
+                  "HUMAN"
+              ],
+              "title": "PromptType"
+          },
+          "PromptUpdate": {
+              "properties": {
+                  "text": {
+                      "anyOf": [
+                          {
+                              "type": "string",
+                              "minLength": 1
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Text",
+                      "description": "The text content of the prompt"
+                  },
+                  "type": {
+                      "anyOf": [
+                          {
+                              "$ref": "#/components/schemas/PromptType"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "description": "Type of the prompt (System or Human)"
+                  },
+                  "status": {
+                      "anyOf": [
+                          {
+                              "$ref": "#/components/schemas/PromptStatusType"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "description": "Status of the prompt (active or inactive)"
+                  }
+              },
+              "type": "object",
+              "title": "PromptUpdate"
+          },
+          "ProviderInfo": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id"
+                  },
+                  "name": {
+                      "type": "string",
+                      "title": "Name"
+                  },
+                  "description": {
+                      "type": "string",
+                      "title": "Description"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "name",
+                  "description"
+              ],
+              "title": "ProviderInfo"
+          },
+          "RegenerateRequest": {
+              "properties": {
+                  "node_ids": {
+                      "anyOf": [
+                          {
+                              "items": {
+                                  "$ref": "#/components/schemas/NodeContext"
+                              },
+                              "type": "array"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Node Ids"
+                  }
+              },
+              "type": "object",
+              "title": "RegenerateRequest"
+          },
+          "RenameConversationRequest": {
+              "properties": {
+                  "title": {
+                      "type": "string",
+                      "title": "Title"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "title"
+              ],
+              "title": "RenameConversationRequest"
+          },
+          "SearchRequest": {
+              "properties": {
+                  "project_id": {
+                      "type": "string",
+                      "title": "Project Id"
+                  },
+                  "query": {
+                      "type": "string",
+                      "title": "Query"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "project_id",
+                  "query"
+              ],
+              "title": "SearchRequest"
+          },
+          "SearchResponse": {
+              "properties": {
+                  "results": {
+                      "items": {
+                          "$ref": "#/components/schemas/SearchResult"
+                      },
+                      "type": "array",
+                      "title": "Results"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "results"
+              ],
+              "title": "SearchResponse"
+          },
+          "SearchResult": {
+              "properties": {
+                  "node_id": {
+                      "type": "string",
+                      "title": "Node Id"
+                  },
+                  "name": {
+                      "type": "string",
+                      "title": "Name"
+                  },
+                  "file_path": {
+                      "type": "string",
+                      "title": "File Path"
+                  },
+                  "content": {
+                      "type": "string",
+                      "title": "Content"
+                  },
+                  "match_type": {
+                      "type": "string",
+                      "title": "Match Type"
+                  },
+                  "relevance": {
+                      "type": "number",
+                      "title": "Relevance"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "node_id",
+                  "name",
+                  "file_path",
+                  "content",
+                  "match_type",
+                  "relevance"
+              ],
+              "title": "SearchResult"
+          },
+          "SetProviderRequest": {
+              "properties": {
+                  "provider": {
+                      "type": "string",
+                      "title": "Provider"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "provider"
+              ],
+              "title": "SetProviderRequest"
+          },
+          "UpdateSecretRequest": {
+              "properties": {
+                  "api_key": {
+                      "type": "string",
+                      "title": "Api Key"
+                  },
+                  "provider": {
+                      "type": "string",
+                      "enum": [
+                          "openai",
+                          "anthropic"
+                      ],
+                      "title": "Provider"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "api_key",
+                  "provider"
+              ],
+              "title": "UpdateSecretRequest"
+          },
+          "UserConversationListResponse": {
+              "properties": {
+                  "id": {
+                      "type": "string",
+                      "title": "Id"
+                  },
+                  "title": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Title"
+                  },
+                  "status": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Status"
+                  },
+                  "project_ids": {
+                      "anyOf": [
+                          {
+                              "items": {
+                                  "type": "string"
+                              },
+                              "type": "array"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Project Ids"
+                  },
+                  "agent_id": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Agent Id"
+                  },
+                  "repository": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Repository"
+                  },
+                  "branch": {
+                      "anyOf": [
+                          {
+                              "type": "string"
+                          },
+                          {
+                              "type": "null"
+                          }
+                      ],
+                      "title": "Branch"
+                  },
+                  "created_at": {
+                      "type": "string",
+                      "title": "Created At"
+                  },
+                  "updated_at": {
+                      "type": "string",
+                      "title": "Updated At"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "id",
+                  "title",
+                  "status",
+                  "project_ids",
+                  "agent_id",
+                  "repository",
+                  "branch",
+                  "created_at",
+                  "updated_at"
+              ],
+              "title": "UserConversationListResponse"
+          },
+          "ValidationError": {
+              "properties": {
+                  "loc": {
+                      "items": {
+                          "anyOf": [
+                              {
+                                  "type": "string"
+                              },
+                              {
+                                  "type": "integer"
+                              }
+                          ]
+                      },
+                      "type": "array",
+                      "title": "Location"
+                  },
+                  "msg": {
+                      "type": "string",
+                      "title": "Message"
+                  },
+                  "type": {
+                      "type": "string",
+                      "title": "Error Type"
+                  }
+              },
+              "type": "object",
+              "required": [
+                  "loc",
+                  "msg",
+                  "type"
+              ],
+              "title": "ValidationError"
           }
-        }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+      "securitySchemes": {
+          "HTTPBearer": {
+              "type": "http",
+              "scheme": "bearer"
           }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
       }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
-    }
   }
 }
