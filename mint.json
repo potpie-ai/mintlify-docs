@@ -64,6 +64,7 @@
     {
       "group": "Open Source",
       "pages": [
+        "open-source/setup",
         "open-source/getting-started"
       ]
     },
