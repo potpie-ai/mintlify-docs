@@ -29,10 +29,11 @@
   "tabs": [
     {
       "name": "Open Source",
-      "url": "open-source"
+      "url": "open-source",
+      "openapi": "https://production-api.potpie.ai/openapi.json"
     }
   ],
-  "openapi": "https://production-api.potpie.ai/openapi.json",
+  
 
 
   "anchors": [
