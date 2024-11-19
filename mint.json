@@ -45,7 +45,7 @@
     {
       "name": "Community",
       "icon": "discord",
-      "url": "https://mintlify.com/community"
+      "url": "https://discord.gg/ryk5CMD5v6"
     },
     {
       "name": "Blog",
@@ -107,6 +107,7 @@
   "footerSocials": {
     "x": "https://x.com/potpiedotai",
     "github": "https://github.com/potpie-ai/potpie",
-    "linkedin": "https://www.linkedin.com/company/potpieai"
+    "linkedin": "https://www.linkedin.com/company/potpieai",
+    "discord": "https://discord.gg/ryk5CMD5v6"
   }
 }
