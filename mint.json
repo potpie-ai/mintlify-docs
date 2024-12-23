@@ -104,6 +104,30 @@
       ]
     }
   ],
+      {
+      "group": "Partners",
+      "pages": [
+        {
+          "group": "AgentOps-AI",
+          "pages": [
+          "open-source/agentops/agentstack-qna.mdx",
+          "open-source/agentops/agentstack-lld.mdx",
+          "open-source/agentops/agentstack-unittest.mdx"
+          ]
+        },
+                {
+          "group": "CrewAIInc",
+          "pages": [
+          "open-source/crew-ai/crewai-qna.mdx",
+          "open-source/crew-ai/crewai-lld.mdx",
+          "open-source/crew-ai/crewai-unittest.mdx"
+          ]
+        }
+       
+      ]
+    },
+    
+  ],
   "footerSocials": {
     "x": "https://x.com/potpiedotai",
     "github": "https://github.com/potpie-ai/potpie",

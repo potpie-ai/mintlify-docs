@@ -1,0 +1,72 @@
+---
+title: "Contribute to AgentStack using Potpie 🥧"
+description: "How to use the LLD Agent to plan new features for the AgentOps-AI/AgentStack codebase"
+---
+
+**Understanding Potpie's LLD Agent Through a Real Example**
+
+Understanding the many details of a codebase's design can be challenging, especially when working with complex codebases. While high-level documentation provides a good starting point, developers often need to understand the nitty-gritty implementation details before they can make changes. This is where Potpie's LLD Agent comes into play, offering a powerful tool for detailed system design analysis and implementation guidance.
+
+**Integrating a new tool in AgentStack using Potpie’s LLD agent.**
+
+Let's examine how Potpie's LLD Agent helps in understanding and implementing a GitHub star count tool within the AgentStack framework. The agent breaks down the implementation process into clear, manageable steps while maintaining consistency with existing patterns.
+
+![](/image\(2\).png)
+
+**The Core Implementation Analysis**
+
+The LLD Agent analyzes the AgentStack codebase and identifies the key components needed for implementing the GitHub star count tool. The implementation requires creating both configuration and implementation files that integrate seamlessly with AgentStack's existing architecture.
+
+The agent outlines the implementation structure through several key components:
+
+1. Tool Configuration The system requires a JSON configuration file that defines the tool's properties, including its name, category, and required environment variables. This configuration ensures proper integration with AgentStack's tool management system.
+
+2. Python Implementation The core functionality is implemented in a Python module that handles GitHub API interactions. The implementation includes proper error handling, API version management, and response processing to extract star counts accurately.
+
+3. Environment Management The system uses environment variables for secure token management, ensuring that GitHub API authentication is handled safely and consistently.
+
+**Design Guidance and Best Practices**
+
+The LLD Agent provides structured guidance for implementation, outlining specific steps:
+
+1. Configuration Setup: Creating the appropriate JSON configuration file with all required parameters
+
+2. API Integration: Implementing secure GitHub API calls with proper headers and authentication
+
+3. Response Handling: Processing API responses to extract and validate star counts
+
+4. Testing Strategy: Implementing comprehensive test cases to ensure reliability
+
+5. Documentation: Maintaining clear usage instructions and examples
+
+**How to Use Potpie's LLD Agent**
+
+To use Potpie’s LLD agent while contributing to AgentStack:
+
+1. Visit [https://app.potpie.ai/newchat?repo=AgentOps-AI/AgentStack\&branch=main](https://app.potpie.ai/newchat?repo=AgentOps-AI/AgentStack\&branch=main)
+
+2. Click on the "Parse" button
+
+3. Choose the LLD Agent option
+
+4. Provide your design requirements or questions
+
+The agent will analyze your codebase and provide detailed design guidance, just as it did for the GitHub star count tool implementation.
+
+**Benefits of Using Potpie's LLD Agent**
+
+By using Potpie's LLD Agent, developers working with AgentStack can:
+
+* Understand existing tool implementations thoroughly
+
+* Design new features that integrate seamlessly with the existing architecture
+
+* Maintain consistency across the codebase
+
+* Accelerate development through structured guidance
+
+* Ensure proper error handling and security practices
+
+This approach transforms the often challenging task of low-level design into a structured, guided process that ensures both quality and consistency in your implementations.
+
+Check out the example chat at: "Refer existing tool configs and generate a Low level design to add a new tool to fetch the star count of any github repository" [https://app.potpie.ai/chat/01939a38-79a6-796a-aadd-84bc44d0a061](https://app.potpie.ai/chat/01939a38-79a6-796a-aadd-84bc44d0a061)

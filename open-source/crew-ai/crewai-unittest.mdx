@@ -1,0 +1,90 @@
+---
+title: "Test your changes to CrewAI using Potpie 🥧"
+description: "How to use the Unit Test Agent to test a function in the crewAIInc/crewAI codebase"
+---
+
+Understanding how to write comprehensive unit tests is crucial for maintaining code quality and reliability. Potpie's Unit Test Agent streamlines this process by providing structured guidance for test planning and implementation. Let's explore how you can use the Unit Test agent to create robust test suites.
+
+### **Understanding Potpie's Unit Test Agent Through a Real Example**
+
+We ask Potpie’s unit test agent to “Help me generate a test plan and test code for @save function in @LongTermMemory”. The agent breaks down the testing process into clear, actionable components.
+
+![](/image\(5\).png)
+
+**Comprehensive Test Planning**
+
+The Unit Test Agent begins by outlining a structured test plan that covers:
+
+1. Test Initialization
+
+   * Validates proper initialization of components with given or default storage
+
+   * Ensures all dependencies are properly configured
+
+2. Core Functionality Testing
+
+   * Verifies the primary function behavior with valid inputs
+
+   * Tests integration with storage layer components
+
+   * Confirms proper parameter handling
+
+3. Metadata Management
+
+   * Tests correct updating of metadata fields
+
+   * Validates handling of required fields like 'agent' and 'expected\_output'
+
+4. Error Handling Scenarios
+
+   * Examines behavior with unexpected arguments
+
+   * Tests response to missing or invalid metadata
+
+   * Verifies proper error propagation
+
+**Implementation Guidance**
+
+The agent provides detailed implementation guidance using industry best practices:
+
+1. Test Setup
+
+   * Demonstrates proper use of unittest framework
+
+   * Shows how to implement test fixtures using setUp methods
+
+   * Guides the creation of mock objects for external dependencies
+
+2. Test Case Structure
+
+   * Organizes tests into logical groupings
+
+   * Provides clear naming conventions for test methods
+
+   * Implements assertion patterns for various test scenarios
+
+### **How to use Potpie’s Unit Testing agent:**
+
+To leverage this tool for your own projects:
+
+1. Visit [https://app.potpie.ai/newchat?repo=crewAIInc/crewAI\&branch=main](https://app.potpie.ai/newchat?repo=crewAIInc/crewAI\&branch=main)
+
+2. Click on “Parse” button.
+
+3. Choose the Unit Test Agent option
+
+4. Mention the function or class you want to unit test using the ‘@’ command and generate test plans and test code.
+
+The agent will analyze your code and provide detailed test plan and test code implementation guidance.
+
+You can use the Unit Test Agent when:
+
+* Implementing new features requiring comprehensive test coverage
+
+* Maintaining existing test suites
+
+* Ensuring consistent testing standards across projects
+
+Check out the above chat at:
+
+Unit Test: “Help me generate a test plan and test code for @save function in @LongTermMemory” [https://app.potpie.ai/chat/01939698-561b-797f-bda7-54a80541da64](https://app.potpie.ai/chat/01939698-561b-797f-bda7-54a80541da64)

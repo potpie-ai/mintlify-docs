@@ -1,0 +1,58 @@
+---
+title: "Understanding AgentStack better with Potpie 🥧"
+description: "How to use the Q&A Agent to understand the AgentOps-AI/AgentStack codebase"
+---
+
+AgentStack's framework provides powerful capabilities for building AI agents. While exploring its features, I found myself wanting to dive deeper into how certain features work under the hood. I’ve often found that there's something exciting about understanding the inner workings of how something works.
+
+**A Better Way to Explore the AgentStack Codebase**
+
+Potpie provides specialized agents that comprehensively understand codebases and offer functionalities like Q\&A, Debugging, and System Design analysis. We can leverage Potpie's Q\&A capability to gain deeper insights into AgentStack's implementation. Potpie is an open-source tool that utilizes agents to help developers better understand codebases. Here's how it functions:
+
+When you inquire about a feature (like "How does mem0 integration work in AgentStack?"), Potpie:
+
+* Analyzes the actual implementation in the codebase
+
+* Presents relevant code files and their interconnections
+
+* Explains the interaction between different components
+
+* Highlights crucial implementation details that might be overlooked
+
+**A Real Example**
+
+Let's examine how AgentStack integrates with mem0. Instead of manually searching through GitHub repositories and determining relevant files, you can simply ask Potpie. It reveals:
+
+* The core configuration (agentstack/tools/mem0.json)
+
+* How memory operations are implemented (write\_to\_memory and read\_from\_memory functions)
+
+* The integration with Neo4j for storage
+
+* The authentication and environment variable setup process
+
+The most valuable aspect is that you're examining the actual implementation rather than just documentation descriptions.
+
+![](/image.png)
+
+**When This Really Helps**
+
+This approach proves particularly valuable when:
+
+* Debugging feature specific issues in your agents
+
+* Planning to contribute to AgentStack
+
+* Developing applications that need to interface with a particular AgentStack system
+
+* Understanding the underlying architecture
+
+Steps to Use Potpie to Ask Questions About AgentStack:
+
+1. Visit [https://app.potpie.ai/newchat?repo=AgentOps-AI/agentstack\&branch=main](https://app.potpie.ai/newchat?repo=AgentOps-AI/agentstack\&branch=main)
+
+2. Click the "Parse" button
+
+3. Select the Codebase Q\&A Agent and begin your inquiry!
+
+Check out the detailed mem0 integration discussion at: "How does the mem0 integration in agentstack work? Explain the mem0 tool, how does agentstack create a crewai agent with this tool?" at [https://app.potpie.ai/chat/01939a17-8307-7990-954a-fdbbd010d671](https://app.potpie.ai/chat/01939a17-8307-7990-954a-fdbbd010d671)
