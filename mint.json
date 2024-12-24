@@ -102,9 +102,8 @@
         }
        
       ]
-    }
-  ],
-      {
+    },
+    {
       "group": "Partners",
       "pages": [
         {
@@ -115,7 +114,7 @@
           "open-source/agentops/agentstack-unittest.mdx"
           ]
         },
-                {
+        {
           "group": "CrewAIInc",
           "pages": [
           "open-source/crew-ai/crewai-qna.mdx",
@@ -126,6 +125,7 @@
        
       ]
     },
+  ],
     
   ],
   "footerSocials": {
