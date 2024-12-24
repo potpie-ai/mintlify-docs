@@ -109,23 +109,23 @@
         {
           "group": "AgentOps-AI",
           "pages": [
-          "open-source/agentops/agentstack-qna.mdx",
-          "open-source/agentops/agentstack-lld.mdx",
-          "open-source/agentops/agentstack-unittest.mdx"
+          "open-source/agentops/agentstack-qna",
+          "open-source/agentops/agentstack-lld",
+          "open-source/agentops/agentstack-unittest"
           ]
         },
         {
           "group": "CrewAIInc",
           "pages": [
-          "open-source/crew-ai/crewai-qna.mdx",
-          "open-source/crew-ai/crewai-lld.mdx",
-          "open-source/crew-ai/crewai-unittest.mdx"
+          "open-source/crew-ai/crewai-qna",
+          "open-source/crew-ai/crewai-lld",
+          "open-source/crew-ai/crewai-unittest"
           ]
         }
        
       ]
     }
-  ],
+  
     
   ],
   "footerSocials": {
