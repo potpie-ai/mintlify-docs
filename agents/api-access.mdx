@@ -1,0 +1,80 @@
+---
+title: 'Getting started with the API'
+description: 'Using Potpie Agents through the API'
+---
+
+## Generating an API Key
+
+To generate an API key, follow these steps:
+
+1. Navigate to [app.potpie.ai](https://app.potpie.ai).
+2. Click on your username in the bottom left corner.
+3. Select **Key Management** from the menu.
+4. In the "API Key Management" section, click on **Generate API Key**.
+
+Your API key will be created and displayed for use.
+
+## Using the API
+
+To use the API, follow these steps:
+
+1. **Base URL**: Use `https://production-api.potpie.ai/` as the base URL.
+
+2. **Parse API**:
+   - **API Path**: `/api/v2/parse`
+   - **Request Method**: POST
+   - **Request Body**:
+     ```json
+     {
+       "repo_name": "potpie-ai/potpie",
+       "branch_name": "main"
+     }
+     ```
+   - The Parse API will return a **project ID**.
+
+3. **Get Parsing Status**:
+   - **API Path**: `/api/v2/parsing-status/{project_id}`
+   - **Request Method**: GET
+   - **Query Parameters**:
+     - `project_id`: The ID returned from the Parse API.
+     - `x-api-key`: Your API key (in the header).
+   - Wait until the project status is "ready".
+
+4. **Create a Conversation**:
+   - **API Path**: `/api/v2/conversations`
+   - **Request Method**: POST
+   - **Request Body**:
+     ```json
+     {
+       "project_ids": ["your_project_id"],
+       "agent_ids": ["your_agent_id"]
+     }
+     ```
+   - **Note**: Only one project ID and agent ID are supported per conversation.
+
+### List of Agents
+
+You can choose from the following agents:
+
+- **Codebase Q&A Agent**: `id="codebase_qna_agent"`
+- **Debugging with Knowledge Graph Agent**: `id="debugging_agent"`
+- **Unit Test Agent**: `id="unit_test_agent"`
+- **Integration Test Agent**: `id="integration_test_agent"`
+- **Low-Level Design Agent**: `id="LLD_agent"`
+- **Code Changes Agent**: `id="code_changes_agent"`
+- **Code Generation Agent**: `id="code_generation_agent"`
+
+5. **Send Message**:
+   - **API Path**: `/api/v2/conversations/{conversation_id}/message`
+   - **Request Method**: POST
+   - **Request Body**:
+     ```json
+     {
+       "content": "your_message_content"
+     }
+     ```
+   - **Query Parameters**:
+     - `conversation_id`: The ID of the conversation created in the previous step.
+     - `x-api-key`: Your API key (in the header).
+
+

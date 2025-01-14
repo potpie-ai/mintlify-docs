@@ -82,6 +82,12 @@
       ]
     },
     {
+      "group": "API Access ",
+      "pages": [
+        "agents/api-access"
+      ]
+    },
+    {
       "group": "Custom Agents",
       "pages": [
         "custom-agents/introduction",
