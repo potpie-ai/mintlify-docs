@@ -1,0 +1,77 @@
+---
+title: "LLMs"
+description: 'Setup for multiple LLMs'
+---
+
+
+Potpie is designed to work with various large language models (LLMs).This documentation outlines the types of models supported by Potpie, how to configure them.
+
+## Supported Models
+
+Potpie supports a variety of Large Language Models (LLMs). Below is a list of the supported models, categorized by provider and size:
+
+---
+
+### 1. **OpenAI Models**
+
+- **Small Model:**  
+  `openai/gpt-4o-mini`
+  
+- **Large Model:**  
+  `openai/gpt-4o`
+
+---
+
+### 2. **Anthropic Models**
+
+- **Small Model:**  
+  `anthropic/claude-3-5-haiku-20241022`
+  
+- **Large Model:**  
+  `anthropic/claude-3-7-sonnet-20250219`
+
+---
+
+### 3. **DeepSeek Models**
+
+- **Small Model:**  
+  `openrouter/deepseek/deepseek-chat`
+  
+- **Large Model:**  
+  `openrouter/deepseek/deepseek-chat`
+
+---
+
+### 4. **Meta Llama Models**
+
+- **Small Model:**  
+  `openrouter/meta-llama/llama-3.3-70b-instruct`
+  
+- **Large Model:**  
+  `openrouter/meta-llama/llama-3.3-70b-instruct`
+
+---
+
+### 5. **Google Gemini Models**
+
+- **Small Model:**  
+  `openrouter/google/gemini-2.0-flash-001`
+  
+- **Large Model:**  
+  `openrouter/google/gemini-2.0-flash-001`
+
+---
+
+## Configuration
+
+### Setting Up API Keys
+
+Before using any model, ensure that the appropriate API keys are set up. Potpie checks for API keys in the following order:
+
+1. **Environment Variables:**
+   - `LLM_API_KEY`
+   - `OPENAI_API_KEY`
+   - `{PROVIDER}_API_KEY` (e.g., `ANTHROPIC_API_KEY`)
+
+2. **Secret Manager:**  
+   Potpie can retrieve API keys from a secret management service. Ensure that the keys are stored correctly for the user.

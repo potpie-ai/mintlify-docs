@@ -1,0 +1,74 @@
+---
+title: "Using Potpie with Ollama Models"
+description: 'Configure and run Potpie with Ollama models for local use.'
+---
+
+# Running Potpie with Ollama Models
+
+In this guide, you'll learn how to configure and run Potpie with Ollama models on your local machine.
+
+## Step 1: Install Ollama
+
+Before using Ollama models with Potpie, you need to install the **Ollama CLI** tool. Ollama allows you to run models locally, and you can install it with the following commands:
+
+### Installation:
+
+1. Open a terminal and run the following command to download and install Ollama:
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+2. Once installed, verify the installation by running:
+  ```bash
+   ollama --version
+   ```
+
+## Step 2: Set Up Ollama Models
+
+### Step 2.1: Pull the Required Models
+
+To run Potpie with Ollama, you need to download the models you plan to use. In this guide, we pull two models commonly used for low and high reasoning tasks:
+
+- **Low Reasoning Model:** Used for generating the knowledge graph.
+- **High Reasoning Model:** Used for agent reasoning.
+
+Run the following commands to pull the models:
+
+```bash
+# Pull the low reasoning model (used for knowledge graph generation)
+ollama pull ollama_chat/qwen2.5-coder:7b
+
+# Pull the high reasoning model (used for agent reasoning)
+ollama pull ollama_chat/qwen2.5-coder:7b
+```
+
+Note that the models you pull should be in the `provider/model_name` format, or they should be compatible with the format expected by Litellm. For more model options and details, refer to the [Litellm documentation](https://docs.litellm.ai/).
+
+## Step 3: Ollama API Key
+
+You can retrieve your API Key following these steps:
+
+1. **Sign in to Ollama**: Go to Ollama's official website and sign in to your account.
+2. **Find Your API Key**: Navigate to the [ollama keys](https://ollama.com/settings/keys).
+3. **Find the API Key Path**: You can now copy your API Key.
+
+
+## Step 4: Configure Environment Variables
+
+Once you have installed Ollama and pulled the models, you need to configure your environment to use these models with Potpie.
+
+Open or create a `.env` file in the directory where you're running Potpie. Add the following configuration to specify the Ollama models:
+
+```bash
+# Set the LLM provider to Ollama
+LLM_PROVIDER=ollama
+
+# Set the API key 
+LLM_API_KEY=PASTE-YOUR-API-KEY-HERE
+
+# Specify the model used for low reasoning (knowledge graph generation)
+LOW_REASONING_MODEL=ollama_chat/qwen2.5-coder:7b
+
+# Specify the model used for high reasoning (agent reasoning)
+HIGH_REASONING_MODEL=ollama_chat/qwen2.5-coder:7b
+```
+All Set! Potpie will now use Local Ollama Models.
