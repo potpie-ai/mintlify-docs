@@ -27,7 +27,7 @@
     "url": "https://github.com/potpie-ai/potpie"
   },
   "topbarCtaButton": {
-    "name": "Install Slack",
+    "name": "Add to Slack",
     "url": "https://slack.potpie.ai/slack/install"
   },
   "tabs": [
@@ -118,7 +118,7 @@
       "pages": [
         "extensions/slack"
       ]
-    }
+    },
     {
       "group": "Partners",
       "pages": [
