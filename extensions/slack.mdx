@@ -1,0 +1,71 @@
+---
+title: "PotpieAI Slack Integration"
+description: "How to get the PotpieAI bot in your slack workspace"
+---
+
+## Getting Started
+
+### Prerequisites
+
+Before using the PotpieAI Slack integration, you need:
+
+1. A PotpieAI account with an API token
+2. At least one project that has been parsed and is in "ready" status
+3. The PotpieAI Slack app installed in your workspace
+
+### Installation
+
+1. Add the PotpieAI app to your Slack workspace by clicking the "Add to Slack" button in the header
+2. Grant the necessary permissions when prompted
+3. Once installed, you'll see PotpieAI in your Slack workspace's apps list
+
+## Authentication
+
+Before you can start using PotpieAI in Slack, you need to authenticate with your API token:
+
+1. Type `/authenticate` in any channel or direct message
+2. A modal will open asking for your API token
+3. Enter your PotpieAI API token (follow [api access documentation](https://docs.potpie.ai/agents/api-access) to generate your token)
+4. Click "Submit"
+
+You'll receive a confirmation message once authenticated successfully.
+
+## Using PotpieAI in Slack
+
+### Starting a Conversation
+
+To start a conversation with a PotpieAI agent:
+
+1. Type `/potpie` in any channel or direct message
+2. A modal will open with the following options:
+   - Repository selection (choose from your parsed repositories)
+   - Agent selection (choose which AI agent to use)
+   - Query input (ask your initial question)
+3. Fill in all fields and click "Submit"
+
+PotpieAI will create a new thread with your query and respond with an answer based on your codebase.
+
+### Continuing the Conversation
+
+To continue an existing conversation:
+
+1. Reply to the thread by @mentioning PotpieAI (e.g., `@PotpieAI tell me more about this function`)
+2. The agent will process your follow-up question within the context of the ongoing conversation
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: "You haven't authenticated yet" message  
+**Solution**: Use the `/authenticate` command to set up your API token
+
+**Issue**: "You don't have any ready projects" message  
+**Solution**: Go to the PotpieAI dashboard and parse your repository first
+
+## Command Reference
+
+| Command                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `/authenticate`        | Set up your PotpieAI API token            |
+| `/potpie`              | Start a new conversation with an AI agent |
+| `@PotpieAI [question]` | Continue conversation in thread           |
