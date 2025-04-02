@@ -26,7 +26,10 @@
     "name": "Star us on GitHub ⭐️ ",
     "url": "https://github.com/potpie-ai/potpie"
   },
-
+  "topbarCtaButton": {
+    "name": "Add to Slack",
+    "url": "https://slack.potpie.ai/slack/install"
+  },
   "tabs": [
     {
       "name": "Open Source",
@@ -108,6 +111,12 @@
           ]
         }
        
+      ]
+    },
+    {
+      "group": "Extensions",
+      "pages": [
+        "extensions/slack"
       ]
     },
     {
