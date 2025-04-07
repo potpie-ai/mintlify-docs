@@ -112,7 +112,8 @@
     {
       "group": "Extensions",
       "pages": [
-        "extensions/slack"
+        "extensions/slack",
+        "extensions/vscode"
       ]
     },
     {
