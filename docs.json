@@ -1,0 +1,159 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Potpie",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "icon": "rocket",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "How to use Agents",
+            "icon": "robot",
+            "pages": [
+              "agents/introduction",
+              "agents/debugging-agent",
+              "agents/qna-agent",
+              "agents/integration-test-agent",
+              "agents/unit-test-agent",
+              "agents/code-changes-agent"
+            ]
+          },
+          {
+            "group": "API Access ",
+            "icon": "key",
+            "pages": [
+              "agents/api-access"
+            ]
+          },
+          {
+            "group": "Custom Agents",
+            "icon": "screwdriver-wrench",
+            "pages": [
+              "custom-agents/introduction",
+              "custom-agents/configuration",
+              {
+                "group": "Tools",
+                "icon": "toolbox",
+                "pages": [
+                  "custom-agents/tools",
+                  "custom-agents/tools/get_code_from_probable_node_name",
+                  "custom-agents/tools/get_code_from_node_id",
+                  "custom-agents/tools/get_code_from_multiple_node_ids",
+                  "custom-agents/tools/ask_knowledge_graph_queries",
+                  "custom-agents/tools/get_nodes_from_tags",
+                  "custom-agents/tools/get_code_from_node_name",
+                  "custom-agents/tools/get_code_graph_from_node_id",
+                  "custom-agents/tools/get_code_graph_from_node_name",
+                  "custom-agents/tools/change_detection"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Extensions",
+            "icon": "puzzle-piece",
+            "pages": [
+              "extensions/slack"
+            ]
+          },
+          {
+            "group": "Self-Hosting",
+            "icon": "server",
+            "pages": [
+              "self-hosting/setup",
+              "self-hosting/getting-started"
+            ]
+          },
+          {
+            "group": "Partners",
+            "icon": "handshake",
+            "pages": [
+              {
+                "group": "AgentOps-AI",
+                "pages": [
+                  "open-source/agentops/agentstack-qna",
+                  "open-source/agentops/agentstack-lld",
+                  "open-source/agentops/agentstack-unittest"
+                ]
+              },
+              {
+                "group": "CrewAIInc",
+                "pages": [
+                  "open-source/crew-ai/crewai-qna",
+                  "open-source/crew-ai/crewai-lld",
+                  "open-source/crew-ai/crewai-unittest"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": {
+          "source": "https://production-api.potpie.ai/openapi.json",
+          "directory": "api-reference"
+        }
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://docs.potpie.ai",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.gg/ryk5CMD5v6",
+          "icon": "discord"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://www.potpie.ai/blog",
+          "icon": "newspaper"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@potpie.ai."
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Star us on GitHub ⭐️ ",
+      "href": "https://github.com/potpie-ai/potpie"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/potpiedotai",
+      "github": "https://github.com/potpie-ai/potpie",
+      "linkedin": "https://www.linkedin.com/company/potpieai",
+      "discord": "https://discord.gg/ryk5CMD5v6"
+    }
+  }
+}
