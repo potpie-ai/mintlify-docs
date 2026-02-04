@@ -78,28 +78,6 @@
               "self-hosting/setup",
               "self-hosting/getting-started"
             ]
-          },
-          {
-            "group": "Partners",
-            "icon": "handshake",
-            "pages": [
-              {
-                "group": "AgentOps-AI",
-                "pages": [
-                  "open-source/agentops/agentstack-qna",
-                  "open-source/agentops/agentstack-lld",
-                  "open-source/agentops/agentstack-unittest"
-                ]
-              },
-              {
-                "group": "CrewAIInc",
-                "pages": [
-                  "open-source/crew-ai/crewai-qna",
-                  "open-source/crew-ai/crewai-lld",
-                  "open-source/crew-ai/crewai-unittest"
-                ]
-              }
-            ]
           }
         ]
       },
