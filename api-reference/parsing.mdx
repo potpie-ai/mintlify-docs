@@ -1,0 +1,123 @@
+---
+title: 'Parsing'
+description: 'Parse repositories to analyze and index your codebase for AI agents'
+---
+
+## Parse Directory
+
+**POST** `/api/v1/parse`
+
+Parse a repository to analyze and index your codebase, enabling AI agents to understand code structure and relationships.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `repo_name` | string (optional) | Repository name (e.g., "facebook/react") |
+| `repo_path` | string (optional) | Local or remote path to repository |
+| `branch_name` | string (required) | Branch to parse (e.g., "main") |
+| `status` | string | "parsing_initiated" when started |
+| `project_id` | string | Use this to check parsing status |
+
+<Note>
+  Either `repo_name` or `repo_path` must be provided.
+</Note>
+
+---
+
+## Get Parsing Status
+
+**GET** `/api/v1/parsing-status/{project_id}`
+
+Check the current parsing status of a repository using its project ID.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `project_id` | string (path) | Project ID from parse response |
+| `status` | string | "submitted", "processing", "indexing", "completed", or "failed" |
+| `progress` | number | Percentage complete (0-100) |
+
+---
+
+## Get Parsing Status By Repo
+
+**POST** `/api/v1/parsing-status`
+
+Check parsing status by providing repository details instead of project ID.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `repo_name` | string | Repository name |
+| `branch_name` | string | Branch name |
+| `status` | string | Current parsing status |
+| `progress` | number | Percentage complete (0-100) |
+| `project_id` | string | Project identifier |
+
+---
+
+## Use Case: Parse E-commerce API
+
+**Scenario:** Parsing an e-commerce repo
+
+<table style={{width: "100%"}}>
+  <thead>
+    <tr>
+      <th style={{width: "15%"}}>State</th>
+      <th style={{width: "30%"}}>What Happens</th>
+      <th style={{width: "55%"}}>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Invoke</strong></td>
+      <td>Request queued</td>
+      <td>API returns <code>project_id</code></td>
+    </tr>
+    <tr>
+      <td><strong>Processing</strong></td>
+      <td>Analyzing code structure</td>
+      <td>Scan <code>/app/users</code>, <code>/app/orders</code>, <code>/app/payments</code></td>
+    </tr>
+    <tr>
+      <td><strong>Indexing</strong></td>
+      <td>Building knowledge graph</td>
+      <td>Map User → Order → Payment relationships</td>
+    </tr>
+    <tr>
+      <td><strong>Completed</strong></td>
+      <td>Ready for queries</td>
+      <td>Ask "How does checkout work?"</td>
+    </tr>
+  </tbody>
+</table>
+
+## Example: Complete Workflow
+
+```python
+import requests
+import time
+
+# 1. Start parsing
+response = requests.post(
+    'https://api.potpie.ai/api/v1/parse',
+    headers={'Authorization': 'Bearer YOUR_API_KEY'},
+    json={
+        'repo_name': 'my-ecommerce-api',
+        'branch_name': 'main'
+    }
+)
+
+project_id = response.json()['project_id']
+
+# 2. Check status
+while True:
+    status = requests.get(
+        f'https://api.potpie.ai/api/v1/parsing-status/{project_id}',
+        headers={'Authorization': 'Bearer YOUR_API_KEY'}
+    ).json()
+
+    print(f"{status['status']}: {status['progress']}%")
+
+    if status['status'] in ['completed', 'failed']:
+        break
+
+    time.sleep(10)
+```

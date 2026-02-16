@@ -1,0 +1,192 @@
+---
+title: 'Get Parsing Status'
+openapi: 'GET /api/v1/parsing-status/{project_id}'
+---
+
+## Overview
+
+Check the parsing status of a specific project. This endpoint returns real-time information about the parsing process, including current state, completion percentage, and any relevant messages.
+
+## Use Cases
+
+- Monitor parsing progress after initiating repository analysis
+- Determine when a project is ready for agent interactions
+- Debug parsing issues by checking status messages
+- Automate workflows that depend on completed parsing
+
+## Path Parameters
+
+- **project_id**: The unique identifier of the project (returned from the Parse Directory endpoint)
+
+## Response Fields
+
+The response includes:
+
+- **status**: Current parsing state
+  - `pending`: Parsing queued but not started
+  - `in_progress`: Active parsing
+  - `completed`: Parsing finished successfully
+  - `failed`: Parsing encountered errors
+
+- **progress**: Completion percentage (0-100)
+
+- **message**: Descriptive message about current parsing phase
+
+## Status Phases
+
+During parsing, you'll see different messages corresponding to analysis stages:
+
+| Phase | Typical Message | Progress Range |
+|-------|----------------|----------------|
+| Initialization | "Initializing parser" | 0-10% |
+| File Discovery | "Discovering source files" | 10-20% |
+| Code Analysis | "Analyzing code structure" | 20-70% |
+| Graph Building | "Building knowledge graph" | 70-90% |
+| Finalization | "Finalizing analysis" | 90-100% |
+| Complete | "Parsing completed" | 100% |
+
+## Example Usage
+
+### JavaScript/TypeScript
+
+```typescript
+async function waitForParsingComplete(projectId: string): Promise<void> {
+  const maxAttempts = 60; // 10 minutes with 10s intervals
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    const response = await fetch(
+      `https://production-api.potpie.ai/api/v1/parsing-status/${projectId}`,
+      {
+        headers: {
+          'Authorization': 'Bearer YOUR_API_KEY'
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(`Status: ${data.status} - ${data.message} (${data.progress}%)`);
+
+    if (data.status === 'completed') {
+      console.log('Parsing completed successfully!');
+      return;
+    }
+
+    if (data.status === 'failed') {
+      throw new Error(`Parsing failed: ${data.message}`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10s
+    attempts++;
+  }
+
+  throw new Error('Parsing timeout - took longer than expected');
+}
+
+// Usage
+waitForParsingComplete('proj_456')
+  .then(() => console.log('Ready to use agents!'))
+  .catch(error => console.error(error));
+```
+
+### Python
+
+```python
+import requests
+import time
+
+def get_parsing_status(project_id: str) -> dict:
+    """Get the current parsing status for a project."""
+    response = requests.get(
+        f'https://production-api.potpie.ai/api/v1/parsing-status/{project_id}',
+        headers={'Authorization': 'Bearer YOUR_API_KEY'}
+    )
+    return response.json()
+
+def wait_for_parsing(project_id: str, timeout: int = 600):
+    """
+    Wait for parsing to complete with timeout.
+
+    Args:
+        project_id: The project ID to monitor
+        timeout: Maximum time to wait in seconds (default 10 minutes)
+    """
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        status_data = get_parsing_status(project_id)
+
+        print(f"Status: {status_data['status']}")
+        print(f"Progress: {status_data['progress']}%")
+        print(f"Message: {status_data['message']}")
+        print("-" * 50)
+
+        if status_data['status'] == 'completed':
+            return True
+        elif status_data['status'] == 'failed':
+            raise Exception(f"Parsing failed: {status_data['message']}")
+
+        time.sleep(10)
+
+    raise TimeoutError(f"Parsing did not complete within {timeout} seconds")
+
+# Usage
+try:
+    wait_for_parsing('proj_456')
+    print("Project is ready!")
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+### cURL
+
+```bash
+# Simple status check
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/parsing-status/proj_456' \
+  -H 'Authorization: Bearer YOUR_API_KEY'
+
+# Continuous monitoring with watch (Linux/Mac)
+watch -n 10 'curl -s -X GET \
+  "https://production-api.potpie.ai/api/v1/parsing-status/proj_456" \
+  -H "Authorization: Bearer YOUR_API_KEY" | jq'
+```
+
+## Best Practices
+
+- Poll every 5-10 seconds for active monitoring
+- Implement exponential backoff for production systems
+- Set reasonable timeouts based on expected parsing time
+- Log progress messages for debugging
+- Handle both success and failure cases
+- Don't start conversations until status is "completed"
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Status stuck at 'pending'">
+    The parsing queue might be busy. Wait a few minutes and check again. If it persists for more than 5 minutes, contact support.
+  </Accordion>
+
+  <Accordion title="Status shows 'failed'">
+    Check the message field for details. Common causes:
+    - Repository not accessible
+    - Branch doesn't exist
+    - Invalid repository structure
+    - Parsing timeout (very large repository)
+  </Accordion>
+
+  <Accordion title="Progress not updating">
+    Progress updates every 10-15 seconds. Ensure you're polling frequently enough to see changes. Some phases take longer than others.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Once parsing is complete (`status: "completed"`), you can:
+
+1. Create conversations with the project
+2. Use agents to analyze the codebase
+3. Search the codebase semantically
+4. Query the knowledge graph

@@ -83,10 +83,22 @@
       },
       {
         "tab": "API Reference",
-        "openapi": {
-          "source": "https://production-api.potpie.ai/openapi.json",
-          "directory": "api-reference"
-        }
+        "groups": [
+          {
+            "group": "Potpie API",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/parsing",
+              "api-reference/endpoint/create-conversation",
+              "api-reference/endpoint/post-message",
+              "api-reference/endpoint/create-conversation-and-message",
+              "api-reference/endpoint/list-projects",
+              "api-reference/endpoint/list-agents",
+              "api-reference/endpoint/search-codebase",
+              "api-reference/endpoint/save-integration"
+            ]
+          }
+        ]
       }
     ],
     "global": {

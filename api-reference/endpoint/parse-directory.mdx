@@ -1,0 +1,82 @@
+---
+title: 'Parse Directory'
+openapi: 'POST /api/v1/parse'
+description: 'Parse a repository to analyze your codebase and provide context for AI agents to understand your code.'
+---
+
+## Request & Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| **Request** | | |
+| `repo_name` | string (optional) | Repository name (e.g., "facebook/react") |
+| `repo_path` | string (optional) | Local or remote path to repository |
+| `branch_name` | string (required) | Branch to parse (e.g., "main") |
+| **Response** | | |
+| `status` | string | "submitted" when started |
+| `project_id` | string | Unique identifier to check parsing status |
+
+<Note>
+  Either `repo_name` or `repo_path` must be provided. If both are provided, `repo_path` takes precedence.
+</Note>
+
+## Use Case: Parse E-commerce Backend
+
+**Example:** Parse main branch of an e-commerce API
+
+| State | What Happens | Example |
+|-------|--------------|---------|
+| **Submitted** | Request accepted, queued for processing | API returns `project_id: "proj_123"` |
+| **Processing** | Analyzing code structure | Scanning `/app/users`, `/app/orders`, `/app/payments` |
+| **Indexing** | Building knowledge graph | Mapping relationships between User → Order → Payment models |
+| **Completed** | Ready for AI queries | Can now ask "How does payment processing work?" |
+
+## Example Workflow
+
+```python
+import requests
+import time
+
+# 1. Initiate parsing
+response = requests.post(
+    'https://production-api.potpie.ai/api/v1/parse',
+    headers={
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'repo_name': 'my-awesome-project',
+        'repo_path': '/path/to/repo',
+        'branch_name': 'main'
+    }
+)
+
+project_id = response.json()['project_id']
+
+# 2. Poll for parsing status
+while True:
+    status_response = requests.get(
+        f'https://production-api.potpie.ai/api/v1/parsing-status/{project_id}',
+        headers={'Authorization': 'Bearer YOUR_API_KEY'}
+    )
+
+    status_data = status_response.json()
+    print(f"Status: {status_data['status']}, Progress: {status_data['progress']}%")
+
+    if status_data['status'] == 'completed':
+        print("Parsing complete!")
+        break
+    elif status_data['status'] == 'failed':
+        print("Parsing failed!")
+        break
+
+    time.sleep(10)  # Check every 10 seconds
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Parsing takes too long | Check for very large files or excessive dependencies |
+| Parsing fails | Ensure repository is accessible and branch exists |
+| Incomplete parsing | Verify all dependencies are available |

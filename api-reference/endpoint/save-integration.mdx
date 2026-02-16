@@ -1,0 +1,407 @@
+---
+title: 'Save Integration'
+openapi: 'POST /api/v2/integrations/save'
+---
+
+## Overview
+
+Save a new integration or update an existing one. This endpoint allows you to configure integrations with external services like Sentry, Jira, Linear, Confluence, and Slack. Integrations enable Potpie to pull additional context about your codebase from these platforms.
+
+## Supported Integration Types
+
+- **Sentry**: Error monitoring and tracking
+- **Jira**: Issue tracking and project management
+- **Linear**: Modern issue tracking
+- **Confluence**: Documentation and knowledge base
+- **Slack**: Team communication
+- **GitHub**: Code repository (coming soon)
+
+## Use Cases
+
+- Connect Potpie to your error monitoring system
+- Link issue trackers for better context
+- Integrate documentation platforms
+- Set up automated workflows
+- Enable cross-platform analysis
+
+## Request Body
+
+<ParamField body="name" type="string" required>
+  A user-friendly name for this integration instance
+
+  Example: "Production Sentry" or "Main Jira Board"
+</ParamField>
+
+<ParamField body="integration_type" type="string" required>
+  Type of integration to save
+
+  Options: `sentry`, `jira`, `linear`, `confluence`, `slack`, `github`
+</ParamField>
+
+<ParamField body="status" type="string" default="active">
+  Integration status
+
+  Options: `active`, `inactive`, `pending`, `error`
+</ParamField>
+
+<ParamField body="active" type="boolean" default="true">
+  Whether the integration is currently active
+</ParamField>
+
+<ParamField body="auth_data" type="object">
+  Authentication credentials for the integration
+
+  ```json
+  {
+    "access_token": "string",
+    "refresh_token": "string",
+    "token_type": "Bearer",
+    "expires_at": "2024-12-31T23:59:59Z",
+    "scope": "read:issues write:comments",
+    "code": "oauth_code_here"
+  }
+  ```
+</ParamField>
+
+<ParamField body="scope_data" type="object">
+  Scope-specific configuration for the integration
+
+  ```json
+  {
+    "org_slug": "my-organization",
+    "installation_id": "inst_123",
+    "workspace_id": "workspace_456",
+    "project_id": "proj_789"
+  }
+  ```
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata about the integration
+
+  ```json
+  {
+    "instance_name": "Production Environment",
+    "created_via": "api",
+    "description": "Main Sentry instance for error tracking",
+    "version": "1.0.0",
+    "tags": ["production", "monitoring"]
+  }
+  ```
+</ParamField>
+
+<ParamField body="unique_identifier" type="string">
+  Custom unique identifier (auto-generated if not provided)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the integration was saved successfully
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The saved integration details including generated IDs
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Error message if the operation failed
+</ResponseField>
+
+## Example Requests
+
+<CodeGroup>
+
+```typescript TypeScript - Sentry Integration
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v2/integrations/save',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.POTPIE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: 'Production Sentry',
+      integration_type: 'sentry',
+      status: 'active',
+      auth_data: {
+        access_token: 'sentry_access_token_here',
+        token_type: 'Bearer'
+      },
+      scope_data: {
+        org_slug: 'my-company'
+      },
+      metadata: {
+        instance_name: 'Production Sentry',
+        created_via: 'api',
+        description: 'Error monitoring for production environment',
+        tags: ['production', 'monitoring']
+      }
+    })
+  }
+);
+
+const result = await response.json();
+if (result.success) {
+  console.log('Integration saved:', result.data);
+} else {
+  console.error('Failed to save integration:', result.error);
+}
+```
+
+```python Python - Jira Integration
+response = requests.post(
+    'https://production-api.potpie.ai/api/v2/integrations/save',
+    headers={
+        'Authorization': f'Bearer {os.environ["POTPIE_API_KEY"]}',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'name': 'Main Jira Board',
+        'integration_type': 'jira',
+        'status': 'active',
+        'auth_data': {
+            'access_token': 'jira_access_token',
+            'refresh_token': 'jira_refresh_token',
+            'token_type': 'Bearer'
+        },
+        'scope_data': {
+            'org_slug': 'mycompany',
+            'project_id': 'PROJ'
+        },
+        'metadata': {
+            'instance_name': 'Main Jira',
+            'created_via': 'api',
+            'tags': ['issue-tracking', 'project-management']
+        }
+    }
+)
+
+result = response.json()
+if result['success']:
+    print(f"Integration saved: {result['data']['integration_id']}")
+else:
+    print(f"Error: {result['error']}")
+```
+
+```bash cURL - Linear Integration
+curl -X POST \
+  'https://production-api.potpie.ai/api/v2/integrations/save' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Development Linear",
+    "integration_type": "linear",
+    "status": "active",
+    "auth_data": {
+      "access_token": "lin_api_key_here"
+    },
+    "scope_data": {
+      "workspace_id": "workspace_123"
+    },
+    "metadata": {
+      "instance_name": "Dev Team Linear",
+      "created_via": "api",
+      "description": "Linear workspace for development team",
+      "tags": ["development", "issues"]
+    }
+  }'
+```
+
+</CodeGroup>
+
+## Minimal Request Example
+
+You can provide minimal information and let Potpie fill in defaults:
+
+```typescript
+const response = await fetch(url, {
+  method: 'POST',
+  headers: headers,
+  body: JSON.stringify({
+    name: 'My Integration',
+    integration_type: 'sentry'
+    // All other fields are optional with sensible defaults
+  })
+});
+```
+
+## Integration Types Details
+
+### Sentry
+```json
+{
+  "integration_type": "sentry",
+  "scope_data": {
+    "org_slug": "your-organization"
+  }
+}
+```
+
+### Jira
+```json
+{
+  "integration_type": "jira",
+  "scope_data": {
+    "org_slug": "your-company",
+    "project_id": "PROJ"
+  }
+}
+```
+
+### Linear
+```json
+{
+  "integration_type": "linear",
+  "scope_data": {
+    "workspace_id": "workspace_id_here"
+  }
+}
+```
+
+### Confluence
+```json
+{
+  "integration_type": "confluence",
+  "scope_data": {
+    "org_slug": "your-company"
+  }
+}
+```
+
+## Complete Integration Setup
+
+```python
+class IntegrationManager:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://production-api.potpie.ai'
+
+    def save_integration(
+        self,
+        name: str,
+        integration_type: str,
+        auth_token: str,
+        **kwargs
+    ):
+        """Save a new integration with automatic defaults."""
+        payload = {
+            'name': name,
+            'integration_type': integration_type,
+            'status': 'active',
+            'auth_data': {
+                'access_token': auth_token,
+                'token_type': 'Bearer'
+            },
+            'metadata': {
+                'instance_name': name,
+                'created_via': 'api'
+            }
+        }
+
+        # Add optional fields
+        if 'org_slug' in kwargs:
+            payload['scope_data'] = {'org_slug': kwargs['org_slug']}
+
+        response = requests.post(
+            f'{self.base_url}/api/v2/integrations/save',
+            headers={
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
+            },
+            json=payload
+        )
+
+        result = response.json()
+        if not result['success']:
+            raise Exception(f"Failed to save integration: {result['error']}")
+
+        return result['data']
+
+# Usage
+manager = IntegrationManager('your-api-key')
+
+# Save Sentry integration
+sentry = manager.save_integration(
+    name='Production Sentry',
+    integration_type='sentry',
+    auth_token='sentry_token',
+    org_slug='my-company'
+)
+
+print(f"Sentry integration saved: {sentry['integration_id']}")
+```
+
+## Error Handling
+
+```typescript
+try {
+  const response = await fetch(url, options);
+  const result = await response.json();
+
+  if (!result.success) {
+    // Handle different error scenarios
+    if (result.error.includes('duplicate')) {
+      console.error('Integration already exists');
+    } else if (result.error.includes('authentication')) {
+      console.error('Invalid authentication credentials');
+    } else {
+      console.error('Integration save failed:', result.error);
+    }
+    return null;
+  }
+
+  return result.data;
+} catch (error) {
+  console.error('Request failed:', error);
+  throw error;
+}
+```
+
+## Best Practices
+
+1. **Use Descriptive Names**: Make integration names clear and meaningful
+2. **Tag Properly**: Use tags to organize integrations by environment or purpose
+3. **Secure Tokens**: Never hardcode authentication tokens
+4. **Test First**: Test integrations with inactive status before activating
+5. **Monitor Status**: Check integration health regularly
+6. **Update Tokens**: Refresh expired tokens proactively
+
+## Security Considerations
+
+- All authentication data is encrypted at rest
+- Tokens are never exposed in API responses
+- Use environment-specific integrations
+- Rotate tokens regularly
+- Implement proper access controls
+- Monitor integration activity
+
+## Integration Benefits
+
+With saved integrations, Potpie can:
+
+- Pull error context from Sentry into codebase analysis
+- Link code changes to Jira issues
+- Correlate Linear tasks with code modifications
+- Reference Confluence documentation
+- Enhanced debugging with cross-platform context
+- Automated issue tracking and resolution suggestions
+
+## Updating Integrations
+
+To update an existing integration, simply call this endpoint again with the same `unique_identifier`. The system will update the existing integration rather than creating a new one.
+
+```python
+# Update integration status
+response = requests.post(
+    url,
+    headers=headers,
+    json={
+        'name': 'Production Sentry',
+        'integration_type': 'sentry',
+        'status': 'inactive',  # Changed to inactive
+        'unique_identifier': 'existing_integration_id'
+    }
+)
+```

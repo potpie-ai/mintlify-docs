@@ -1,0 +1,64 @@
+---
+title: 'Create Conversation'
+openapi: 'POST /api/v1/conversations/'
+---
+
+## Overview
+
+Create a new conversation for interacting with your codebase. Conversations are the primary way to engage with Potpie's AI agents and can be associated with multiple projects and agents.
+
+## Use Cases
+
+- Start a new debugging session
+- Begin a code review conversation
+- Ask questions about specific parts of your codebase
+- Generate test plans for a feature
+- Request code changes or improvements
+
+## Request Body
+
+The request requires the following information:
+
+- **user_id**: Your unique user identifier
+- **title**: A descriptive name for the conversation (e.g., "Debug authentication flow")
+- **status**: Set to "active" for new conversations
+- **project_ids**: Array of project IDs this conversation relates to
+- **agent_ids**: Array of agent IDs to use (e.g., ["debugging-agent", "qna-agent"])
+
+## Response
+
+Returns a conversation object with:
+- **message**: Confirmation message
+- **conversation_id**: Unique ID for the created conversation (use this for sending messages)
+
+## Example Workflow
+
+```javascript
+// 1. Create a conversation
+const response = await fetch('https://production-api.potpie.ai/api/v1/conversations/', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    user_id: 'user_123',
+    title: 'Debugging Authentication Flow',
+    status: 'active',
+    project_ids: ['proj_456'],
+    agent_ids: ['debugging-agent']
+  })
+});
+
+const { conversation_id } = await response.json();
+
+// 2. Use conversation_id to send messages
+// See the Post Message endpoint
+```
+
+## Best Practices
+
+- Use descriptive titles to easily identify conversations later
+- Associate relevant projects to give agents proper context
+- Choose appropriate agents based on your task (debugging, QnA, code changes, etc.)
+- Keep the status as "active" while working on the conversation

@@ -1,0 +1,788 @@
+---
+title: 'Search API'
+description: 'Perform semantic search across your codebase'
+---
+
+## Overview
+
+The Search API enables you to perform semantic search across your parsed codebase using natural language queries. Unlike traditional text search, semantic search understands the meaning and context of code.
+
+**Key Features:**
+- Natural language queries
+- Semantic understanding using embeddings
+- Context-aware results
+- Relevance scoring
+- Multi-file search
+
+## Search Codebase
+
+Search for code elements using natural language.
+
+<CodeGroup>
+
+```bash cURL (v1 - Bearer Token)
+curl -X POST https://api.potpie.ai/api/v1/search \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "proj_01HQXYZ789ABCDEF",
+    "query": "authentication middleware"
+  }'
+```
+
+```bash cURL (v2 - API Key)
+curl -X POST https://api.potpie.ai/api/v2/search \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "x-user-id: YOUR_USER_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "proj_01HQXYZ789ABCDEF",
+    "query": "authentication middleware"
+  }'
+```
+
+```python Python
+import requests
+
+def search_codebase(project_id: str, query: str, token: str):
+    """Search codebase using Bearer token"""
+    url = "https://api.potpie.ai/api/v1/search"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "project_id": project_id,
+        "query": query
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+def search_codebase_api_key(project_id: str, query: str, api_key: str, user_id: str):
+    """Search codebase using API key"""
+    url = "https://api.potpie.ai/api/v2/search"
+    headers = {
+        "x-api-key": api_key,
+        "x-user-id": user_id,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "project_id": project_id,
+        "query": query
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Usage
+results = search_codebase(
+    "proj_01HQXYZ789ABCDEF",
+    "authentication middleware",
+    "YOUR_TOKEN"
+)
+
+for result in results['results']:
+    print(f"{result['name']} ({result['relevance']:.2f})")
+    print(f"  File: {result['file_path']}")
+    print(f"  Match: {result['match_type']}")
+    print()
+```
+
+```typescript TypeScript
+interface SearchRequest {
+  project_id: string;
+  query: string;
+}
+
+interface SearchResult {
+  node_id: string;
+  name: string;
+  file_path: string;
+  content: string;
+  match_type: string;
+  relevance: number;
+}
+
+interface SearchResponse {
+  results: SearchResult[];
+}
+
+async function searchCodebase(
+  projectId: string,
+  query: string,
+  token: string
+): Promise<SearchResponse> {
+  const response = await fetch('https://api.potpie.ai/api/v1/search', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      project_id: projectId,
+      query: query
+    })
+  });
+
+  return response.json();
+}
+
+async function searchCodebaseApiKey(
+  projectId: string,
+  query: string,
+  apiKey: string,
+  userId: string
+): Promise<SearchResponse> {
+  const response = await fetch('https://api.potpie.ai/api/v2/search', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'x-user-id': userId,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      project_id: projectId,
+      query: query
+    })
+  });
+
+  return response.json();
+}
+
+// Usage
+const results = await searchCodebase(
+  'proj_01HQXYZ789ABCDEF',
+  'authentication middleware',
+  'YOUR_TOKEN'
+);
+
+results.results.forEach(result => {
+  console.log(`${result.name} (${result.relevance.toFixed(2)})`);
+  console.log(`  File: ${result.file_path}`);
+  console.log(`  Match: ${result.match_type}`);
+});
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+)
+
+type SearchRequest struct {
+    ProjectID string `json:"project_id"`
+    Query     string `json:"query"`
+}
+
+type SearchResult struct {
+    NodeID    string  `json:"node_id"`
+    Name      string  `json:"name"`
+    FilePath  string  `json:"file_path"`
+    Content   string  `json:"content"`
+    MatchType string  `json:"match_type"`
+    Relevance float64 `json:"relevance"`
+}
+
+type SearchResponse struct {
+    Results []SearchResult `json:"results"`
+}
+
+func searchCodebase(projectID, query, apiKey, userID string) (*SearchResponse, error) {
+    reqBody := SearchRequest{
+        ProjectID: projectID,
+        Query:     query,
+    }
+    jsonData, _ := json.Marshal(reqBody)
+
+    req, _ := http.NewRequest(
+        "POST",
+        "https://api.potpie.ai/api/v2/search",
+        bytes.NewBuffer(jsonData),
+    )
+    req.Header.Add("x-api-key", apiKey)
+    req.Header.Add("x-user-id", userID)
+    req.Header.Add("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+
+    var searchResp SearchResponse
+    json.Unmarshal(body, &searchResp)
+
+    return &searchResp, nil
+}
+
+func main() {
+    results, _ := searchCodebase(
+        "proj_01HQXYZ789ABCDEF",
+        "authentication middleware",
+        "YOUR_API_KEY",
+        "YOUR_USER_ID",
+    )
+
+    for _, result := range results.Results {
+        fmt.Printf("%s (%.2f)\n", result.Name, result.Relevance)
+        fmt.Printf("  File: %s\n", result.FilePath)
+        fmt.Printf("  Match: %s\n\n", result.MatchType)
+    }
+}
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="project_id" type="string" required>
+  ID of the project to search within
+</ParamField>
+
+<ParamField body="query" type="string" required>
+  Natural language search query (minimum 1 character)
+
+  Examples:
+  - "authentication middleware"
+  - "password hashing function"
+  - "API endpoint for user profile"
+  - "database connection handling"
+</ParamField>
+
+### Response
+
+```json
+{
+  "results": [
+    {
+      "node_id": "node_auth_123",
+      "name": "authenticate_user",
+      "file_path": "src/auth/middleware.py",
+      "content": "def authenticate_user(token: str) -> User:\n    \"\"\"Verify JWT token and return user\"\"\"\n    payload = jwt.decode(token, SECRET_KEY)\n    return User.query.get(payload['user_id'])",
+      "match_type": "semantic",
+      "relevance": 0.95
+    },
+    {
+      "node_id": "node_auth_456",
+      "name": "AuthMiddleware",
+      "file_path": "src/auth/middleware.py",
+      "content": "class AuthMiddleware:\n    \"\"\"Middleware for authentication\"\"\"\n    def __init__(self, app):\n        self.app = app\n    def __call__(self, request):\n        token = request.headers.get('Authorization')\n        user = authenticate_user(token)\n        request.user = user",
+      "match_type": "semantic",
+      "relevance": 0.87
+    }
+  ]
+}
+```
+
+<ResponseField name="results" type="array">
+  Array of search results, ordered by relevance (highest first)
+
+  <Expandable title="Search Result Object">
+    <ResponseField name="node_id" type="string">
+      Unique identifier of the code node (use in conversations for context)
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      Name of the code element (function, class, variable, etc.)
+    </ResponseField>
+
+    <ResponseField name="file_path" type="string">
+      Relative path to the file containing this code
+    </ResponseField>
+
+    <ResponseField name="content" type="string">
+      Code snippet or content of the element
+    </ResponseField>
+
+    <ResponseField name="match_type" type="string">
+      Type of match:
+      - `semantic`: Matched based on meaning/context
+      - `exact`: Exact text match
+      - `fuzzy`: Approximate text match
+    </ResponseField>
+
+    <ResponseField name="relevance" type="number">
+      Relevance score (0.0 to 1.0), higher is more relevant
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Search Examples
+
+### Basic Search Patterns
+
+<Tabs>
+  <Tab title="Functions">
+    ```python
+    # Find authentication functions
+    results = search_codebase(
+        project_id,
+        "user authentication and login",
+        token
+    )
+
+    # Find password handling
+    results = search_codebase(
+        project_id,
+        "password hashing and validation",
+        token
+    )
+    ```
+  </Tab>
+
+  <Tab title="Classes">
+    ```python
+    # Find service classes
+    results = search_codebase(
+        project_id,
+        "database service class",
+        token
+    )
+
+    # Find error handling
+    results = search_codebase(
+        project_id,
+        "exception and error classes",
+        token
+    )
+    ```
+  </Tab>
+
+  <Tab title="API Endpoints">
+    ```python
+    # Find REST endpoints
+    results = search_codebase(
+        project_id,
+        "user profile API endpoint",
+        token
+    )
+
+    # Find webhook handlers
+    results = search_codebase(
+        project_id,
+        "payment webhook handler",
+        token
+    )
+    ```
+  </Tab>
+
+  <Tab title="Configuration">
+    ```python
+    # Find config files
+    results = search_codebase(
+        project_id,
+        "database configuration",
+        token
+    )
+
+    # Find environment setup
+    results = search_codebase(
+        project_id,
+        "environment variables setup",
+        token
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Advanced Search Techniques
+
+```python
+def semantic_search_with_filtering(
+    project_id: str,
+    query: str,
+    token: str,
+    min_relevance: float = 0.7,
+    max_results: int = 10
+):
+    """Search with relevance filtering"""
+    results = search_codebase(project_id, query, token)
+
+    # Filter by relevance
+    filtered = [
+        r for r in results['results']
+        if r['relevance'] >= min_relevance
+    ]
+
+    # Limit results
+    return filtered[:max_results]
+
+# Usage
+high_quality_results = semantic_search_with_filtering(
+    "proj_01HQXYZ789ABCDEF",
+    "authentication middleware",
+    "YOUR_TOKEN",
+    min_relevance=0.8
+)
+```
+
+### Group Results by File
+
+```python
+def group_results_by_file(results: dict):
+    """Group search results by file path"""
+    from collections import defaultdict
+
+    grouped = defaultdict(list)
+    for result in results['results']:
+        grouped[result['file_path']].append(result)
+
+    return dict(grouped)
+
+# Usage
+results = search_codebase(project_id, "user authentication", token)
+by_file = group_results_by_file(results)
+
+for file_path, matches in by_file.items():
+    print(f"\n{file_path}:")
+    for match in matches:
+        print(f"  - {match['name']} ({match['relevance']:.2f})")
+```
+
+### Search and Use in Conversation
+
+```python
+def search_and_ask(
+    project_id: str,
+    search_query: str,
+    question: str,
+    token: str
+):
+    """Search for code and ask questions about it"""
+    # Search for relevant code
+    search_results = search_codebase(project_id, search_query, token)
+
+    # Get top 3 results
+    top_results = search_results['results'][:3]
+
+    # Create node contexts
+    node_ids = [
+        {"node_id": r['node_id'], "name": r['name']}
+        for r in top_results
+    ]
+
+    # Create conversation
+    conv_response = requests.post(
+        "https://api.potpie.ai/api/v1/conversations/",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "user_id": "user_01HQXYZ789",
+            "title": f"Q&A about {search_query}",
+            "status": "active",
+            "project_ids": [project_id],
+            "agent_ids": ["codebase_qna_agent"]
+        }
+    )
+    conversation_id = conv_response.json()['conversation_id']
+
+    # Ask question with context
+    files = {
+        'content': (None, question),
+        'node_ids': (None, json.dumps(node_ids))
+    }
+
+    msg_response = requests.post(
+        f"https://api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        files=files,
+        headers={"Authorization": f"Bearer {token}"},
+        params={"stream": "false"}
+    )
+
+    return msg_response.json()
+
+# Usage
+answer = search_and_ask(
+    "proj_01HQXYZ789ABCDEF",
+    "authentication middleware",
+    "How does the authentication flow work?",
+    "YOUR_TOKEN"
+)
+print(answer['content'])
+```
+
+## Search Strategies
+
+### By Code Type
+
+```python
+# Find specific code types
+SEARCH_PATTERNS = {
+    "functions": "function that handles",
+    "classes": "class for managing",
+    "endpoints": "API endpoint for",
+    "models": "database model for",
+    "services": "service that provides",
+    "utils": "utility function for",
+    "tests": "test for",
+    "middleware": "middleware for",
+    "decorators": "decorator for",
+    "validators": "validation logic for"
+}
+
+def search_by_type(project_id: str, code_type: str, subject: str, token: str):
+    """Search for specific type of code"""
+    pattern = SEARCH_PATTERNS.get(code_type, "code for")
+    query = f"{pattern} {subject}"
+    return search_codebase(project_id, query, token)
+
+# Usage
+auth_functions = search_by_type(
+    project_id,
+    "functions",
+    "user authentication",
+    token
+)
+```
+
+### By Use Case
+
+```python
+# Common use case searches
+def find_authentication_code(project_id: str, token: str):
+    """Find all authentication-related code"""
+    return search_codebase(project_id, "authentication login logout", token)
+
+def find_database_operations(project_id: str, token: str):
+    """Find database query and connection code"""
+    return search_codebase(project_id, "database query connection", token)
+
+def find_api_endpoints(project_id: str, token: str):
+    """Find REST API endpoints"""
+    return search_codebase(project_id, "API endpoint route handler", token)
+
+def find_error_handling(project_id: str, token: str):
+    """Find error handling code"""
+    return search_codebase(project_id, "error exception handling", token)
+
+def find_validation_code(project_id: str, token: str):
+    """Find input validation code"""
+    return search_codebase(project_id, "validation sanitization input", token)
+```
+
+## Result Analysis
+
+### Calculate Search Quality Metrics
+
+```python
+def analyze_search_results(results: dict):
+    """Analyze search result quality"""
+    items = results['results']
+
+    if not items:
+        return {
+            "total": 0,
+            "average_relevance": 0,
+            "high_quality": 0,
+            "medium_quality": 0,
+            "low_quality": 0
+        }
+
+    relevances = [r['relevance'] for r in items]
+
+    return {
+        "total": len(items),
+        "average_relevance": sum(relevances) / len(relevances),
+        "max_relevance": max(relevances),
+        "min_relevance": min(relevances),
+        "high_quality": sum(1 for r in relevances if r >= 0.8),
+        "medium_quality": sum(1 for r in relevances if 0.6 <= r < 0.8),
+        "low_quality": sum(1 for r in relevances if r < 0.6),
+        "match_types": {
+            mt: sum(1 for r in items if r['match_type'] == mt)
+            for mt in set(r['match_type'] for r in items)
+        }
+    }
+
+# Usage
+results = search_codebase(project_id, "authentication", token)
+metrics = analyze_search_results(results)
+
+print(f"Found {metrics['total']} results")
+print(f"Average relevance: {metrics['average_relevance']:.2f}")
+print(f"High quality matches: {metrics['high_quality']}")
+```
+
+### Export Search Results
+
+```python
+def export_search_results(results: dict, format: str = 'json'):
+    """Export search results to different formats"""
+    if format == 'json':
+        import json
+        return json.dumps(results, indent=2)
+
+    elif format == 'csv':
+        import csv
+        import io
+        output = io.StringIO()
+        writer = csv.DictWriter(
+            output,
+            fieldnames=['name', 'file_path', 'match_type', 'relevance']
+        )
+        writer.writeheader()
+        for result in results['results']:
+            writer.writerow({
+                'name': result['name'],
+                'file_path': result['file_path'],
+                'match_type': result['match_type'],
+                'relevance': result['relevance']
+            })
+        return output.getvalue()
+
+    elif format == 'markdown':
+        md = "# Search Results\n\n"
+        for result in results['results']:
+            md += f"## {result['name']}\n\n"
+            md += f"- **File:** `{result['file_path']}`\n"
+            md += f"- **Relevance:** {result['relevance']:.2f}\n"
+            md += f"- **Match Type:** {result['match_type']}\n\n"
+            md += f"```\n{result['content']}\n```\n\n"
+        return md
+
+# Usage
+results = search_codebase(project_id, "authentication", token)
+markdown = export_search_results(results, 'markdown')
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Natural Language" icon="message">
+    Use descriptive, natural queries instead of exact code terms
+  </Card>
+
+  <Card title="Be Specific" icon="bullseye">
+    More specific queries yield better results
+  </Card>
+
+  <Card title="Filter Results" icon="filter">
+    Use relevance scores to filter low-quality matches
+  </Card>
+
+  <Card title="Use in Context" icon="link">
+    Reference search results (node_ids) in conversations
+  </Card>
+</CardGroup>
+
+### Query Optimization Tips
+
+1. **Good Queries:**
+   - "authentication middleware for JWT tokens"
+   - "database connection pooling"
+   - "API endpoint for user registration"
+
+2. **Avoid:**
+   - Single words: "auth"
+   - Too generic: "code"
+   - Overly complex: "find all functions that handle authentication and authorization with JWT tokens and OAuth2 in the backend services"
+
+## Common Use Cases
+
+### 1. Finding Similar Code
+
+```python
+# Find code similar to a function
+results = search_codebase(
+    project_id,
+    "function that validates email format using regex",
+    token
+)
+```
+
+### 2. Locating Dependencies
+
+```python
+# Find where a module is imported
+results = search_codebase(
+    project_id,
+    "imports and uses the UserService module",
+    token
+)
+```
+
+### 3. Security Audits
+
+```python
+# Find potential security issues
+queries = [
+    "SQL query construction with user input",
+    "password storage and hashing",
+    "authentication and authorization checks",
+    "input sanitization and validation"
+]
+
+for query in queries:
+    results = search_codebase(project_id, query, token)
+    print(f"\n{query}:")
+    for r in results['results'][:3]:
+        print(f"  - {r['file_path']}: {r['name']}")
+```
+
+### 4. Code Documentation
+
+```python
+# Generate documentation from search
+def document_feature(project_id: str, feature: str, token: str):
+    """Document a feature by searching related code"""
+    results = search_codebase(project_id, feature, token)
+
+    docs = f"# {feature} Documentation\n\n"
+    docs += "## Related Code\n\n"
+
+    for result in results['results'][:5]:
+        docs += f"### {result['name']}\n"
+        docs += f"**Location:** `{result['file_path']}`\n\n"
+        docs += f"```python\n{result['content']}\n```\n\n"
+
+    return docs
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No results found">
+    Try:
+    - Using different query terms
+    - Making the query more general
+    - Checking if the project is fully parsed (status: 'ready')
+    - Verifying the project_id is correct
+  </Accordion>
+
+  <Accordion title="Low relevance scores">
+    Improve by:
+    - Using more descriptive queries
+    - Adding context words
+    - Trying different synonyms
+    - Combining multiple search terms
+  </Accordion>
+
+  <Accordion title="Too many results">
+    Filter by:
+    - Setting a minimum relevance threshold (0.7+)
+    - Limiting to top N results
+    - Making query more specific
+    - Using match_type to prefer semantic matches
+  </Accordion>
+</AccordionGroup>
+
+## Rate Limits
+
+Search API calls are counted toward your plan's rate limit:
+
+| Plan | Searches/Minute | Searches/Day |
+|------|-----------------|--------------|
+| Free | 10 | 100 |
+| Pro | 60 | 1,000 |
+| Enterprise | Custom | Custom |

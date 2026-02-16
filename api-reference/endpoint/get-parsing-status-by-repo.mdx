@@ -1,0 +1,146 @@
+---
+title: 'Get Parsing Status By Repo'
+openapi: 'POST /api/v1/parsing-status'
+---
+
+## Overview
+
+Retrieve the parsing status for a repository using its name and branch/commit information. This is an alternative to the project ID-based status check, useful when you know the repository details but not the project ID.
+
+## Use Cases
+
+- Check parsing status when you only have repository details
+- Query status before knowing the project ID
+- Verify if a specific repo + branch combination has been parsed
+- Monitor parsing for repositories with specific commit IDs
+
+## Request Body
+
+<ParamField body="repo_name" type="string" required>
+  The name of your repository
+</ParamField>
+
+<ParamField body="commit_id" type="string">
+  Specific commit ID to check status for (optional)
+</ParamField>
+
+<ParamField body="branch_name" type="string">
+  Branch name to check (used if commit_id is not provided)
+</ParamField>
+
+<Note>
+  Either `commit_id` or `branch_name` should be provided. If both are given, `commit_id` takes precedence.
+</Note>
+
+## Response
+
+Returns parsing status information including:
+- **status**: Current parsing state (submitted, processing, completed, failed)
+- **project_id**: The unique project identifier
+- **progress**: Percentage completion (0-100)
+- **message**: Status description
+
+## Example Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+const response = await fetch('https://production-api.potpie.ai/api/v1/parsing-status', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${process.env.POTPIE_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    repo_name: 'my-awesome-app',
+    branch_name: 'main'
+  })
+});
+
+const status = await response.json();
+console.log(`Status: ${status.status}, Progress: ${status.progress}%`);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://production-api.potpie.ai/api/v1/parsing-status',
+    headers={
+        'Authorization': f'Bearer {os.environ["POTPIE_API_KEY"]}',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'repo_name': 'my-awesome-app',
+        'branch_name': 'main'
+    }
+)
+
+status = response.json()
+print(f"Status: {status['status']}, Progress: {status['progress']}%")
+```
+
+```bash cURL
+curl -X POST \
+  'https://production-api.potpie.ai/api/v1/parsing-status' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "repo_name": "my-awesome-app",
+    "branch_name": "main"
+  }'
+```
+
+</CodeGroup>
+
+## Polling for Completion
+
+```python
+import time
+
+def wait_for_parsing_by_repo(repo_name: str, branch_name: str):
+    while True:
+        response = requests.post(
+            'https://production-api.potpie.ai/api/v1/parsing-status',
+            headers={'Authorization': f'Bearer {api_key}'},
+            json={
+                'repo_name': repo_name,
+                'branch_name': branch_name
+            }
+        )
+
+        status = response.json()
+        print(f"Status: {status['status']} - {status['progress']}%")
+
+        if status['status'] == 'completed':
+            return status
+        elif status['status'] == 'failed':
+            raise Exception(f"Parsing failed: {status.get('error')}")
+
+        time.sleep(5)  # Check every 5 seconds
+```
+
+## Status Values
+
+| Status | Description |
+|--------|-------------|
+| submitted | Parsing job has been queued |
+| processing | Actively parsing the repository |
+| completed | Parsing finished successfully |
+| failed | Parsing encountered an error |
+
+## Best Practices
+
+- Use exponential backoff when polling to reduce server load
+- Cache the project_id once you receive it for future queries
+- Prefer the project ID-based endpoint once you have the project_id
+- Set reasonable timeouts for long-running parsing operations
+
+## Comparison with Project ID Endpoint
+
+| Feature | By Repo (POST) | By Project ID (GET) |
+|---------|---------------|---------------------|
+| Required Info | Repo name + branch/commit | Project ID |
+| HTTP Method | POST | GET |
+| Use Case | Initial status check | Ongoing monitoring |
+| Performance | Slightly slower | Faster |

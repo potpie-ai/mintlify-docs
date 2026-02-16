@@ -1,0 +1,429 @@
+---
+title: 'List Available Agents'
+openapi: 'GET /api/v1/list-available-agents/'
+---
+
+## Overview
+
+Get a list of all available AI agents that can be used in conversations. Each agent is specialized for specific engineering tasks and leverages Potpie's knowledge graph to provide expert assistance on your codebase.
+
+## Use Cases
+
+- Discover available agents before creating conversations
+- Build agent selection interfaces in your application
+- Understand agent capabilities and specializations
+- Dynamically populate agent options for users
+- Determine the right agent for specific tasks
+
+## Response
+
+Returns an array of agent objects, each containing:
+
+- **id**: Unique agent identifier (use this in conversation creation)
+- **name**: Human-readable agent name
+- **description**: What the agent specializes in
+
+## Available Agents
+
+Potpie provides several specialized agents:
+
+### Debugging Agent
+Expert at identifying and fixing bugs in your codebase. Can trace execution flows, identify root causes, and suggest fixes.
+
+### QnA Agent
+Answers questions about your codebase, explaining how code works, where functionality is implemented, and architectural decisions.
+
+### Code Changes Agent
+Generates code modifications, refactoring suggestions, and implements feature requests based on your codebase patterns.
+
+### Integration Test Agent
+Creates comprehensive integration test plans, identifies testing gaps, and generates test scenarios.
+
+### Unit Test Agent
+Generates unit tests for specific functions and classes, ensuring good test coverage and edge case handling.
+
+## Example Usage
+
+### JavaScript/TypeScript
+
+```typescript
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+}
+
+async function getAvailableAgents(): Promise<Agent[]> {
+  const response = await fetch(
+    'https://production-api.potpie.ai/api/v1/list-available-agents/',
+    {
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY'
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch agents: ${response.status}`);
+  }
+
+  return await response.json();
+}
+
+// Find specific agent by ID
+async function getAgent(agentId: string): Promise<Agent | undefined> {
+  const agents = await getAvailableAgents();
+  return agents.find(agent => agent.id === agentId);
+}
+
+// Get agents for specific use case
+async function getAgentsForTask(task: string): Promise<Agent[]> {
+  const agents = await getAvailableAgents();
+  const keywords = task.toLowerCase();
+
+  return agents.filter(agent =>
+    agent.description.toLowerCase().includes(keywords) ||
+    agent.name.toLowerCase().includes(keywords)
+  );
+}
+
+// Usage
+getAvailableAgents().then(agents => {
+  console.log('Available Agents:');
+  agents.forEach(agent => {
+    console.log(`\n${agent.name} (${agent.id})`);
+    console.log(`  ${agent.description}`);
+  });
+});
+```
+
+### Python
+
+```python
+import requests
+from typing import List, Dict, Optional
+
+class PotpieAgents:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://production-api.potpie.ai'
+        self._agents_cache = None
+
+    def list_agents(self, use_cache: bool = True) -> List[Dict]:
+        """
+        Get all available agents.
+
+        Args:
+            use_cache: Use cached agents if available (default: True)
+
+        Returns:
+            List of agent dictionaries
+        """
+        if use_cache and self._agents_cache:
+            return self._agents_cache
+
+        response = requests.get(
+            f'{self.base_url}/api/v1/list-available-agents/',
+            headers={'Authorization': f'Bearer {self.api_key}'}
+        )
+        response.raise_for_status()
+
+        self._agents_cache = response.json()
+        return self._agents_cache
+
+    def get_agent(self, agent_id: str) -> Optional[Dict]:
+        """Find an agent by ID."""
+        agents = self.list_agents()
+        return next((a for a in agents if a['id'] == agent_id), None)
+
+    def search_agents(self, keyword: str) -> List[Dict]:
+        """Search agents by keyword in name or description."""
+        agents = self.list_agents()
+        keyword_lower = keyword.lower()
+
+        return [
+            agent for agent in agents
+            if keyword_lower in agent['name'].lower() or
+               keyword_lower in agent['description'].lower()
+        ]
+
+    def get_agent_ids(self) -> List[str]:
+        """Get just the agent IDs."""
+        agents = self.list_agents()
+        return [agent['id'] for agent in agents]
+
+# Usage
+client = PotpieAgents('YOUR_API_KEY')
+
+# List all agents
+agents = client.list_agents()
+for agent in agents:
+    print(f"✓ {agent['name']}")
+    print(f"  ID: {agent['id']}")
+    print(f"  Description: {agent['description']}\n")
+
+# Find debugging agent
+debug_agent = client.search_agents('debug')[0]
+print(f"Debugging agent ID: {debug_agent['id']}")
+
+# Get all agent IDs for conversation
+agent_ids = client.get_agent_ids()
+print(f"Available agent IDs: {agent_ids}")
+```
+
+### cURL
+
+```bash
+# List all agents
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'Authorization: Bearer YOUR_API_KEY'
+
+# Pretty print with jq
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'Authorization: Bearer YOUR_API_KEY' | jq '.'
+
+# Extract just agent IDs
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'Authorization: Bearer YOUR_API_KEY' | jq '[.[] | .id]'
+
+# Find agents with "test" in description
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'Authorization: Bearer YOUR_API_KEY' | jq '[.[] | select(.description | contains("test"))]'
+```
+
+## Building Agent Selector UI
+
+### React Component
+
+```typescript
+import { useEffect, useState } from 'react';
+
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+}
+
+function AgentSelector({
+  selectedAgents,
+  onSelectionChange
+}: {
+  selectedAgents: string[];
+  onSelectionChange: (agentIds: string[]) => void;
+}) {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://production-api.potpie.ai/api/v1/list-available-agents/', {
+      headers: { 'Authorization': `Bearer ${process.env.POTPIE_API_KEY}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setAgents(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load agents:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const toggleAgent = (agentId: string) => {
+    const newSelection = selectedAgents.includes(agentId)
+      ? selectedAgents.filter(id => id !== agentId)
+      : [...selectedAgents, agentId];
+    onSelectionChange(newSelection);
+  };
+
+  if (loading) return <div>Loading agents...</div>;
+
+  return (
+    <div className="agent-selector">
+      <h3>Select Agents</h3>
+      {agents.map(agent => (
+        <div key={agent.id} className="agent-option">
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedAgents.includes(agent.id)}
+              onChange={() => toggleAgent(agent.id)}
+            />
+            <strong>{agent.name}</strong>
+            <p>{agent.description}</p>
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### CLI Tool
+
+```python
+import click
+import requests
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
+
+@click.group()
+def cli():
+    """Potpie Agents CLI"""
+    pass
+
+@cli.command()
+@click.option('--api-key', envvar='POTPIE_API_KEY', required=True)
+def list(api_key):
+    """List all available agents."""
+    try:
+        response = requests.get(
+            'https://production-api.potpie.ai/api/v1/list-available-agents/',
+            headers={'Authorization': f'Bearer {api_key}'}
+        )
+        response.raise_for_status()
+        agents = response.json()
+
+        table = Table(title="Available Potpie Agents")
+        table.add_column("ID", style="cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Description", style="white")
+
+        for agent in agents:
+            table.add_row(agent['id'], agent['name'], agent['description'])
+
+        console.print(table)
+        console.print(f"\n[bold]Total agents:[/bold] {len(agents)}")
+
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+@cli.command()
+@click.argument('keyword')
+@click.option('--api-key', envvar='POTPIE_API_KEY', required=True)
+def search(keyword, api_key):
+    """Search agents by keyword."""
+    response = requests.get(
+        'https://production-api.potpie.ai/api/v1/list-available-agents/',
+        headers={'Authorization': f'Bearer {api_key}'}
+    )
+    agents = response.json()
+
+    matches = [
+        a for a in agents
+        if keyword.lower() in a['name'].lower() or
+           keyword.lower() in a['description'].lower()
+    ]
+
+    if matches:
+        console.print(f"[green]Found {len(matches)} matching agents:[/green]")
+        for agent in matches:
+            console.print(f"\n[bold]{agent['name']}[/bold] ({agent['id']})")
+            console.print(f"  {agent['description']}")
+    else:
+        console.print(f"[yellow]No agents found matching '{keyword}'[/yellow]")
+
+if __name__ == '__main__':
+    cli()
+```
+
+## Agent Selection Guide
+
+Choose agents based on your task:
+
+| Task | Recommended Agents |
+|------|-------------------|
+| Fix a bug | `debugging-agent` |
+| Understand code | `qna-agent` |
+| Write tests | `unit-test-agent`, `integration-test-agent` |
+| Modify code | `code-changes-agent` |
+| Code review | `qna-agent`, `code-changes-agent` |
+| Architecture questions | `qna-agent` |
+| Refactoring | `code-changes-agent` |
+
+## Multi-Agent Conversations
+
+You can use multiple agents in a single conversation:
+
+```typescript
+// Create conversation with multiple agents
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v1/conversations/',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_API_KEY',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      user_id: 'user_123',
+      title: 'Complete Feature Development',
+      status: 'active',
+      project_ids: ['proj_456'],
+      agent_ids: [
+        'qna-agent',           // For understanding existing code
+        'code-changes-agent',  // For implementing changes
+        'unit-test-agent'      // For writing tests
+      ]
+    })
+  }
+);
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Cache Agent List" icon="database">
+    Agent list rarely changes, cache it in your application
+  </Card>
+  <Card title="Agent Descriptions" icon="book">
+    Show agent descriptions to help users select the right one
+  </Card>
+  <Card title="Task-Based Selection" icon="list-check">
+    Guide users to appropriate agents based on their task
+  </Card>
+  <Card title="Multi-Agent Use" icon="users">
+    Combine agents for complex workflows
+  </Card>
+</CardGroup>
+
+## Error Handling
+
+```typescript
+async function getAgentsSafely(): Promise<Agent[]> {
+  try {
+    const response = await fetch(
+      'https://production-api.potpie.ai/api/v1/list-available-agents/',
+      {
+        headers: {
+          'Authorization': 'Bearer YOUR_API_KEY'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch agents:', error);
+    // Return empty array or throw based on your needs
+    return [];
+  }
+}
+```
+
+## Next Steps
+
+After retrieving agents:
+1. Use agent IDs when creating conversations
+2. Combine multiple agents for complex tasks
+3. Build user-friendly agent selection interfaces
+4. Learn more about each agent's capabilities in the [Agents documentation](/agents/introduction)

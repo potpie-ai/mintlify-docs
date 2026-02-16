@@ -1,0 +1,270 @@
+---
+title: 'Create Conversation And Message'
+openapi: 'POST /api/v2/project/{project_id}/message/'
+---
+
+## Overview
+
+Create a new conversation and send the first message in a single API call. This streamlined endpoint is perfect for quick interactions where you want to ask a question about your codebase without managing conversation state.
+
+## Key Benefits
+
+- **Simplified Workflow**: Combine conversation creation and messaging in one request
+- **Auto-hidden Conversations**: Conversations are automatically hidden from the UI (configurable)
+- **Default Agent**: Uses the Q&A agent by default for codebase queries
+- **Immediate Response**: Get AI responses without managing conversation IDs
+
+## Use Cases
+
+- Quick codebase queries without managing conversations
+- Automated analysis scripts
+- CI/CD integration for code insights
+- Stateless API integrations
+- One-off questions about specific projects
+
+## Path Parameters
+
+<ParamField path="project_id" type="string" required>
+  The ID of the project to query about
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="hidden" type="boolean" default="true">
+  Whether to hide this conversation from the web UI
+</ParamField>
+
+## Request Body
+
+<ParamField body="content" type="string" required>
+  The message content to send (your question about the codebase)
+</ParamField>
+
+<ParamField body="agent_id" type="string" default="codebase_qna_agent">
+  The ID of the agent to use (defaults to Q&A agent if not specified)
+</ParamField>
+
+<ParamField body="node_ids" type="array">
+  Optional array of node context objects to focus the conversation
+
+  ```json
+  [
+    {
+      "node_id": "node_123",
+      "name": "authenticate_user"
+    }
+  ]
+  ```
+</ParamField>
+
+<ParamField body="attachment_ids" type="array">
+  Optional array of attachment IDs to include with the message
+</ParamField>
+
+## Response
+
+Returns the AI agent's response directly without exposing conversation management details.
+
+## Example Requests
+
+<CodeGroup>
+
+```typescript TypeScript
+// Quick codebase query
+const response = await fetch(
+  `https://production-api.potpie.ai/api/v2/project/${projectId}/message/`,
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.POTPIE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      content: 'Explain how the authentication system works',
+      agent_id: 'codebase_qna_agent'
+    })
+  }
+);
+
+const answer = await response.json();
+console.log(answer);
+```
+
+```python Python
+# Quick question about your codebase
+response = requests.post(
+    f'https://production-api.potpie.ai/api/v2/project/{project_id}/message/',
+    headers={
+        'Authorization': f'Bearer {os.environ["POTPIE_API_KEY"]}',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'content': 'What are the main API endpoints in this project?',
+        'agent_id': 'codebase_qna_agent'
+    }
+)
+
+answer = response.json()
+print(answer)
+```
+
+```bash cURL
+curl -X POST \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/" \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "content": "Show me the database schema",
+    "agent_id": "codebase_qna_agent"
+  }'
+```
+
+</CodeGroup>
+
+## Advanced Usage
+
+### With Node Context
+
+Focus the query on specific code elements:
+
+```typescript
+const response = await fetch(url, {
+  method: 'POST',
+  headers: headers,
+  body: JSON.stringify({
+    content: 'How does this function handle errors?',
+    node_ids: [
+      {
+        node_id: 'func_process_payment_xyz',
+        name: 'processPayment'
+      }
+    ]
+  })
+});
+```
+
+### With Different Agent
+
+Use a specialized agent for specific tasks:
+
+```python
+response = requests.post(
+    url,
+    headers=headers,
+    json={
+        'content': 'Generate unit tests for the authentication module',
+        'agent_id': 'unit_test_agent'
+    }
+)
+```
+
+### Make Visible in UI
+
+Create a conversation that appears in the web interface:
+
+```bash
+curl -X POST \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/?hidden=false" \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "content": "Review the security implementation"
+  }'
+```
+
+## Complete Integration Example
+
+```python
+class PotpieQuickQuery:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://production-api.potpie.ai'
+
+    def ask_codebase(self, project_id: str, question: str, agent_id: str = None):
+        """
+        Ask a quick question about your codebase.
+        Returns the AI response directly.
+        """
+        url = f'{self.base_url}/api/v2/project/{project_id}/message/'
+
+        payload = {'content': question}
+        if agent_id:
+            payload['agent_id'] = agent_id
+
+        response = requests.post(
+            url,
+            headers={
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
+            },
+            json=payload
+        )
+
+        response.raise_for_status()
+        return response.json()
+
+# Usage
+client = PotpieQuickQuery(api_key='your-api-key')
+answer = client.ask_codebase(
+    project_id='proj_123',
+    question='What design patterns are used in this codebase?'
+)
+print(answer)
+```
+
+## Comparison with Standard Flow
+
+| Feature | Create Conversation + Message | Direct Message (This Endpoint) |
+|---------|------------------------------|-------------------------------|
+| API Calls | 2 separate calls | 1 combined call |
+| Conversation ID | You manage it | Automatically managed |
+| UI Visibility | Configurable | Hidden by default |
+| Use Case | Multi-turn conversations | Quick queries |
+| Complexity | Higher | Lower |
+
+## Best Practices
+
+1. **Use for One-Off Queries**: Perfect for stateless integrations
+2. **Default Agent Works Well**: The Q&A agent handles most queries effectively
+3. **Hide by Default**: Keep conversations hidden unless user interaction is needed
+4. **Validate Project ID**: Ensure the project has been successfully parsed before querying
+5. **Handle Empty Responses**: Implement fallback logic for unclear queries
+
+## Error Handling
+
+```typescript
+try {
+  const response = await fetch(url, options);
+
+  if (response.status === 400) {
+    console.error('Empty or invalid message content');
+  } else if (response.status === 402) {
+    console.error('Subscription required or usage limit reached');
+  } else if (response.status === 404) {
+    console.error('Project not found or not accessible');
+  }
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return await response.json();
+} catch (error) {
+  console.error('Failed to query codebase:', error);
+  throw error;
+}
+```
+
+## When to Use Standard vs. Direct Flow
+
+**Use This Endpoint When:**
+- Making quick, one-off queries
+- Building stateless integrations
+- Automating codebase analysis
+- Don't need conversation history
+
+**Use Standard Flow When:**
+- Building interactive chat experiences
+- Need multi-turn conversations
+- Managing conversation history
+- Require fine-grained control over conversation state

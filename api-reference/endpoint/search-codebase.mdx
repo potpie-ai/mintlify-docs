@@ -1,0 +1,521 @@
+---
+title: 'Search Codebase'
+openapi: 'POST /api/v1/search'
+---
+
+## Overview
+
+Perform semantic search across your codebase using Potpie's knowledge graph. This endpoint returns relevant code snippets, functions, classes, and other code elements based on natural language queries.
+
+## How It Works
+
+Unlike traditional text search, Potpie's semantic search:
+
+1. **Understands Intent**: Interprets what you're looking for, not just keyword matches
+2. **Considers Context**: Uses the knowledge graph to find related code
+3. **Ranks by Relevance**: Scores results based on semantic similarity
+4. **Includes Relationships**: Finds connected code elements
+
+## Use Cases
+
+- Find functions or classes by description
+- Locate code that implements specific functionality
+- Discover API endpoints handling certain operations
+- Identify code related to a feature or bug
+- Find similar implementations across the codebase
+- Locate configuration or initialization code
+
+## Request Body
+
+- **project_id**: The project to search within (required)
+- **query**: Your search query in natural language (required)
+
+## Response Fields
+
+Returns a `SearchResponse` containing an array of `SearchResult` objects:
+
+- **node_id**: Unique identifier for the code element
+- **name**: Name of the code element (function, class, variable, etc.)
+- **file_path**: Full path to the file containing the code
+- **content**: Code snippet or relevant content
+- **match_type**: Type of code element ("function", "class", "method", "variable", etc.)
+- **relevance**: Relevance score (0.0 to 1.0, higher is more relevant)
+
+## Example Usage
+
+### JavaScript/TypeScript
+
+```typescript
+interface SearchResult {
+  node_id: string;
+  name: string;
+  file_path: string;
+  content: string;
+  match_type: string;
+  relevance: number;
+}
+
+interface SearchResponse {
+  results: SearchResult[];
+}
+
+async function searchCodebase(
+  projectId: string,
+  query: string
+): Promise<SearchResult[]> {
+  const response = await fetch(
+    'https://production-api.potpie.ai/api/v1/search',
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        project_id: projectId,
+        query: query
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Search failed: ${response.status}`);
+  }
+
+  const data: SearchResponse = await response.json();
+  return data.results;
+}
+
+// Example: Find authentication code
+const results = await searchCodebase(
+  'proj_456',
+  'authentication middleware'
+);
+
+console.log(`Found ${results.length} results:`);
+results.forEach((result, index) => {
+  console.log(`\n${index + 1}. ${result.name} (${result.match_type})`);
+  console.log(`   File: ${result.file_path}`);
+  console.log(`   Relevance: ${(result.relevance * 100).toFixed(1)}%`);
+  console.log(`   Content: ${result.content.substring(0, 100)}...`);
+});
+```
+
+### Python
+
+```python
+import requests
+from typing import List, Dict
+from dataclasses import dataclass
+
+@dataclass
+class SearchResult:
+    node_id: str
+    name: str
+    file_path: str
+    content: str
+    match_type: str
+    relevance: float
+
+class CodebaseSearch:
+    def __init__(self, api_key: str, project_id: str):
+        self.api_key = api_key
+        self.project_id = project_id
+        self.base_url = 'https://production-api.potpie.ai'
+
+    def search(self, query: str, min_relevance: float = 0.5) -> List[SearchResult]:
+        """
+        Search the codebase with a query.
+
+        Args:
+            query: Search query in natural language
+            min_relevance: Minimum relevance score to include (0.0 to 1.0)
+
+        Returns:
+            List of SearchResult objects
+        """
+        response = requests.post(
+            f'{self.base_url}/api/v1/search',
+            headers={
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'project_id': self.project_id,
+                'query': query
+            }
+        )
+        response.raise_for_status()
+
+        data = response.json()
+        results = [
+            SearchResult(**result)
+            for result in data['results']
+            if result['relevance'] >= min_relevance
+        ]
+
+        return sorted(results, key=lambda x: x.relevance, reverse=True)
+
+    def search_by_type(self, query: str, match_type: str) -> List[SearchResult]:
+        """Search for specific type of code element."""
+        results = self.search(query)
+        return [r for r in results if r.match_type == match_type]
+
+    def get_node_ids(self, query: str) -> List[str]:
+        """Get just the node IDs from search results."""
+        results = self.search(query)
+        return [result.node_id for result in results]
+
+# Usage examples
+searcher = CodebaseSearch('YOUR_API_KEY', 'proj_456')
+
+# Basic search
+results = searcher.search('authentication middleware')
+for result in results:
+    print(f"✓ {result.name} ({result.match_type})")
+    print(f"  {result.file_path}")
+    print(f"  Relevance: {result.relevance:.2%}\n")
+
+# Find only functions
+functions = searcher.search_by_type('validate user input', 'function')
+print(f"Found {len(functions)} functions")
+
+# Get node IDs for use in conversations
+node_ids = searcher.get_node_ids('JWT token validation')
+print(f"Node IDs: {node_ids}")
+```
+
+### cURL
+
+```bash
+# Basic search
+curl -X POST \
+  'https://production-api.potpie.ai/api/v1/search' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "project_id": "proj_456",
+    "query": "authentication middleware"
+  }'
+
+# Pretty print results
+curl -X POST \
+  'https://production-api.potpie.ai/api/v1/search' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "project_id": "proj_456",
+    "query": "user validation"
+  }' | jq '.results[] | {name, file_path, relevance}'
+
+# Get only high-relevance results
+curl -X POST \
+  'https://production-api.potpie.ai/api/v1/search' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "project_id": "proj_456",
+    "query": "error handling"
+  }' | jq '.results[] | select(.relevance > 0.8)'
+```
+
+## Search Query Examples
+
+### Finding Functionality
+
+```typescript
+// Find authentication logic
+searchCodebase('proj_456', 'user authentication and login')
+
+// Locate error handling
+searchCodebase('proj_456', 'error handling and logging')
+
+// Find API endpoints
+searchCodebase('proj_456', 'REST API endpoints for user management')
+
+// Discover database queries
+searchCodebase('proj_456', 'database queries and ORM operations')
+```
+
+### Finding Specific Implementations
+
+```python
+# Find validation functions
+searcher.search('input validation and sanitization')
+
+# Locate caching logic
+searcher.search('cache implementation and management')
+
+# Find configuration
+searcher.search('application configuration and settings')
+
+# Discover tests
+searcher.search('unit tests for authentication')
+```
+
+### Integration with Conversations
+
+```typescript
+// Search and use results in conversation
+async function askAboutCode(query: string) {
+  // 1. Search for relevant code
+  const searchResults = await searchCodebase('proj_456', query);
+
+  // 2. Get top results
+  const topResults = searchResults.slice(0, 3);
+
+  // 3. Create conversation with context
+  const conversation = await fetch(
+    'https://production-api.potpie.ai/api/v1/conversations/',
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: 'user_123',
+        title: `Question about: ${query}`,
+        status: 'active',
+        project_ids: ['proj_456'],
+        agent_ids: ['qna-agent']
+      })
+    }
+  );
+
+  const { conversation_id } = await conversation.json();
+
+  // 4. Ask question with node context
+  await fetch(
+    `https://production-api.potpie.ai/api/v1/conversations/${conversation_id}/message/`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: `Can you explain how this works?`,
+        node_ids: topResults.map(r => ({
+          node_id: r.node_id,
+          name: r.name
+        }))
+      })
+    }
+  );
+}
+```
+
+## Filtering and Sorting Results
+
+```typescript
+// Filter by relevance threshold
+const highRelevance = results.filter(r => r.relevance > 0.8);
+
+// Filter by file type
+const tsFiles = results.filter(r => r.file_path.endsWith('.ts'));
+
+// Filter by match type
+const functions = results.filter(r => r.match_type === 'function');
+
+// Sort by relevance (already sorted by default)
+const sorted = [...results].sort((a, b) => b.relevance - a.relevance);
+
+// Group by file
+const byFile = results.reduce((acc, result) => {
+  if (!acc[result.file_path]) {
+    acc[result.file_path] = [];
+  }
+  acc[result.file_path].push(result);
+  return acc;
+}, {} as Record<string, SearchResult[]>);
+
+// Group by type
+const byType = results.reduce((acc, result) => {
+  if (!acc[result.match_type]) {
+    acc[result.match_type] = [];
+  }
+  acc[result.match_type].push(result);
+  return acc;
+}, {} as Record<string, SearchResult[]>);
+```
+
+## Advanced Search Patterns
+
+```python
+class AdvancedSearch(CodebaseSearch):
+    def find_related_code(self, file_path: str) -> List[SearchResult]:
+        """Find code related to a specific file."""
+        # Extract filename and use as query
+        filename = file_path.split('/')[-1].replace('.', ' ')
+        return self.search(filename)
+
+    def find_dependencies(self, function_name: str) -> List[SearchResult]:
+        """Find code that might depend on a function."""
+        query = f"calls to {function_name} or usage of {function_name}"
+        return self.search(query)
+
+    def find_similar_implementations(self, node_id: str) -> List[SearchResult]:
+        """Find similar code implementations."""
+        # First get the original code
+        results = self.search('')  # Get all results
+        original = next((r for r in results if r.node_id == node_id), None)
+
+        if not original:
+            return []
+
+        # Search for similar functionality
+        return self.search(f"similar to {original.name}")
+
+    def search_with_context(
+        self,
+        query: str,
+        file_context: str = None
+    ) -> List[SearchResult]:
+        """Search with additional file context."""
+        enhanced_query = query
+        if file_context:
+            enhanced_query = f"{query} in {file_context}"
+        return self.search(enhanced_query)
+```
+
+## Building Search UI
+
+```typescript
+// React search component
+import { useState, useEffect } from 'react';
+import { debounce } from 'lodash';
+
+function CodeSearch({ projectId }: { projectId: string }) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const performSearch = debounce(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        'https://production-api.potpie.ai/api/v1/search',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.POTPIE_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            project_id: projectId,
+            query: searchQuery
+          })
+        }
+      );
+
+      const data = await response.json();
+      setResults(data.results);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, 300);
+
+  useEffect(() => {
+    performSearch(query);
+  }, [query]);
+
+  return (
+    <div className="code-search">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search your codebase..."
+      />
+
+      {loading && <div>Searching...</div>}
+
+      <div className="results">
+        {results.map(result => (
+          <div key={result.node_id} className="result-item">
+            <div className="result-header">
+              <strong>{result.name}</strong>
+              <span className="match-type">{result.match_type}</span>
+              <span className="relevance">
+                {(result.relevance * 100).toFixed(0)}%
+              </span>
+            </div>
+            <div className="file-path">{result.file_path}</div>
+            <pre className="code-preview">{result.content}</pre>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Natural Language" icon="comments">
+    Use descriptive queries, not just keywords
+  </Card>
+  <Card title="Filter Results" icon="filter">
+    Apply relevance thresholds for better results
+  </Card>
+  <Card title="Use Node IDs" icon="link">
+    Pass node IDs to conversations for context
+  </Card>
+  <Card title="Cache Smart" icon="database">
+    Cache frequent searches to reduce API calls
+  </Card>
+</CardGroup>
+
+## Performance Tips
+
+- Debounce search input to avoid excessive API calls
+- Implement client-side filtering for better UX
+- Cache results for common queries
+- Paginate or limit displayed results
+- Show loading states for better user experience
+
+## Error Handling
+
+```typescript
+async function searchSafely(projectId: string, query: string) {
+  try {
+    const response = await fetch(
+      'https://production-api.potpie.ai/api/v1/search',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer YOUR_API_KEY',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ project_id: projectId, query })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Search failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Search error:', error);
+    return { results: [] };
+  }
+}
+```
+
+## Next Steps
+
+After searching:
+1. Use node IDs in conversation messages for context
+2. Explore related code through the knowledge graph
+3. Build search-driven workflows in your application
+4. Combine search with agent conversations for powerful code exploration

@@ -1,0 +1,594 @@
+---
+title: 'Agents API'
+description: 'Discover and use AI agents specialized for different coding tasks'
+---
+
+## Overview
+
+Potpie provides specialized AI agents optimized for different coding tasks. Each agent has:
+
+- Specific capabilities and expertise
+- Custom prompts and tools
+- Optimized for particular use cases
+- Public (system) or private (user-created) visibility
+
+## List Available Agents
+
+Get all available agents including system agents and custom user-created agents.
+
+<CodeGroup>
+
+```bash cURL (v1 - Bearer Token)
+curl -X GET "https://api.potpie.ai/api/v1/list-available-agents/?list_system_agents=true" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```bash cURL (v2 - API Key)
+curl -X GET https://api.potpie.ai/api/v2/list-available-agents \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "x-user-id: YOUR_USER_ID"
+```
+
+```python Python
+import requests
+
+def list_agents(token: str, include_system: bool = True):
+    """List all available agents"""
+    url = "https://api.potpie.ai/api/v1/list-available-agents/"
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"list_system_agents": include_system}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+def list_agents_api_key(api_key: str, user_id: str):
+    """List agents using API key"""
+    url = "https://api.potpie.ai/api/v2/list-available-agents"
+    headers = {
+        "x-api-key": api_key,
+        "x-user-id": user_id
+    }
+
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# Usage
+agents = list_agents("YOUR_TOKEN")
+for agent in agents:
+    print(f"{agent['name']}: {agent['description']}")
+```
+
+```typescript TypeScript
+interface AgentInfo {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'inactive';
+  visibility?: 'public' | 'private';
+}
+
+async function listAgents(
+  token: string,
+  includeSystem: boolean = true
+): Promise<AgentInfo[]> {
+  const response = await fetch(
+    `https://api.potpie.ai/api/v1/list-available-agents/?list_system_agents=${includeSystem}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
+
+  return response.json();
+}
+
+async function listAgentsApiKey(
+  apiKey: string,
+  userId: string
+): Promise<AgentInfo[]> {
+  const response = await fetch(
+    'https://api.potpie.ai/api/v2/list-available-agents',
+    {
+      headers: {
+        'x-api-key': apiKey,
+        'x-user-id': userId
+      }
+    }
+  );
+
+  return response.json();
+}
+```
+
+```go Go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+)
+
+type AgentInfo struct {
+    ID          string  `json:"id"`
+    Name        string  `json:"name"`
+    Description string  `json:"description"`
+    Status      string  `json:"status"`
+    Visibility  *string `json:"visibility,omitempty"`
+}
+
+func listAgents(apiKey, userID string) ([]AgentInfo, error) {
+    req, _ := http.NewRequest(
+        "GET",
+        "https://api.potpie.ai/api/v2/list-available-agents",
+        nil,
+    )
+    req.Header.Add("x-api-key", apiKey)
+    req.Header.Add("x-user-id", userID)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+
+    var agents []AgentInfo
+    json.Unmarshal(body, &agents)
+
+    return agents, nil
+}
+
+func main() {
+    agents, _ := listAgents("YOUR_API_KEY", "YOUR_USER_ID")
+    for _, agent := range agents {
+        fmt.Printf("%s: %s\n", agent.Name, agent.Description)
+    }
+}
+```
+
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="list_system_agents" type="boolean" default="true">
+  Include system (public) agents in the response. Set to `false` to only show custom agents.
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "codebase_qna_agent",
+    "name": "Codebase Q&A Agent",
+    "description": "An agent specialized in answering questions about the codebase using the knowledge graph and code analysis tools",
+    "status": "active",
+    "visibility": "public"
+  },
+  {
+    "id": "debugging_agent",
+    "name": "Debugging with Knowledge Graph Agent",
+    "description": "An agent specialized in debugging using knowledge graphs",
+    "status": "active",
+    "visibility": "public"
+  },
+  {
+    "id": "unit_test_agent",
+    "name": "Unit Test Agent",
+    "description": "An agent specialized in generating unit tests for code snippets for given function names",
+    "status": "active",
+    "visibility": "public"
+  },
+  {
+    "id": "custom_agent_01",
+    "name": "My Custom Agent",
+    "description": "Custom agent for API documentation",
+    "status": "active",
+    "visibility": "private"
+  }
+]
+```
+
+<ResponseField name="id" type="string">
+  Unique agent identifier (used in conversation creation)
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Human-readable agent name
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Detailed description of agent capabilities and use cases
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Agent status: `active` or `inactive`
+</ResponseField>
+
+<ResponseField name="visibility" type="string" nullable>
+  Agent visibility:
+  - `public`: System agent available to all users
+  - `private`: Custom user-created agent
+</ResponseField>
+
+## System Agents
+
+Potpie provides the following pre-built system agents:
+
+### Codebase Q&A Agent
+
+<Card title="codebase_qna_agent" icon="message-question">
+  **Best for:** General questions about code, architecture, and functionality
+
+  **Capabilities:**
+  - Answer questions about code structure
+  - Explain how features work
+  - Provide code examples
+  - Navigate complex codebases
+
+  **Example Questions:**
+  - "How does the authentication system work?"
+  - "Where is user data validated?"
+  - "What endpoints are available in the API?"
+</Card>
+
+### Debugging Agent
+
+<Card title="debugging_agent" icon="bug">
+  **Best for:** Identifying and fixing bugs using knowledge graphs
+
+  **Capabilities:**
+  - Analyze error traces
+  - Identify root causes
+  - Suggest fixes
+  - Trace data flow
+
+  **Example Questions:**
+  - "Why is the login endpoint returning 500?"
+  - "What could cause a null pointer exception here?"
+  - "Trace the data flow for this API call"
+</Card>
+
+### Unit Test Agent
+
+<Card title="unit_test_agent" icon="flask">
+  **Best for:** Generating unit tests for functions and methods
+
+  **Capabilities:**
+  - Generate test cases
+  - Create mocks and fixtures
+  - Test edge cases
+  - Follow testing best practices
+
+  **Example Questions:**
+  - "Generate unit tests for the `authenticate_user` function"
+  - "Create tests for the PaymentService class"
+  - "What edge cases should I test for this function?"
+</Card>
+
+### Integration Test Agent
+
+<Card title="integration_test_agent" icon="plug">
+  **Best for:** Generating integration tests (Python, JavaScript, TypeScript)
+
+  **Capabilities:**
+  - Generate end-to-end tests
+  - Test API endpoints
+  - Create integration test suites
+  - Mock external services
+
+  **Example Questions:**
+  - "Generate integration tests for the user registration flow"
+  - "Create tests for the payment API endpoints"
+  - "Write integration tests for the auth middleware"
+</Card>
+
+### Code Generation Agent
+
+<Card title="code_gen_agent" icon="code">
+  **Best for:** Generating new code based on existing patterns
+
+  **Capabilities:**
+  - Generate new features
+  - Create boilerplate code
+  - Follow project conventions
+  - Maintain code consistency
+
+  **Example Questions:**
+  - "Generate a new API endpoint for user profile updates"
+  - "Create a new React component for displaying notifications"
+  - "Add a new database model for comments"
+</Card>
+
+### Blast Radius Agent
+
+<Card title="blast_radius_agent" icon="circle-radiation">
+  **Best for:** Analyzing the impact of code changes
+
+  **Capabilities:**
+  - Identify affected code
+  - Find dependent modules
+  - Assess change risk
+  - Suggest testing scope
+
+  **Example Questions:**
+  - "What will be affected if I change this function?"
+  - "Which modules depend on the UserService?"
+  - "What tests should I run after this change?"
+</Card>
+
+### Low-Level Design Agent
+
+<Card title="low_level_design_agent" icon="diagram-project">
+  **Best for:** Creating detailed technical designs
+
+  **Capabilities:**
+  - Create class diagrams
+  - Design database schemas
+  - Plan API structures
+  - Document architecture
+
+  **Example Questions:**
+  - "Design a database schema for a blog system"
+  - "Create a class structure for the payment module"
+  - "Design the API for a notification service"
+</Card>
+
+## Agent Selection Guide
+
+Choose the right agent for your task:
+
+| Task | Recommended Agent | Alternative |
+|------|------------------|-------------|
+| Understanding code | `codebase_qna_agent` | - |
+| Fixing bugs | `debugging_agent` | `codebase_qna_agent` |
+| Writing tests | `unit_test_agent` or `integration_test_agent` | `code_gen_agent` |
+| Adding features | `code_gen_agent` | `codebase_qna_agent` |
+| Analyzing changes | `blast_radius_agent` | `debugging_agent` |
+| Architecture design | `low_level_design_agent` | `codebase_qna_agent` |
+
+## Examples
+
+### Find Agents by Capability
+
+```python
+def find_agents_by_keyword(keyword: str, token: str):
+    """Find agents by searching description"""
+    agents = list_agents(token)
+    matching = [
+        agent for agent in agents
+        if keyword.lower() in agent['description'].lower()
+        or keyword.lower() in agent['name'].lower()
+    ]
+    return matching
+
+# Usage
+test_agents = find_agents_by_keyword("test", "YOUR_TOKEN")
+debug_agents = find_agents_by_keyword("debug", "YOUR_TOKEN")
+```
+
+### Get Agent by ID
+
+```python
+def get_agent_by_id(agent_id: str, token: str):
+    """Get specific agent details"""
+    agents = list_agents(token)
+    agent = next((a for a in agents if a['id'] == agent_id), None)
+    return agent
+
+# Usage
+qna_agent = get_agent_by_id("codebase_qna_agent", "YOUR_TOKEN")
+print(f"{qna_agent['name']}: {qna_agent['description']}")
+```
+
+### Filter Agents by Type
+
+```python
+def get_system_agents(token: str):
+    """Get only system (public) agents"""
+    agents = list_agents(token)
+    return [a for a in agents if a.get('visibility') == 'public']
+
+def get_custom_agents(token: str):
+    """Get only custom (private) agents"""
+    agents = list_agents(token)
+    return [a for a in agents if a.get('visibility') == 'private']
+
+# Usage
+system = get_system_agents("YOUR_TOKEN")
+custom = get_custom_agents("YOUR_TOKEN")
+```
+
+### Use Agent in Conversation
+
+```python
+def create_conversation_with_agent(
+    project_id: str,
+    agent_id: str,
+    title: str,
+    token: str
+):
+    """Create a conversation with a specific agent"""
+    url = "https://api.potpie.ai/api/v1/conversations/"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "user_id": "user_01HQXYZ789",
+        "title": title,
+        "status": "active",
+        "project_ids": [project_id],
+        "agent_ids": [agent_id]
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Usage - Create debugging conversation
+conv = create_conversation_with_agent(
+    "proj_01HQXYZ789ABCDEF",
+    "debugging_agent",
+    "Debug login issue",
+    "YOUR_TOKEN"
+)
+```
+
+### Multi-Agent Conversation
+
+```python
+def create_multi_agent_conversation(
+    project_id: str,
+    agent_ids: list,
+    title: str,
+    token: str
+):
+    """Create conversation with multiple agents"""
+    url = "https://api.potpie.ai/api/v1/conversations/"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "user_id": "user_01HQXYZ789",
+        "title": title,
+        "status": "active",
+        "project_ids": [project_id],
+        "agent_ids": agent_ids
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Usage - Combine QnA and debugging agents
+conv = create_multi_agent_conversation(
+    "proj_01HQXYZ789ABCDEF",
+    ["codebase_qna_agent", "debugging_agent"],
+    "Comprehensive code analysis",
+    "YOUR_TOKEN"
+)
+```
+
+## Agent Recommendations
+
+### For Beginners
+
+Start with these agents:
+
+1. **codebase_qna_agent** - Understanding code
+2. **unit_test_agent** - Writing tests
+
+### For Advanced Users
+
+Leverage specialized agents:
+
+1. **blast_radius_agent** - Before making changes
+2. **low_level_design_agent** - Planning new features
+3. **debugging_agent** - Complex issues
+
+### Team Workflows
+
+Recommended agent combinations:
+
+```python
+# Feature development workflow
+FEATURE_WORKFLOW = [
+    "low_level_design_agent",  # Design
+    "code_gen_agent",           # Implementation
+    "unit_test_agent"           # Testing
+]
+
+# Bug fixing workflow
+DEBUG_WORKFLOW = [
+    "debugging_agent",          # Identify issue
+    "blast_radius_agent",       # Check impact
+    "unit_test_agent"           # Prevent regression
+]
+
+# Code review workflow
+REVIEW_WORKFLOW = [
+    "codebase_qna_agent",       # Understand changes
+    "blast_radius_agent",       # Assess impact
+    "unit_test_agent"           # Verify coverage
+]
+```
+
+## Custom Agents
+
+Custom agents allow you to create specialized agents for your specific needs:
+
+<Info>
+Custom agent creation is available through the Potpie web UI. Use the API to list and use your custom agents.
+</Info>
+
+### List Only Custom Agents
+
+```python
+# Get only your custom agents
+custom_agents = get_custom_agents("YOUR_TOKEN")
+for agent in custom_agents:
+    print(f"Custom: {agent['name']}")
+```
+
+### Use Custom Agent
+
+```python
+# Use your custom agent in a conversation
+conv = create_conversation_with_agent(
+    "proj_01HQXYZ789ABCDEF",
+    "custom_agent_01",  # Your custom agent ID
+    "Custom analysis",
+    "YOUR_TOKEN"
+)
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Single Purpose" icon="crosshairs">
+    Use one agent per conversation for focused results
+  </Card>
+
+  <Card title="Right Tool" icon="wrench">
+    Choose the agent that matches your task
+  </Card>
+
+  <Card title="Clear Questions" icon="comment-dots">
+    Ask specific questions for better responses
+  </Card>
+
+  <Card title="Provide Context" icon="code">
+    Reference code nodes for accurate answers
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Agent not available">
+    Ensure:
+    - The agent ID is correct
+    - You have access to the agent (for custom agents)
+    - The agent status is 'active'
+  </Accordion>
+
+  <Accordion title="Poor agent responses">
+    Improve by:
+    - Asking more specific questions
+    - Providing code references (node_ids)
+    - Using the right agent for the task
+    - Including relevant context in your message
+  </Accordion>
+
+  <Accordion title="Custom agent missing">
+    Custom agents:
+    - Must be created through the web UI first
+    - Are private to your account
+    - Won't appear for other users
+  </Accordion>
+</AccordionGroup>

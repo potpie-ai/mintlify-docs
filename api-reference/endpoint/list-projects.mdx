@@ -1,0 +1,368 @@
+---
+title: 'List Projects'
+openapi: 'GET /api/v1/projects/list'
+---
+
+## Overview
+
+Retrieve a list of all projects associated with your Potpie account. Projects represent parsed codebases and contain the knowledge graphs that power AI agent interactions.
+
+## Use Cases
+
+- Display available projects in your application
+- Verify a project exists before creating conversations
+- Check project parsing status and metadata
+- Build project selection interfaces
+- Monitor project creation and management
+
+## Response
+
+Returns an array of project objects, each containing:
+
+- **id**: Unique project identifier (use this for conversations and searches)
+- **name**: Project name
+- **repo_path**: Repository path or URL
+- **branch_name**: The branch that was parsed
+- **status**: Current project status ("active", "archived", "parsing")
+- **created_at**: ISO 8601 timestamp of project creation
+
+## Project Status
+
+Projects can have different statuses:
+
+| Status | Description | Actions Available |
+|--------|-------------|-------------------|
+| `parsing` | Initial parsing in progress | Wait for completion |
+| `active` | Ready for use | All operations available |
+| `archived` | Archived project | Read-only access |
+| `failed` | Parsing failed | Review errors, retry parsing |
+
+## Example Usage
+
+### JavaScript/TypeScript
+
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  repo_path: string;
+  branch_name: string;
+  status: string;
+  created_at: string;
+}
+
+async function getProjects(): Promise<Project[]> {
+  const response = await fetch(
+    'https://production-api.potpie.ai/api/v1/projects/list',
+    {
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY'
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch projects: ${response.status}`);
+  }
+
+  return await response.json();
+}
+
+// Get only active projects
+async function getActiveProjects(): Promise<Project[]> {
+  const projects = await getProjects();
+  return projects.filter(p => p.status === 'active');
+}
+
+// Find a specific project by name
+async function findProjectByName(name: string): Promise<Project | undefined> {
+  const projects = await getProjects();
+  return projects.find(p => p.name === name);
+}
+
+// Usage
+getActiveProjects().then(projects => {
+  console.log(`Found ${projects.length} active projects`);
+  projects.forEach(project => {
+    console.log(`- ${project.name} (${project.branch_name})`);
+  });
+});
+```
+
+### Python
+
+```python
+import requests
+from typing import List, Dict, Optional
+from datetime import datetime
+
+class PotpieProjects:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://production-api.potpie.ai'
+
+    def list_projects(self) -> List[Dict]:
+        """Get all projects."""
+        response = requests.get(
+            f'{self.base_url}/api/v1/projects/list',
+            headers={'Authorization': f'Bearer {self.api_key}'}
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_active_projects(self) -> List[Dict]:
+        """Get only active projects."""
+        projects = self.list_projects()
+        return [p for p in projects if p['status'] == 'active']
+
+    def find_project(self, name: str) -> Optional[Dict]:
+        """Find a project by name."""
+        projects = self.list_projects()
+        return next((p for p in projects if p['name'] == name), None)
+
+    def get_project_age(self, project_id: str) -> int:
+        """Get project age in days."""
+        projects = self.list_projects()
+        project = next((p for p in projects if p['id'] == project_id), None)
+
+        if not project:
+            raise ValueError(f"Project {project_id} not found")
+
+        created = datetime.fromisoformat(project['created_at'].replace('Z', '+00:00'))
+        age = datetime.now(created.tzinfo) - created
+        return age.days
+
+# Usage
+client = PotpieProjects('YOUR_API_KEY')
+
+# List all projects
+projects = client.list_projects()
+print(f"Total projects: {len(projects)}")
+
+# Get active projects
+active = client.get_active_projects()
+for project in active:
+    print(f"✓ {project['name']} - {project['branch_name']}")
+
+# Find specific project
+project = client.find_project('my-awesome-project')
+if project:
+    print(f"Found project: {project['id']}")
+```
+
+### cURL
+
+```bash
+# List all projects
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/projects/list' \
+  -H 'Authorization: Bearer YOUR_API_KEY'
+
+# Pretty print with jq
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/projects/list' \
+  -H 'Authorization: Bearer YOUR_API_KEY' | jq '.'
+
+# Filter active projects with jq
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/projects/list' \
+  -H 'Authorization: Bearer YOUR_API_KEY' | jq '[.[] | select(.status == "active")]'
+```
+
+## Building a Project Dashboard
+
+```typescript
+// React component example
+import { useEffect, useState } from 'react';
+
+interface Project {
+  id: string;
+  name: string;
+  repo_path: string;
+  branch_name: string;
+  status: string;
+  created_at: string;
+}
+
+function ProjectDashboard() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        const response = await fetch(
+          'https://production-api.potpie.ai/api/v1/projects/list',
+          {
+            headers: {
+              'Authorization': `Bearer ${process.env.POTPIE_API_KEY}`
+            }
+          }
+        );
+        const data = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProjects();
+  }, []);
+
+  if (loading) return <div>Loading projects...</div>;
+
+  return (
+    <div>
+      <h2>Your Projects ({projects.length})</h2>
+      <ul>
+        {projects.map(project => (
+          <li key={project.id}>
+            <strong>{project.name}</strong>
+            <span className={`status ${project.status}`}>
+              {project.status}
+            </span>
+            <span>{project.branch_name}</span>
+            <span>{new Date(project.created_at).toLocaleDateString()}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+## Filtering and Sorting
+
+```javascript
+// Filter projects by status
+const activeProjects = projects.filter(p => p.status === 'active');
+const parsingProjects = projects.filter(p => p.status === 'parsing');
+
+// Sort by creation date (newest first)
+const sortedProjects = [...projects].sort((a, b) =>
+  new Date(b.created_at) - new Date(a.created_at)
+);
+
+// Sort by name alphabetically
+const alphabeticalProjects = [...projects].sort((a, b) =>
+  a.name.localeCompare(b.name)
+);
+
+// Group by status
+const projectsByStatus = projects.reduce((acc, project) => {
+  if (!acc[project.status]) {
+    acc[project.status] = [];
+  }
+  acc[project.status].push(project);
+  return acc;
+}, {});
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Cache Results" icon="database">
+    Cache project lists in your application to reduce API calls
+  </Card>
+  <Card title="Handle Empty State" icon="box">
+    Provide guidance when users have no projects
+  </Card>
+  <Card title="Filter by Status" icon="filter">
+    Show only relevant projects based on user intent
+  </Card>
+  <Card title="Refresh Strategically" icon="arrows-rotate">
+    Refresh list after parsing or project operations
+  </Card>
+</CardGroup>
+
+## Common Patterns
+
+### Project Selector Component
+
+```typescript
+function ProjectSelector({ onSelect }: { onSelect: (projectId: string) => void }) {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    fetchProjects().then(setProjects);
+  }, []);
+
+  const activeProjects = projects.filter(p => p.status === 'active');
+
+  return (
+    <select onChange={(e) => onSelect(e.target.value)}>
+      <option value="">Select a project...</option>
+      {activeProjects.map(project => (
+        <option key={project.id} value={project.id}>
+          {project.name} ({project.branch_name})
+        </option>
+      ))}
+    </select>
+  );
+}
+```
+
+### Project Validation
+
+```typescript
+async function validateProject(projectId: string): Promise<boolean> {
+  const projects = await getProjects();
+  const project = projects.find(p => p.id === projectId);
+
+  if (!project) {
+    console.error(`Project ${projectId} not found`);
+    return false;
+  }
+
+  if (project.status !== 'active') {
+    console.error(`Project ${projectId} is not active (status: ${project.status})`);
+    return false;
+  }
+
+  return true;
+}
+```
+
+## Error Handling
+
+```typescript
+async function getProjectsSafely() {
+  try {
+    const response = await fetch(
+      'https://production-api.potpie.ai/api/v1/projects/list',
+      {
+        headers: {
+          'Authorization': 'Bearer YOUR_API_KEY'
+        }
+      }
+    );
+
+    if (response.status === 401) {
+      throw new Error('Invalid API key');
+    }
+
+    if (response.status === 403) {
+      throw new Error('Insufficient permissions');
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+    return [];
+  }
+}
+```
+
+## Next Steps
+
+After retrieving projects:
+1. Use project IDs to create conversations
+2. Search specific projects with the Search Codebase endpoint
+3. Check parsing status for projects in "parsing" state
+4. Create new projects by parsing additional repositories
