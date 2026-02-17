@@ -4,6 +4,8 @@ title: 'Debugging Agent'
 
 The Debugging Agent provides systematic bug diagnosis and resolution. It follows an 8-step debugging methodology for complex issues and adapts its approach based on whether you have a bug to fix or a question to answer.
 
+<img src="/images/agent-debug.png" alt="Debugging Agent" />
+
 <CardGroup cols={2}>
   <Card title="8-Step Methodology" icon="list-ol" href="#debugging-methodology">
     Structured bug diagnosis
@@ -46,13 +48,15 @@ The Debugging Agent provides systematic bug diagnosis and resolution. It follows
 
 The agent enriches context before processing. It fetches code from referenced node IDs to understand the bug location. For simple queries, it processes them directly using its tools. For complex bugs, it delegates to specialized sub-agents with up to 12 iterations each.
 
+<img src="/images/debug-chat.png" alt="Debugging Agent Chat" />
+
 ## Debugging Methodology
 
 The agent follows an 8-step structured methodology for bug diagnosis.
 
 ```mermaid
 graph LR
-    A["Understand\n& Validate"] --> B["Explore &\nHypothesize"] --> C["Identify\nRoot Cause"] --> D["Generalize\nthe Issue"] --> E["Design\nSolution"] --> F["Scrutinize\n& Refine"] --> G["Implement"] --> H["Final\nVerification"]
+    A["Understand<br/>& Validate"] --> B["Explore &<br/>Hypothesize"] --> C["Identify<br/>Root Cause"] --> D["Generalize<br/>the Issue"] --> E["Design<br/>Solution"] --> F["Scrutinize<br/>& Refine"] --> G["Implement"] --> H["Final<br/>Verification"]
 
     style A fill:#4A90D9,stroke:#3A7BC8,color:#fff,font-weight:bold
     style B fill:#5B9BD5,stroke:#4A8AC4,color:#fff,font-weight:bold
@@ -63,6 +67,8 @@ graph LR
     style G fill:#36B5A0,stroke:#25A48F,color:#fff,font-weight:bold
     style H fill:#2ECC71,stroke:#27AE60,color:#fff,font-weight:bold
 ```
+
+<Info>**[Insert image here]**</Info>
 
 ## Example
 
@@ -92,6 +98,8 @@ graph LR
     ```
   </Accordion>
 </AccordionGroup>
+
+<Info>**[Insert image here]**</Info>
 
 ## Error Responses
 
@@ -137,6 +145,8 @@ graph LR
     ```
   </Accordion>
 </AccordionGroup>
+
+<Info>**[Insert image here]**</Info>
 
 ## Related Agents
 

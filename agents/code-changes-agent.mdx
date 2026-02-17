@@ -1,37 +1,56 @@
 ---
 title: 'Code Agent'
-description: 'Generate production-ready code modifications with session-based change management'
 ---
 
 The Code Agent generates production-ready code modifications through systematic analysis. It manages changes using Redis-based session tracking. The agent provides diff views and comprehensive dependency analysis before you apply changes.
 
 ## Quick Start
 
-Start building features with the Code Agent's guided workflow.
+**Q&A Page**
 
-**Initial Setup**
+The agent gathers requirements through interactive clarifying questions with multiple choice options.
 
-Describe the feature or code change you want to implement.
+<img src="/images/code-agent-clarifying-questions.png" alt="Code Agent Clarifying Questions Interface" />
 
-<img src="/images/code-agent-start.png" alt="Code Agent Start Interface" />
+**Specification Loader Page**
 
-**Repository Analysis**
+The agent analyzes your codebase through structured phases shown in the specification progress tracker.
 
-The agent analyzes your codebase to understand context and generate relevant questions.
+<img src="/images/code-agent-spec-generation.png" alt="Specification Generation Progress" />
 
-<img src="/images/code-agent-analyzing.png" alt="Code Agent Analyzing Repository" />
+**Specification Page**
 
-**Requirement Questions**
+The complete specification displays implementation details, dependencies, and structured action items for review.
 
-Answer questions to help the agent understand your requirements.
+<img src="/images/code-agent-spec-page.png" alt="Generated Specification Page" />
 
-<img src="/images/code-agent-questions.png" alt="Code Agent Questions" />
+**Plan: Summary**
 
-**Generate Implementation Plan**
+Each phase includes a written summary describing what will be built and how it fits into the overall implementation.
 
-Review your answers and generate a detailed implementation plan.
+<img src="/images/code-agent-plan-summary.png" alt="Plan Summary Tab" />
 
-<img src="/images/code-agent-ready-to-plan.png" alt="Ready to Generate Plan" />
+**Plan: Architecture**
+
+The architecture tab visualizes component relationships across client, API, and data layers for each phase.
+
+<img src="/images/code-agent-plan-architecture.png" alt="Plan Architecture Diagram" />
+
+**Plan: Plan Items**
+
+Each plan item details the task description, files to create or modify, and verification criteria to confirm completion.
+
+<img src="/images/code-agent-plan-items.png" alt="Plan Items with File Changes and Verification Criteria" />
+
+**Code Generation Page**
+
+The agent generates code in a diff view showing exact file changes, with a "Create PR" button to push changes directly to your repository.
+
+<img src="/images/code-agent-codegen.png" alt="Code Generation with Diff View" />
+
+**Final Review**
+
+<img src="/images/code-agent-final-review.png" alt="Final Review" />
 
 ## API Overview
 
