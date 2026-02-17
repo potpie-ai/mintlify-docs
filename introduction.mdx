@@ -1,22 +1,23 @@
 ---
 title: Introduction
 description: 'Welcome to Potpie!'
+mode: 'wide'
 ---
 
 <img
   className="block dark:hidden"
-  src="/images/homepage.png"
-  alt="Homepage"
+  src="/images/intro.png"
+  alt="Potpie Introduction"
 />
 <img
   className="hidden dark:block"
-  src="/images/homepage.png"
-  alt="Homepage"
+  src="/images/intro.png"
+  alt="Potpie Introduction"
 />
 
 ## What is Potpie?
 
-Build AI agents for your codebase in minuites. 
+Build AI agents for your codebase in minutes. 
 
 Potpie deeply understands your codebase by breaking down your code into its constituting parts and building a knowledge graph out of your code's components. 
 We generate inferences at every level of your codebase so that we can comprehensively answer questions about your codebase. 
@@ -24,20 +25,15 @@ We generate inferences at every level of your codebase so that we can comprehens
 Potpie provides purpose built agents that are expert on your codebase to perform engineering tasks for you, and also provides the platform for you to build your own custom agents using tools that interface with the knowledge graph.
 
 
-<CardGroup cols={2}>
-  <Card
-    title="Expert agents for your codebase"
-    icon="comment-dots"
-    href="https://app.potpie.ai"
-  >
-    Use our pre-built agents to answer questions, generate test plans, and more
+<CardGroup cols={3}>
+  <Card title="Understand Code" icon="book-open" href="/agents/qna-agent">
+    Use **Ask Agent** for exploration and comprehension
   </Card>
-  <Card
-    title="Custom Agents"
-    icon="screwdriver-wrench"
-    href="https://app.potpie.ai"
-  >
-    Build your own agents to automate your workflows
+  <Card title="Modify Code" icon="pen-to-square" href="/agents/code-changes-agent">
+    Use **Code Agent** for changes and features
+  </Card>
+  <Card title="Fix Bugs" icon="wrench" href="/agents/debugging-agent">
+    Use **Debug Agent** for issues and errors
   </Card>
 </CardGroup>
 
@@ -45,40 +41,26 @@ Potpie provides purpose built agents that are expert on your codebase to perform
 
 We provide purpose built agents that are expert on your codebase to perform engineering tasks for you.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card
-    title="QnA Agent"
+    title="Ask Agent"
     icon="question"
     href="/agents/qna-agent"
   >
     Answer questions about your codebase
   </Card>
-    <Card
+  <Card
+    title="Code Agent"
+    icon="code-compare"
+    href="/agents/code-changes-agent"
+  >
+    Automatically generate code changes for your codebase
+  </Card>
+  <Card
     title="Debugging Agent"
     icon="bug"
     href="/agents/debugging-agent"
   >
     Debug errors in your codebase iteratively
-  </Card>
-  <Card
-    title="Integration Test Agent"
-    icon="magnifying-glass"
-    href="/agents/integration-test-agent"
-  >
-    Automatically generate integration test plans for your codebase
-  </Card>
-  <Card
-    title="Unit Test Agent"
-    icon="square-check"
-    href="/agents/unit-test-agent"
-  >
-    Automatically generate unit test plans for your codebase
-  </Card>
-  <Card
-    title="Code Changes Agent"
-    icon="code-compare"
-    href="/agents/code-changes-agent"
-  >
-    Automatically generate code changes for your codebase
   </Card>
 </CardGroup>

@@ -1,13 +1,24 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Potpie",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373"
+    "primary": "#B6E343",
+    "light": "#B6E343",
+    "dark": "#B6E343"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
+  "customCSS": ["/styles/custom.css"],
+  "api": {
+    "baseUrl": "https://production-api.potpie.ai",
+    "auth": {
+      "method": "key",
+      "name": "x-api-key"
+    },
+    "playground": {
+      "mode": "show"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -26,11 +37,9 @@
             "icon": "robot",
             "pages": [
               "agents/introduction",
-              "agents/debugging-agent",
               "agents/qna-agent",
-              "agents/integration-test-agent",
-              "agents/unit-test-agent",
-              "agents/code-changes-agent"
+              "agents/code-changes-agent",
+              "agents/debugging-agent"
             ]
           },
           {
@@ -46,29 +55,21 @@
             "pages": [
               "custom-agents/introduction",
               "custom-agents/configuration",
-              {
-                "group": "Tools",
-                "icon": "toolbox",
-                "pages": [
-                  "custom-agents/tools",
-                  "custom-agents/tools/get_code_from_probable_node_name",
-                  "custom-agents/tools/get_code_from_node_id",
-                  "custom-agents/tools/get_code_from_multiple_node_ids",
-                  "custom-agents/tools/ask_knowledge_graph_queries",
-                  "custom-agents/tools/get_nodes_from_tags",
-                  "custom-agents/tools/get_code_from_node_name",
-                  "custom-agents/tools/get_code_graph_from_node_id",
-                  "custom-agents/tools/get_code_graph_from_node_name",
-                  "custom-agents/tools/change_detection"
-                ]
-              }
+              "agents/tools-reference"
             ]
           },
           {
-            "group": "Extensions",
+            "group": "Integrations",
             "icon": "puzzle-piece",
             "pages": [
-              "extensions/slack"
+              "extensions/overview",
+              "extensions/github",
+              "extensions/linear",
+              "extensions/jira",
+              "extensions/confluence",
+              "extensions/sentry",
+              "extensions/slack",
+              "extensions/vscode"
             ]
           },
           {
@@ -83,19 +84,27 @@
       },
       {
         "tab": "API Reference",
-        "openapi": {
-          "source": "https://production-api.potpie.ai/openapi.json",
-          "directory": "api-reference"
-        }
+        "groups": [
+          {
+            "group": "Potpie API",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/endpoint/parse-directory",
+              "api-reference/endpoint/get-parsing-status",
+              "api-reference/endpoint/create-conversation",
+              "api-reference/endpoint/post-message",
+              "api-reference/endpoint/create-conversation-and-message",
+              "api-reference/endpoint/list-projects",
+              "api-reference/endpoint/list-agents",
+              "api-reference/endpoint/search-codebase",
+              "api-reference/endpoint/save-integration"
+            ]
+          }
+        ]
       }
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://docs.potpie.ai",
-          "icon": "book-open-cover"
-        },
         {
           "anchor": "Community",
           "href": "https://discord.gg/ryk5CMD5v6",

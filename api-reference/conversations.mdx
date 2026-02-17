@@ -1,0 +1,706 @@
+---
+title: 'Conversations API'
+description: 'Interact with your codebase using AI agents'
+---
+
+## Overview
+
+The Conversations API enables you to create AI-powered conversations about your codebase. Each conversation can:
+
+- Use multiple AI agents specialized for different tasks
+- Reference multiple projects (codebases)
+- Stream responses in real-time
+- Maintain conversation history
+- Include images and code references
+
+## Create Conversation
+
+Create a new conversation to start interacting with your codebase.
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.potpie.ai/api/v1/conversations/ \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_01HQXYZ789",
+    "title": "Understanding React hooks",
+    "status": "active",
+    "project_ids": ["proj_01HQXYZ789ABCDEF"],
+    "agent_ids": ["codebase_qna_agent"]
+  }'
+```
+
+```python Python
+import requests
+
+url = "https://api.potpie.ai/api/v1/conversations/"
+headers = {
+    "Authorization": "Bearer YOUR_TOKEN",
+    "Content-Type": "application/json"
+}
+payload = {
+    "user_id": "user_01HQXYZ789",
+    "title": "Understanding React hooks",
+    "status": "active",
+    "project_ids": ["proj_01HQXYZ789ABCDEF"],
+    "agent_ids": ["codebase_qna_agent"]
+}
+
+response = requests.post(url, json=payload, headers=headers)
+conversation = response.json()
+print(f"Created conversation: {conversation['conversation_id']}")
+```
+
+```typescript TypeScript
+interface CreateConversationRequest {
+  user_id: string;
+  title: string;
+  status: 'active' | 'archived';
+  project_ids: string[];
+  agent_ids: string[];
+}
+
+interface CreateConversationResponse {
+  message: string;
+  conversation_id: string;
+}
+
+async function createConversation(
+  request: CreateConversationRequest,
+  token: string
+): Promise<CreateConversationResponse> {
+  const response = await fetch('https://api.potpie.ai/api/v1/conversations/', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(request)
+  });
+
+  return response.json();
+}
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="user_id" type="string" required>
+  ID of the user creating the conversation
+</ParamField>
+
+<ParamField body="title" type="string" required>
+  Conversation title for easy identification
+</ParamField>
+
+<ParamField body="status" type="string" required>
+  Conversation status: `active` or `archived`
+</ParamField>
+
+<ParamField body="project_ids" type="array" required>
+  Array of project IDs to include in the conversation (minimum 1)
+</ParamField>
+
+<ParamField body="agent_ids" type="array" required>
+  Array of agent IDs to use (minimum 1). Available agents:
+  - `codebase_qna_agent`: General questions about code
+  - `debugging_agent`: Debug issues
+  - `unit_test_agent`: Generate unit tests
+  - `integration_test_agent`: Generate integration tests
+  - `code_generation_agent`: Generate code
+  - `blast_radius_agent`: Analyze change impact
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="hidden" type="boolean" default="false">
+  Whether to hide this conversation from the web UI
+</ParamField>
+
+### Response
+
+```json
+{
+  "message": "Conversation created successfully",
+  "conversation_id": "conv_01HQXYZ789ABCDEF"
+}
+```
+
+## Post Message
+
+Send a message to an AI agent in a conversation with optional streaming.
+
+<CodeGroup>
+
+```bash cURL (Streaming)
+curl -X POST https://api.potpie.ai/api/v1/conversations/conv_123/message/ \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "content=How does the authentication system work?" \
+  --no-buffer
+```
+
+```python Python (Streaming)
+import requests
+import json
+
+def post_message_stream(conversation_id: str, message: str, token: str):
+    """Post message and stream the response"""
+    url = f"https://api.potpie.ai/api/v1/conversations/{conversation_id}/message/"
+
+    files = {'content': (None, message)}
+
+    response = requests.post(
+        url,
+        files=files,
+        headers={"Authorization": f"Bearer {token}"},
+        params={"stream": "true"},
+        stream=True
+    )
+
+    # Process streaming response
+    for line in response.iter_lines():
+        if line:
+            line = line.decode('utf-8')
+            if line.startswith('data: '):
+                data = json.loads(line[6:])  # Remove 'data: ' prefix
+                print(data.get('content', ''), end='', flush=True)
+
+# Usage
+post_message_stream('conv_01HQXYZ789ABCDEF', 'Explain the auth flow', 'YOUR_TOKEN')
+```
+
+```python Python (Non-streaming)
+def post_message(conversation_id: str, message: str, token: str):
+    """Post message and wait for complete response"""
+    url = f"https://api.potpie.ai/api/v1/conversations/{conversation_id}/message/"
+
+    files = {'content': (None, message)}
+
+    response = requests.post(
+        url,
+        files=files,
+        headers={"Authorization": f"Bearer {token}"},
+        params={"stream": "false"}
+    )
+
+    return response.json()
+```
+
+```typescript TypeScript (Streaming)
+async function postMessageStream(
+  conversationId: string,
+  message: string,
+  token: string
+) {
+  const formData = new FormData();
+  formData.append('content', message);
+
+  const response = await fetch(
+    `https://api.potpie.ai/api/v1/conversations/${conversationId}/message/?stream=true`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    }
+  );
+
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader!.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6));
+        console.log(data.content);
+      }
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="conversation_id" type="string" required>
+  Unique identifier of the conversation
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="stream" type="boolean" default="true">
+  Whether to stream the response using Server-Sent Events (SSE)
+</ParamField>
+
+<ParamField query="session_id" type="string">
+  Session ID for reconnection (optional)
+</ParamField>
+
+<ParamField query="prev_human_message_id" type="string">
+  Previous human message ID for deterministic session ID
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Stream cursor for replay from specific position
+</ParamField>
+
+### Request Body (multipart/form-data)
+
+<ParamField body="content" type="string" required>
+  Message content to send to the agent (minimum 1 character)
+</ParamField>
+
+<ParamField body="node_ids" type="string">
+  JSON string array of node contexts to reference
+
+  Example: `[{"node_id": "node_123", "name": "AuthService"}]`
+</ParamField>
+
+<ParamField body="images" type="file[]">
+  Optional images to attach (max 10MB per image, up to 10 images)
+</ParamField>
+
+### Streaming Response (SSE)
+
+When `stream=true`, responses are sent as Server-Sent Events:
+
+```
+data: {"type": "token", "content": "The"}
+data: {"type": "token", "content": " authentication"}
+data: {"type": "token", "content": " system"}
+data: {"type": "citation", "data": {"file": "auth.py", "line": 42}}
+data: {"type": "done", "message_id": "msg_123"}
+```
+
+#### Event Types
+
+- `token`: Incremental text content
+- `citation`: Source code reference
+- `tool_call`: AI agent using a tool
+- `done`: Message complete
+- `error`: Error occurred
+
+### Non-streaming Response
+
+When `stream=false`:
+
+```json
+{
+  "id": "msg_01HQXYZ789ABCDEF",
+  "conversation_id": "conv_01HQXYZ789ABCDEF",
+  "content": "The authentication system uses JWT tokens...",
+  "sender_id": null,
+  "type": "ai",
+  "created_at": "2024-01-15T10:35:00Z",
+  "status": "ready",
+  "citations": ["src/auth/middleware.py:42"],
+  "has_attachments": false
+}
+```
+
+## Create Conversation and Message (API v2)
+
+Convenience endpoint that creates a conversation and sends a message in one request. Perfect for quick queries.
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.potpie.ai/api/v2/project/proj_123/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "x-user-id: YOUR_USER_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Explain the database schema",
+    "agent_id": "codebase_qna_agent"
+  }'
+```
+
+```python Python
+import requests
+
+def quick_query(project_id: str, question: str, api_key: str, user_id: str):
+    """Send a quick query to a project"""
+    url = f"https://api.potpie.ai/api/v2/project/{project_id}/message/"
+
+    headers = {
+        "x-api-key": api_key,
+        "x-user-id": user_id,
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "content": question,
+        "agent_id": "codebase_qna_agent"  # Optional, defaults to codebase_qna_agent
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+# Usage
+answer = quick_query(
+    "proj_01HQXYZ789ABCDEF",
+    "How does authentication work?",
+    "YOUR_API_KEY",
+    "YOUR_USER_ID"
+)
+print(answer['content'])
+```
+
+```typescript TypeScript
+interface DirectMessageRequest {
+  content: string;
+  agent_id?: string;
+  node_ids?: Array<{ node_id: string; name: string }>;
+}
+
+async function quickQuery(
+  projectId: string,
+  request: DirectMessageRequest,
+  apiKey: string,
+  userId: string
+) {
+  const response = await fetch(
+    `https://api.potpie.ai/api/v2/project/${projectId}/message/`,
+    {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'x-user-id': userId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    }
+  );
+
+  return response.json();
+}
+
+// Usage
+const answer = await quickQuery(
+  'proj_01HQXYZ789ABCDEF',
+  {
+    content: 'How does authentication work?',
+    agent_id: 'codebase_qna_agent'
+  },
+  'YOUR_API_KEY',
+  'YOUR_USER_ID'
+);
+```
+
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="project_id" type="string" required>
+  ID of the project to query
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="hidden" type="boolean" default="true">
+  Whether to hide the auto-created conversation from the web UI
+</ParamField>
+
+### Request Body
+
+<ParamField body="content" type="string" required>
+  Message content / question
+</ParamField>
+
+<ParamField body="agent_id" type="string">
+  Specific agent to use (defaults to `codebase_qna_agent`)
+</ParamField>
+
+<ParamField body="node_ids" type="array">
+  Optional array of code nodes to reference
+</ParamField>
+
+## List Conversations
+
+Get a paginated list of conversations with sorting options.
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.potpie.ai/api/v1/conversations/?start=0&limit=10&sort=updated_at&order=desc" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```python Python
+def list_conversations(token: str, start: int = 0, limit: int = 10):
+    """List user's conversations"""
+    url = "https://api.potpie.ai/api/v1/conversations/"
+
+    params = {
+        "start": start,
+        "limit": limit,
+        "sort": "updated_at",
+        "order": "desc"
+    }
+
+    response = requests.get(
+        url,
+        params=params,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    return response.json()
+
+# Usage
+conversations = list_conversations('YOUR_TOKEN', start=0, limit=20)
+for conv in conversations:
+    print(f"{conv['title']} - {conv['updated_at']}")
+```
+
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="start" type="integer" default="0">
+  Offset for pagination (0-indexed)
+</ParamField>
+
+<ParamField query="limit" type="integer" default="10">
+  Maximum number of conversations to return (1-100)
+</ParamField>
+
+<ParamField query="sort" type="string" default="updated_at">
+  Field to sort by: `updated_at` or `created_at`
+</ParamField>
+
+<ParamField query="order" type="string" default="desc">
+  Sort direction: `asc` or `desc`
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "conv_01HQXYZ789ABCDEF",
+    "title": "Understanding React hooks",
+    "status": "active",
+    "project_ids": ["proj_01HQXYZ789ABCDEF"],
+    "agent_ids": ["codebase_qna_agent"],
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T14:25:00Z",
+    "total_messages": 12
+  }
+]
+```
+
+## Advanced Features
+
+### Attaching Images
+
+Send images for visual context (screenshots, diagrams, etc.):
+
+```python
+import requests
+
+def post_message_with_image(conversation_id: str, message: str, image_path: str, token: str):
+    url = f"https://api.potpie.ai/api/v1/conversations/{conversation_id}/message/"
+
+    with open(image_path, 'rb') as image_file:
+        files = {
+            'content': (None, message),
+            'images': ('screenshot.png', image_file, 'image/png')
+        }
+
+        response = requests.post(
+            url,
+            files=files,
+            headers={"Authorization": f"Bearer {token}"},
+            params={"stream": "false"}
+        )
+
+    return response.json()
+```
+
+### Referencing Code Nodes
+
+Reference specific code elements in your message:
+
+```python
+import json
+
+node_ids = [
+    {"node_id": "node_auth_123", "name": "AuthService"},
+    {"node_id": "node_auth_456", "name": "authenticate_user"}
+]
+
+files = {
+    'content': (None, 'Explain how these work together'),
+    'node_ids': (None, json.dumps(node_ids))
+}
+```
+
+### Session Management
+
+Resume interrupted streaming sessions:
+
+```python
+# Initial request
+response = requests.post(url, files=files, params={
+    "stream": "true",
+    "prev_human_message_id": "msg_previous_123"
+})
+
+# If connection drops, resume with cursor
+response = requests.post(url, files=files, params={
+    "stream": "true",
+    "session_id": "session_123",
+    "cursor": "1-0"  # Resume from specific position
+})
+```
+
+## Examples
+
+### Complete Conversation Flow
+
+```python
+import requests
+import json
+
+class PotpieConversation:
+    def __init__(self, token: str):
+        self.token = token
+        self.base_url = "https://api.potpie.ai/api/v1"
+
+    def create(self, project_id: str, title: str, agent_id: str = "codebase_qna_agent"):
+        """Create a new conversation"""
+        response = requests.post(
+            f"{self.base_url}/conversations/",
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "user_id": "user_01HQXYZ789",
+                "title": title,
+                "status": "active",
+                "project_ids": [project_id],
+                "agent_ids": [agent_id]
+            }
+        )
+        data = response.json()
+        return data['conversation_id']
+
+    def send_message(self, conversation_id: str, message: str):
+        """Send a message and get response"""
+        response = requests.post(
+            f"{self.base_url}/conversations/{conversation_id}/message/",
+            files={'content': (None, message)},
+            headers={"Authorization": f"Bearer {self.token}"},
+            params={"stream": "false"}
+        )
+        return response.json()
+
+# Usage
+chat = PotpieConversation("YOUR_TOKEN")
+
+# Create conversation
+conv_id = chat.create("proj_01HQXYZ789ABCDEF", "Auth System Q&A")
+
+# Ask questions
+answer1 = chat.send_message(conv_id, "How does login work?")
+print(answer1['content'])
+
+answer2 = chat.send_message(conv_id, "What about password reset?")
+print(answer2['content'])
+```
+
+### Streaming Chat UI
+
+```typescript
+async function streamingChat(conversationId: string, message: string, token: string) {
+  const formData = new FormData();
+  formData.append('content', message);
+
+  const response = await fetch(
+    `https://api.potpie.ai/api/v1/conversations/${conversationId}/message/?stream=true`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    }
+  );
+
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const event = JSON.parse(line.slice(6));
+
+        switch (event.type) {
+          case 'token':
+            // Append to UI
+            appendToUI(event.content);
+            break;
+          case 'citation':
+            // Show citation
+            showCitation(event.data);
+            break;
+          case 'done':
+            // Finalize
+            finishMessage(event.message_id);
+            break;
+          case 'error':
+            // Handle error
+            handleError(event.data);
+            break;
+        }
+      }
+    }
+  }
+}
+```
+
+## Error Handling
+
+Common errors and how to handle them:
+
+```python
+try:
+    response = requests.post(url, files=files, headers=headers)
+    response.raise_for_status()
+
+except requests.exceptions.HTTPError as e:
+    if e.response.status_code == 400:
+        # Empty message or invalid parameters
+        print("Invalid message content")
+    elif e.response.status_code == 402:
+        # Subscription required
+        print("Upgrade subscription to continue")
+    elif e.response.status_code == 404:
+        # Conversation not found
+        print("Conversation does not exist")
+```
+
+## Best Practices
+
+1. **Use Streaming**: Enable streaming for better UX
+2. **Reference Code**: Include node_ids for context-aware responses
+3. **Handle Reconnections**: Implement cursor-based resumption
+4. **Rate Limiting**: Respect rate limits for your plan
+5. **Error Recovery**: Handle network errors gracefully
+6. **Session Management**: Use session_id for long conversations

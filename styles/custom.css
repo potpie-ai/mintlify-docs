@@ -1,0 +1,118 @@
+/* Mermaid diagram text color - black */
+.mermaid text,
+.mermaid .label,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel {
+  fill: #000000 !important;
+  color: #000000 !important;
+}
+
+/* Use full width for wide mode pages - remove content max-width constraints */
+[data-mode="wide"] .content,
+[data-mode="wide"] article,
+[data-mode="wide"] .prose {
+  max-width: 100% !important;
+}
+
+/* Increase card group gap for better spacing */
+.card-group {
+  gap: 2rem !important;
+}
+
+/* Ensure cards use full available width */
+.card-group > * {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+}
+
+/* Custom tab styling for Agent Selection Guide */
+.tab-group {
+  display: flex !important;
+  width: 100% !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: none !important;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  overflow: hidden !important;
+}
+
+.tab-group button {
+  flex: 1 !important;
+  padding: 1rem 2rem !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.tab-group button:last-child {
+  border-right: none !important;
+}
+
+.tab-group button[aria-selected="true"] {
+  background: rgba(182, 227, 67, 0.15) !important;
+  color: #B6E343 !important;
+  border-bottom: 3px solid #B6E343 !important;
+}
+
+.tab-group button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Tab content area styling */
+.tab-content {
+  padding: 2rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 0 0.5rem 0.5rem !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Custom tab styling for Agent Selection Guide */
+.tab-group {
+  display: flex !important;
+  width: 100% !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: none !important;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  overflow: hidden !important;
+}
+
+.tab-group button {
+  flex: 1 !important;
+  padding: 1rem 2rem !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.tab-group button:last-child {
+  border-right: none !important;
+}
+
+.tab-group button[aria-selected="true"] {
+  background: rgba(182, 227, 67, 0.15) !important;
+  color: #B6E343 !important;
+  border-bottom: 3px solid #B6E343 !important;
+}
+
+.tab-group button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Tab content area styling */
+.tab-content {
+  padding: 2rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 0 0.5rem 0.5rem !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}

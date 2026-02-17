@@ -1,0 +1,346 @@
+---
+title: 'List Available Agents'
+openapi: 'GET /api/v1/list-available-agents/'
+---
+
+## Use Cases
+
+- Discover available agents before creating conversations
+- Build agent selection interfaces in your application
+- Understand agent capabilities and specializations
+- Dynamically populate agent options for users
+- Determine the right agent for specific tasks
+
+## Authentication
+
+This endpoint requires API key authentication via the `x-api-key` header.
+
+```bash
+x-api-key: YOUR_API_KEY
+```
+
+<AccordionGroup>
+  <Accordion title="Request & Response">
+
+| Location | Field | Type | Required | Description |
+|----------|-------|------|----------|-------------|
+| Response | `id` | string | - | Unique agent identifier (use this in conversation creation) |
+| Response | `name` | string | - | Human-readable agent name |
+| Response | `description` | string | - | What the agent specializes in |
+| Response | `type` | string | - | Agent type: `"system"` (built-in) or `"custom"` (user-created) |
+| Response | `available` | boolean | - | Whether the agent is currently active and usable |
+
+  </Accordion>
+</AccordionGroup>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+
+The endpoint requires a valid API key for authentication.
+
+```json
+{
+  "detail": "API key is required"
+}
+```
+
+**Causes:**
+- Missing `x-api-key` header
+- Invalid or expired API key
+
+**Solution:** Include a valid API key in the request header.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+
+The endpoint returns this error when unexpected exceptions occur.
+
+```json
+{
+  "detail": "Internal server error"
+}
+```
+
+**Causes:**
+- Database connection failures
+- Service unavailability
+
+**Solution:** Retry the request after a brief delay. Contact support if the issue persists.
+  </Accordion>
+</AccordionGroup>
+
+## Available Agents
+
+Potpie provides specialized agents for different engineering tasks. Learn more in the [Agents documentation](/agents/introduction).
+
+- **Ask Agent** - Answers questions about your codebase and explains how code works.
+- **Debug Agent** - Identifies and fixes bugs by tracing execution flows and analyzing root causes.
+- **Code Agent** - Generates code modifications and implements feature requests based on your codebase patterns.
+
+## Complete Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v1/list-available-agents/',
+  {
+    headers: {
+      'x-api-key': 'YOUR_API_KEY'
+    }
+  }
+);
+
+const agents = await response.json();
+
+console.log('Available Agents:');
+agents.forEach(agent => {
+  console.log(`\n${agent.name} (${agent.id})`);
+  console.log(`  ${agent.description}`);
+});
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://production-api.potpie.ai/api/v1/list-available-agents/',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+agents = response.json()
+
+print('Available Agents:')
+for agent in agents:
+    print(f"\n{agent['name']} ({agent['id']})")
+    print(f"  {agent['description']}")
+```
+
+```bash cURL
+# List all agents
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'x-api-key: YOUR_API_KEY'
+
+# Pretty print with jq
+curl -X GET \
+  'https://production-api.potpie.ai/api/v1/list-available-agents/' \
+  -H 'x-api-key: YOUR_API_KEY' | jq '.'
+```
+
+</CodeGroup>
+
+## Building Agent Selector UI
+
+### React Component
+
+```typescript
+import { useEffect, useState } from 'react';
+
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+}
+
+function AgentSelector({
+  selectedAgents,
+  onSelectionChange
+}: {
+  selectedAgents: string[];
+  onSelectionChange: (agentIds: string[]) => void;
+}) {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://production-api.potpie.ai/api/v1/list-available-agents/', {
+      headers: { 'x-api-key': process.env.POTPIE_API_KEY }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setAgents(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load agents:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const toggleAgent = (agentId: string) => {
+    const newSelection = selectedAgents.includes(agentId)
+      ? selectedAgents.filter(id => id !== agentId)
+      : [...selectedAgents, agentId];
+    onSelectionChange(newSelection);
+  };
+
+  if (loading) return <div>Loading agents...</div>;
+
+  return (
+    <div className="agent-selector">
+      <h3>Select Agents</h3>
+      {agents.map(agent => (
+        <div key={agent.id} className="agent-option">
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedAgents.includes(agent.id)}
+              onChange={() => toggleAgent(agent.id)}
+            />
+            <strong>{agent.name}</strong>
+            <p>{agent.description}</p>
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### CLI Tool
+
+```python
+import click
+import requests
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
+
+@click.group()
+def cli():
+    """Potpie Agents CLI"""
+    pass
+
+@cli.command()
+@click.option('--api-key', envvar='POTPIE_API_KEY', required=True)
+def list(api_key):
+    """List all available agents."""
+    try:
+        response = requests.get(
+            'https://production-api.potpie.ai/api/v1/list-available-agents/',
+            headers={'x-api-key': api_key}
+        )
+        response.raise_for_status()
+        agents = response.json()
+
+        table = Table(title="Available Potpie Agents")
+        table.add_column("ID", style="cyan")
+        table.add_column("Name", style="green")
+        table.add_column("Description", style="white")
+
+        for agent in agents:
+            table.add_row(agent['id'], agent['name'], agent['description'])
+
+        console.print(table)
+        console.print(f"\n[bold]Total agents:[/bold] {len(agents)}")
+
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+@cli.command()
+@click.argument('keyword')
+@click.option('--api-key', envvar='POTPIE_API_KEY', required=True)
+def search(keyword, api_key):
+    """Search agents by keyword."""
+    response = requests.get(
+        'https://production-api.potpie.ai/api/v1/list-available-agents/',
+        headers={'x-api-key': api_key}
+    )
+    agents = response.json()
+
+    matches = [
+        a for a in agents
+        if keyword.lower() in a['name'].lower() or
+           keyword.lower() in a['description'].lower()
+    ]
+
+    if matches:
+        console.print(f"[green]Found {len(matches)} matching agents:[/green]")
+        for agent in matches:
+            console.print(f"\n[bold]{agent['name']}[/bold] ({agent['id']})")
+            console.print(f"  {agent['description']}")
+    else:
+        console.print(f"[yellow]No agents found matching '{keyword}'[/yellow]")
+
+if __name__ == '__main__':
+    cli()
+```
+
+## Agent Selection Guide
+
+Choose agents based on your task:
+
+| Task | Recommended Agents |
+|------|-------------------|
+| Fix a bug | `debugging-agent` |
+| Understand code | `qna-agent` |
+| Write tests | `unit-test-agent`, `integration-test-agent` |
+| Modify code | `code-changes-agent` |
+| Code review | `qna-agent`, `code-changes-agent` |
+| Architecture questions | `qna-agent` |
+| Refactoring | `code-changes-agent` |
+
+## Multi-Agent Conversations
+
+You can use multiple agents in a single conversation:
+
+```typescript
+// Create conversation with multiple agents
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v1/conversations/',
+  {
+    method: 'POST',
+    headers: {
+      'x-api-key': 'YOUR_API_KEY',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      project_ids: ['proj_456'],
+      agent_ids: [
+        'qna-agent',           // For understanding existing code
+        'code-changes-agent',  // For implementing changes
+        'unit-test-agent'      // For writing tests
+      ]
+    })
+  }
+);
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Empty agent list">
+    **Problem:** API returns an empty array `[]`.
+
+    **Solution:**
+    - This is unusual - system agents should always be available
+    - Verify you're using the correct API endpoint
+    - Check that your account is active and in good standing
+    - Contact support if the list remains empty
+  </Accordion>
+
+  <Accordion title="Agent marked as unavailable">
+    **Problem:** Agent shows `available: false` in response.
+
+    **Solution:**
+    - The agent is temporarily disabled or under maintenance
+    - Choose an alternative agent for your task
+    - Check back later or contact support for updates
+    - Use only agents where `available: true`
+  </Accordion>
+
+  <Accordion title="Unknown agent ID">
+    **Problem:** Agent ID from list doesn't work in conversations.
+
+    **Solution:**
+    - Verify you're using the exact `id` value from this endpoint
+    - Check that the agent's `available` field is `true`
+    - Refresh the agent list to get the latest data
+    - Some agents may require specific permissions
+  </Accordion>
+</AccordionGroup>
+

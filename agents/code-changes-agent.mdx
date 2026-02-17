@@ -1,30 +1,240 @@
 ---
-title: 'Code Changes Agent'
-description: 'Analyze and review code changes in your current branch'
+title: 'Code Agent'
+description: 'Generate production-ready code modifications with session-based change management'
 ---
 
+The Code Agent generates production-ready code modifications through systematic analysis. It manages changes using Redis-based session tracking. The agent provides diff views and comprehensive dependency analysis before you apply changes.
 
-The Code Changes Agent specializes in generating detailed analysis of code changes in your current branch compared to the default branch. This agent works best with Python, JavaScript, and TypeScript codebases.
+## Quick Start
 
-## Capabilities
+Start building features with the Code Agent's guided workflow.
 
-- Identify APIs impacted by current changes
-- Analyze cascading effects of code modifications
-- Review changes and suggest improvements
+**Initial Setup**
 
-## How to Use
+Describe the feature or code change you want to implement.
 
-To utilize the Code Changes Agent, you can ask questions or request analysis related to your current code changes. Here are some example prompts:
+<img src="/images/code-agent-start.png" alt="Code Agent Start Interface" />
 
-1. "Which APIs are impacted by my current change?"
-2. "Help me understand any cascading effects of my changes."
-3. "Review my changes and suggest improvements."
+**Repository Analysis**
 
-## Best Practices
+The agent analyzes your codebase to understand context and generate relevant questions.
 
-- Provide context about the changes you've made when asking for analysis
-- Be specific about the parts of the code you want to focus on
-- Use the agent's suggestions as a starting point for your own review and decision-making process
+<img src="/images/code-agent-analyzing.png" alt="Code Agent Analyzing Repository" />
 
-By leveraging the Code Changes Agent, you can gain valuable insights into the impact of your code modifications and ensure higher quality changes before merging them into your main codebase.
+**Requirement Questions**
 
+Answer questions to help the agent understand your requirements.
+
+<img src="/images/code-agent-questions.png" alt="Code Agent Questions" />
+
+**Generate Implementation Plan**
+
+Review your answers and generate a detailed implementation plan.
+
+<img src="/images/code-agent-ready-to-plan.png" alt="Ready to Generate Plan" />
+
+## API Overview
+
+The Code Agent operates as a stateful API endpoint. You send code modification requests. The agent generates changes and stores them in a session. You can review, modify, and export changes when ready.
+
+**Endpoint:** `POST /api/v1/agents/code`
+
+**Authentication:** Bearer token required
+
+### Request Format
+
+```typescript
+{
+  query: string              // Your code modification request
+  project_id: string         // Project identifier
+  conversation_id: string    // Conversation context
+  node_ids?: string[]        // Optional: Specific code references
+}
+```
+
+### Response Format
+
+```typescript
+{
+  response: string           // Explanation of code changes (markdown)
+  tool_calls: ToolCall[]     // Tools used during generation
+  citations: string[]        // Files referenced during generation
+}
+```
+
+## How It Works
+
+1. **Context Enrichment**: Fetches code from referenced node IDs to understand existing patterns
+2. **Systematic Analysis**: Analyzes your codebase to identify all files that will be impacted
+3. **Pattern Examination**: Examines existing code patterns and conventions
+4. **Style-Matched Generation**: Generates changes that match your project style exactly
+
+All modifications go through the Code Changes Manager. This Redis-based system tracks changes across files. You can review diffs before applying changes to your repository.
+
+### Multi-Agent Mode
+
+The agent activates multi-agent mode for complex code generation. It delegates implementation to a specialized Code Implementation sub-agent. This sub-agent has 20 iterations available, the highest among all agents. Integration agents handle integration-specific code.
+
+**Single-Agent Mode:** The agent processes simple modifications directly using its tools.
+
+**Multi-Agent Mode:** Complex tasks trigger delegation to specialized sub-agents with up to 20 iterations for thorough implementation.
+
+## Common Use Cases
+
+### Adding Features
+
+You request new features. The agent generates the necessary code across multiple files. It tracks all changes in the session.
+
+```
+"Add user profile endpoint to the API"
+"Implement email notifications for password resets"
+"Create a dashboard component with charts"
+```
+
+The agent generates all required files. It updates existing files where needed. You can review all changes before applying them.
+
+### Modifying Code
+
+You request modifications to existing code. The agent locates the relevant files. It makes precise changes while preserving functionality.
+
+```
+"Update the login function to support OAuth"
+"Add error handling to the payment processor"
+"Refactor the user service to use async/await"
+```
+
+The agent shows diffs for each modified file. You can iterate on changes before finalizing them.
+
+### Fixing Bugs
+
+You describe bugs and request fixes. The agent analyzes the issue. It generates corrections and explains the root cause.
+
+```
+"Fix the null pointer error in checkout"
+"Resolve the race condition in data sync"
+"Correct the SQL injection vulnerability in search"
+```
+
+The agent provides both the fix and an explanation. It may suggest additional improvements.
+
+## Example Request
+
+```bash
+curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Add a GET /api/users/:id endpoint that returns user details",
+    "project_id": "proj_123",
+    "conversation_id": "conv_456"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "response": "## User Endpoint Implementation\n\nI have added a GET endpoint for user details. The implementation includes three components:\n\n### Routes (app/routes/users.py:23-28)\n\n```python\n@router.get('/users/{user_id}')\nasync def get_user(user_id: str, db: Session = Depends(get_db)):\n    user = await user_service.get_user_by_id(db, user_id)\n    if not user:\n        raise HTTPException(status_code=404, detail='User not found')\n    return user\n```\n\n### Service (app/services/user_service.py:45-52)\n\nThe service layer queries the database and returns the user object.\n\n### Tests (tests/test_users.py:67-89)\n\nI have added integration tests for the new endpoint.",
+  "changes_summary": "Modified 2 files, added 1 file:\n- app/routes/users.py: Added get_user endpoint\n- app/services/user_service.py: Added get_user_by_id method\n- tests/test_users.py: Added test cases",
+  "session_id": "session_abc123"
+}
+```
+
+## Reviewing Changes
+
+You can review changes before applying them. The agent provides several tools for inspection.
+
+### View All Changes
+
+Request a summary of all modifications in the session.
+
+```bash
+curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Show me all changes in the current session",
+    "project_id": "proj_123",
+    "conversation_id": "conv_456"
+  }'
+```
+
+### View Specific Diff
+
+Request the diff for a specific file.
+
+```bash
+curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Show me the diff for app/routes/users.py",
+    "project_id": "proj_123",
+    "conversation_id": "conv_456"
+  }'
+```
+
+### Export Changes
+
+Export all changes for application to your codebase.
+
+```bash
+curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Export all changes",
+    "project_id": "proj_123",
+    "conversation_id": "conv_456"
+  }'
+```
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="400 Bad Request">
+    The request has invalid format or missing required fields.
+
+    ```json
+    {
+      "error": "VALIDATION_ERROR",
+      "message": "Missing required field: project_id"
+    }
+    ```
+  </Accordion>
+  <Accordion title="401 Unauthorized">
+    The API key is missing or invalid.
+
+    ```json
+    {
+      "error": "UNAUTHORIZED",
+      "message": "Invalid API key"
+    }
+    ```
+  </Accordion>
+  <Accordion title="404 Not Found">
+    The specified project does not exist or is not accessible.
+
+    ```json
+    {
+      "error": "PROJECT_NOT_FOUND",
+      "message": "Project not found"
+    }
+    ```
+  </Accordion>
+  <Accordion title="429 Too Many Requests">
+    You have exceeded the rate limit.
+
+    ```json
+    {
+      "error": "RATE_LIMIT_EXCEEDED",
+      "message": "Retry after 60 seconds"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Agents
+
+- [Ask Agent](/agents/qna-agent) - Answers questions about your codebase
+- [Debugging Agent](/agents/debugging-agent) - Provides systematic bug diagnosis and resolution

@@ -1,6 +1,5 @@
 ---
-title: 'Getting started with the API'
-description: 'Using Potpie Agents through the API'
+title: 'API Access'
 ---
 
 ## Generating an API Key
@@ -8,73 +7,116 @@ description: 'Using Potpie Agents through the API'
 To generate an API key, follow these steps:
 
 1. Navigate to [app.potpie.ai](https://app.potpie.ai).
+
+<img src="/images/intro.png" alt="Potpie Dashboard" />
+
 2. Click on your username in the bottom left corner.
+
+<img src="/images/api-key-username-menu.png" alt="Username menu with Key Management option" />
+
 3. Select **Key Management** from the menu.
+
+<img src="/images/api-key-management-page.png" alt="API Key Management page" />
+
 4. In the "API Key Management" section, click on **Generate API Key**.
 
 Your API key will be created and displayed for use.
 
 ## Using the API
 
-To use the API, follow these steps:
+<Info>
+  This API uses API key authentication with `/api/v2` endpoints. For Firebase Bearer authentication with `/api/v1` endpoints, see the [agent documentation](/agents/introduction).
+</Info>
 
-1. **Base URL**: Use `https://production-api.potpie.ai/` as the base URL.
+### API Workflow
 
-2. **Parse API**:
-   - **API Path**: `/api/v2/parse`
-   - **Request Method**: POST
-   - **Request Body**:
-     ```json
-     {
-       "repo_name": "potpie-ai/potpie",
-       "branch_name": "main"
-     }
-     ```
-   - The Parse API will return a **project ID**.
+<Steps>
+  <Step title="Parse Repository">
+    Parse your codebase to create a project and build the knowledge graph.
 
-3. **Get Parsing Status**:
-   - **API Path**: `/api/v2/parsing-status/{project_id}`
-   - **Request Method**: GET
-   - **Query Parameters**:
-     - `project_id`: The ID returned from the Parse API.
-     - `x-api-key`: Your API key (in the header).
-   - Wait until the project status is "ready".
+    **Endpoint**: `POST /api/v2/parse`
 
-4. **Create a Conversation**:
-   - **API Path**: `/api/v2/conversations`
-   - **Request Method**: POST
-   - **Request Body**:
-     ```json
-     {
-       "project_ids": ["your_project_id"],
-       "agent_ids": ["your_agent_id"]
-     }
-     ```
-   - **Note**: Only one project ID and agent ID are supported per conversation.
+    **Request**:
+    ```json
+    {
+      "repo_name": "potpie-ai/potpie",
+      "branch_name": "main"
+    }
+    ```
 
-### List of Agents
+    **Headers**:
+    ```
+    x-api-key: your_api_key_here
+    ```
 
-You can choose from the following agents:
+    **Response**: Returns a `project_id` for use in subsequent requests.
+  </Step>
 
-- **Codebase Q&A Agent**: `id="codebase_qna_agent"`
-- **Debugging with Knowledge Graph Agent**: `id="debugging_agent"`
-- **Unit Test Agent**: `id="unit_test_agent"`
-- **Integration Test Agent**: `id="integration_test_agent"`
-- **Low-Level Design Agent**: `id="LLD_agent"`
-- **Code Changes Agent**: `id="code_changes_agent"`
-- **Code Generation Agent**: `id="code_generation_agent"`
+  <Step title="Check Parsing Status">
+    Wait for the repository parsing to complete before creating conversations.
 
-5. **Send Message**:
-   - **API Path**: `/api/v2/conversations/{conversation_id}/message`
-   - **Request Method**: POST
-   - **Request Body**:
-     ```json
-     {
-       "content": "your_message_content"
-     }
-     ```
-   - **Query Parameters**:
-     - `conversation_id`: The ID of the conversation created in the previous step.
-     - `x-api-key`: Your API key (in the header).
+    **Endpoint**: `GET /api/v2/parsing-status/{project_id}`
 
+    **Headers**:
+    ```
+    x-api-key: your_api_key_here
+    ```
 
+    **Wait until**: Response shows `status: "ready"`
+  </Step>
+
+  <Step title="Create Conversation">
+    Create a conversation with your chosen agent.
+
+    **Endpoint**: `POST /api/v2/conversations`
+
+    **Request**:
+    ```json
+    {
+      "project_ids": ["your_project_id"],
+      "agent_ids": ["codebase_qna_agent"]
+    }
+    ```
+
+    **Headers**:
+    ```
+    x-api-key: your_api_key_here
+    ```
+
+    <Note>
+      Only one project ID and one agent ID are supported per conversation.
+    </Note>
+
+    **Response**: Returns `conversation_id` for sending messages.
+  </Step>
+
+  <Step title="Send Message">
+    Send messages to your conversation and receive AI responses.
+
+    **Endpoint**: `POST /api/v2/conversations/{conversation_id}/message`
+
+    **Request**:
+    ```json
+    {
+      "content": "Where is authentication implemented?"
+    }
+    ```
+
+    **Headers**:
+    ```
+    x-api-key: your_api_key_here
+    ```
+
+    **Query Parameters**:
+    - `stream` (boolean, default: `true`): Whether to stream the response
+
+    **Response**:
+    ```json
+    {
+      "response": "Markdown-formatted answer",
+      "tool_calls": [...],
+      "citations": ["file1.py", "file2.py"]
+    }
+    ```
+  </Step>
+</Steps>

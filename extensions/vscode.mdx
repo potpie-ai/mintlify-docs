@@ -1,0 +1,327 @@
+---
+title: "VS Code Integration"
+---
+
+# VS Code Integration
+
+Potpie AI brings intelligent codebase understanding and AI agents directly into Visual Studio Code. Chat with AI agents that understand your code, execute code changes, and get instant answers without leaving your editor.
+
+## Quick Start
+
+<Steps>
+  <Step title="Install Extension">
+    Search for "Potpie AI" in VS Code Extensions and click Install.
+
+    ![Install Potpie AI Extension](/images/vscode/install-extension.png)
+  </Step>
+
+  <Step title="Sign In">
+    Click the Potpie icon in the sidebar and sign in with your Potpie account.
+
+    ![Sign in to Potpie](/images/vscode/sign-in.png)
+  </Step>
+
+  <Step title="Start Chatting">
+    Press `Ctrl+Shift+L` (or `Cmd+Shift+L` on Mac) and ask your first question.
+
+    ![Chat with Potpie](/images/vscode/chat-interface.png)
+  </Step>
+</Steps>
+
+## Installation
+
+### From VS Code Marketplace
+
+1. Open Visual Studio Code
+2. Navigate to the Extensions view (`Ctrl+Shift+X` on Windows/Linux, `Cmd+Shift+X` on Mac)
+3. Search for "Potpie AI"
+4. Click **Install**
+
+### From VSIX File
+
+If you have a `.vsix` file:
+
+1. Open VS Code
+2. Go to Extensions view
+3. Click the `...` menu → **Install from VSIX...**
+4. Select the `potpie-vscode-extension.vsix` file
+
+**Command Line Installation:**
+```bash
+code --install-extension potpie-vscode-extension.vsix
+```
+
+## Requirements
+
+- **VS Code Version:** 1.80.0 or higher
+- **Potpie Account:** Active account with API access
+
+## Features
+
+### AI Chat Interface
+
+Chat with AI agents directly in VS Code's sidebar. The extension provides a dedicated chat panel where you can:
+
+- Ask questions about your codebase
+- Request code changes and implementations
+- Debug issues with AI assistance
+- Get explanations of complex code
+
+### Local Code Execution
+
+The extension runs a local server that enables:
+
+- Direct file operations in your workspace
+- Code modifications through AI agents
+- Terminal command execution (with your approval)
+- Real-time synchronization with the cloud
+
+### Remote Collaboration
+
+Connect your local environment to Potpie's cloud agents through secure tunnels, allowing:
+
+- Cloud-based AI agents to access your workspace
+- Remote code execution with local file access
+- Seamless collaboration between local and cloud resources
+
+## Commands
+
+The extension provides the following commands accessible via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
+
+| Command | Description | Keybinding |
+|---------|-------------|------------|
+| **Potpie: Focus Potpie Chat** | Open and focus the Potpie chat panel | `Ctrl+Shift+L` / `Cmd+Shift+L` |
+| **Potpie: New Chat** | Start a new conversation | - |
+| **Potpie: Open Potpie Chat Panel** | Open the chat in a separate panel | - |
+| **Potpie: Open Sign-In in External Browser** | Launch authentication in your default browser | - |
+| **Potpie: Logout** | Sign out of your Potpie account | - |
+| **Potpie: Retry Tunnel Setup** | Restart the tunnel connection | - |
+| **Potpie: Clear Terminal Command Allowlist** | Reset approved terminal commands | - |
+| **Potpie: Clear Potpie Cache** | Clear local extension cache | - |
+| **Potpie: Fix in Potpie Chat** | Send code context to chat for fixing | - |
+
+## Configuration
+
+Access settings via:
+- **Windows/Linux:** File > Preferences > Settings (or `Ctrl+,`)
+- **Mac:** Code > Settings (or `Cmd+,`)
+- **Or:** Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and type "Settings"
+
+Then search for "Potpie".
+
+### API Configuration
+
+**Potpie API URL**
+- **Setting:** `potpie.apiUrl`
+- **Description:** Base URL for the Potpie backend API
+- **When to change:** When using a self-hosted instance or local development
+
+**Workflows API URL**
+- **Setting:** `potpie.workflowsApiUrl`
+- **Description:** Base URL for workflow operations (build mode, recipes)
+- **When to change:** When using a self-hosted workflows backend
+
+**Frontend Application URL**
+- **Setting:** `potpie.appUrl`
+- **Description:** Used for authentication flows
+- **When to change:** When using a custom frontend deployment
+
+### Local Server
+
+**Local Server Port**
+- **Setting:** `potpie.localServerPort`
+- **Default:** `8010`
+- **Description:** Port for the local server that handles file operations
+- **Note:** Automatically tries next available port if 8010 is in use
+
+**Auth Callback Port**
+- **Setting:** `potpie.authCallbackPort`
+- **Default:** `54333`
+- **Description:** Port for OAuth authentication callbacks
+- **Tip:** Set to `0` to use a dynamic OS-assigned port
+
+### Terminal Security
+
+**Terminal Command Rules**
+- **Setting:** `potpie.terminalRules`
+- **Type:** Object with `allow` and `forbidden` arrays
+- **Description:** Control which terminal commands AI agents can execute
+
+**Configuration Example:**
+```json
+{
+  "potpie.terminalRules": {
+    "allow": ["ls", "cat", "grep", "git status"],
+    "forbidden": ["rm", "sudo", "curl"]
+  }
+}
+```
+
+**Command Behavior:**
+- **Allowed commands:** Execute without prompting
+- **Forbidden commands:** Always blocked
+- **Unlisted commands:** Prompt for user approval
+
+<Warning>
+Terminal commands execute with your user permissions. Review the allowlist carefully and avoid adding destructive commands like `rm`, `sudo`, or `shutdown`.
+</Warning>
+
+### Debugging
+
+**Log API Requests**
+- **Setting:** `potpie.logApiRequests`
+- **Default:** `false`
+- **Description:** Enable to log API requests to the Output panel
+- **View logs:** **View > Output > Potpie API**
+- **Use when:** Debugging connection issues or API errors
+
+<Note>
+API requests run in the extension host process, not the webview, so they don't appear in the browser Developer Tools Network tab.
+</Note>
+
+## Getting Started
+
+### 1. Sign In
+
+After installing the extension:
+
+1. Click the Potpie icon in the Activity Bar (sidebar)
+2. Click **Sign In** in the chat panel
+3. Your default browser opens to the Potpie authentication page
+4. Complete the sign-in process
+5. Return to VS Code — you're now authenticated
+
+The extension maintains your session across VS Code restarts.
+
+### 2. Select a Project
+
+1. Open a workspace that corresponds to a parsed Potpie project
+2. The extension automatically detects the repository
+3. If you have multiple projects, select one from the chat interface
+
+### 3. Start Chatting
+
+1. Use the keyboard shortcut `Ctrl+Shift+L` / `Cmd+Shift+L` to focus the chat
+2. Type your question or request in the input box
+3. The AI agent analyzes your codebase and responds
+4. Continue the conversation naturally
+
+**Example Questions:**
+- "Where is user authentication implemented?"
+- "Explain how the database connection works"
+- "Add error handling to the login function"
+- "Show me all API endpoints in this project"
+
+## Tunnel Connection
+
+The extension establishes a secure tunnel between your local VS Code and Potpie's cloud infrastructure.
+
+### How It Works
+
+1. **Local Server:** Runs on port 8010 (configurable) to handle file operations
+2. **Tunnel Process:** Creates a secure connection to Potpie's cloud
+3. **Registration:** Registers your workspace (repository + branch) with the backend
+4. **Execution:** Cloud agents can request local operations through the tunnel
+
+### Connection Status
+
+The status bar shows your tunnel connection state:
+
+- 🔴 **Blinking Red Dot + "Connecting..."** — Tunnel is establishing
+- 🟢 **Solid Green Dot + "Online"** — Tunnel is active and registered
+- ⚪ **Gray/Hidden** — Not applicable (not signed in or tunnel disabled)
+
+### Manual Restart
+
+If the tunnel disconnects:
+
+1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Run **Potpie: Retry Tunnel Setup**
+3. Wait for the green "Online" indicator
+
+## Terminal Command Approval
+
+When an AI agent requests terminal command execution:
+
+1. **Allowed commands** execute immediately (configured in `potpie.terminalRules.allow`)
+2. **Forbidden commands** are blocked (configured in `potpie.terminalRules.forbidden`)
+3. **Unlisted commands** show an approval prompt:
+   - Review the command
+   - Click **Allow** to execute once
+   - Click **Always Allow** to add to your allowlist
+   - Click **Deny** to block
+
+## Troubleshooting
+
+### Extension Not Loading
+
+**Symptom:** Potpie icon missing from Activity Bar
+
+**Solution:**
+1. Check VS Code version is 1.80.0 or higher
+2. Restart VS Code
+3. Reinstall the extension if issue persists
+
+### Authentication Fails
+
+**Symptom:** "Authentication failed" or stuck on sign-in
+
+**Solution:**
+1. Open Command Palette and run **Potpie: Open Sign-In in External Browser**
+2. Complete authentication in the browser
+3. If OAuth callback doesn't redirect, check firewall settings for port 54333
+4. Try setting `potpie.authCallbackPort` to `0` for dynamic port assignment
+
+### Tunnel Connection Issues
+
+**Symptom:** Status shows "Connecting..." indefinitely or red dot persists
+
+**Solution:**
+1. Run **Potpie: Retry Tunnel Setup** from Command Palette
+2. Check that port 8010 is not blocked by firewall
+3. Review Output panel (**View > Output > Potpie API**) for errors
+4. Verify internet connectivity
+5. Try changing `potpie.localServerPort` to a different port (e.g., 8011)
+
+### Commands Not Working
+
+**Symptom:** Terminal commands fail or aren't executing
+
+**Solution:**
+1. Check `potpie.terminalRules` configuration
+2. Ensure commands aren't in the `forbidden` list
+3. Review approval prompts for unlisted commands
+4. Run **Potpie: Clear Terminal Command Allowlist** to reset approvals
+
+### Chat Not Responding
+
+**Symptom:** Messages send but no response from AI
+
+**Solution:**
+1. Verify you're signed in (check status bar)
+2. Confirm selected project is in "ready" status
+3. Check tunnel connection status (should show green)
+4. Enable `potpie.logApiRequests` and check Output panel for API errors
+5. Try **Potpie: New Chat** to start a fresh conversation
+
+## Advanced Configuration
+
+### Multiple Environments
+
+You can configure the extension for different environments (production, staging, local development) by modifying:
+
+```json
+{
+  "potpie.apiUrl": "https://your-api-server.com",
+  "potpie.workflowsApiUrl": "https://your-workflows-server.com",
+  "potpie.appUrl": "https://your-frontend.com"
+}
+```
+
+## Support
+
+For issues, feature requests, or questions:
+
+- **GitHub:** [potpie-ai/potpie-vscode-extension](https://github.com/potpie-ai/potpie-vscode-extension)
+- **Documentation:** [docs.potpie.ai](https://docs.potpie.ai)
+- **Email:** support@potpie.ai
