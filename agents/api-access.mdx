@@ -2,41 +2,56 @@
 title: 'API Access'
 ---
 
+The **Potpie API** follows **REST** conventions. Authenticate with an **API key** in the `x-api-key` header. Parse a repository, open a conversation with an agent, and retrieve structured answers with exact file and line citations.
+
 ## Generating an API Key
 
-To generate an API key, follow these steps:
+<Steps>
+  <Step title="Sign in to the dashboard">
+    Open [app.potpie.ai](https://app.potpie.ai) and sign in.
 
-1. Navigate to [app.potpie.ai](https://app.potpie.ai).
+    <img src="/images/new-chat-interface.png" alt="Potpie Dashboard" />
+  </Step>
 
-<img src="/images/new-chat-interface.png" alt="Potpie Dashboard" />
+  <Step title="Open Settings">
+    Click the account menu in the bottom-left corner and select **Settings**.
 
-2. Click on your username in the bottom left corner and select **Settings**.
+    <img src="/images/api-key-username-menu.png" alt="Username menu" />
+  </Step>
 
-<img src="/images/api-key-username-menu.png" alt="Username menu with Key Management option" />
+  <Step title="Generate an API key">
+    In the **API Key** section, click **+ Generate API Key**.
 
-3. In **Settings**, find the **Your API Key** section and click **+ Generate API Key**.
+    <img src="/images/api-key-management-page.png" alt="API Key Management" />
+  </Step>
 
-<img src="/images/api-key-management-page.png" alt="API Key Management page" />
+  <Step title="Copy the key">
+    The key appears once. Copy and store it securely.
 
-4. Redacted API Key is Generated.
+    <img src="/images/api-key-generated.png" alt="Generated API Key" />
+  </Step>
+</Steps>
 
-<img src="/images/api-key-generated.png" alt="Generated API Key displayed in Settings" />
+## API Workflow
 
-## Using the API
+All API interactions follow a four-stage sequence. Each stage requires the previous to succeed.
 
 <Info>
-  This API uses API key authentication with `/api/v2` endpoints. For Firebase Bearer authentication with `/api/v1` endpoints, see the [agent documentation](/agents/introduction).
+  The `/api/v2` endpoints use **API key** authentication. For **Firebase Bearer token** authentication with `/api/v1` endpoints, see the agent-specific documentation.
 </Info>
 
-### API Workflow
-
 <Steps>
-  <Step title="Parse Repository">
-    Parse your codebase to create a project and build the knowledge graph.
+  <Step title="Parse the repository">
+    Submit a parse request to index the repository and build the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>. The response returns a `project_id` used in all subsequent requests.
 
-    **Endpoint**: `POST /api/v2/parse`
+    **Endpoint:** `POST /api/v2/parse`
 
-    **Request**:
+    **Headers:**
+    ```
+    x-api-key: your_api_key_here
+    ```
+
+    **Request:**
     ```json
     {
       "repo_name": "potpie-ai/potpie",
@@ -44,33 +59,33 @@ To generate an API key, follow these steps:
     }
     ```
 
-    **Headers**:
+    **Response:** Returns a `project_id` for use in subsequent requests.
+  </Step>
+
+  <Step title="Check parsing status">
+    Poll the status endpoint before proceeding. Conversation creation fails if <a href="/concepts/parsing" className="mode-link">parsing</a> has not completed. The `inferring` status indicates <a href="/concepts/inference" className="mode-link">inference</a> is still running.
+
+    **Endpoint:** `GET /api/v2/parsing-status/{project_id}`
+
+    **Headers:**
     ```
     x-api-key: your_api_key_here
     ```
 
-    **Response**: Returns a `project_id` for use in subsequent requests.
+    Proceed once the response contains `"status": "ready"`.
   </Step>
 
-  <Step title="Check Parsing Status">
-    Wait for the repository parsing to complete before creating conversations.
+  <Step title="Create a conversation">
+    Initialize a conversation by specifying the **project** and **agent**. The response returns a `conversation_id` for subsequent messages.
 
-    **Endpoint**: `GET /api/v2/parsing-status/{project_id}`
+    **Endpoint:** `POST /api/v2/conversations/`
 
-    **Headers**:
+    **Headers:**
     ```
     x-api-key: your_api_key_here
     ```
 
-    **Wait until**: Response shows `status: "ready"`
-  </Step>
-
-  <Step title="Create Conversation">
-    Create a conversation with your chosen agent.
-
-    **Endpoint**: `POST /api/v2/conversations`
-
-    **Request**:
+    **Request:**
     ```json
     {
       "project_ids": ["your_project_id"],
@@ -78,44 +93,37 @@ To generate an API key, follow these steps:
     }
     ```
 
-    **Headers**:
+    <Note>
+      Each conversation supports exactly one project ID and one agent ID.
+    </Note>
+  </Step>
+
+  <Step title="Send a message">
+    Submit a message to the conversation. The agent processes the query and returns a structured response with citations.
+
+    **Endpoint:** `POST /api/v2/conversations/{conversation_id}/message/`
+
+    **Headers:**
     ```
     x-api-key: your_api_key_here
     ```
 
-    <Note>
-      Only one project ID and one agent ID are supported per conversation.
-    </Note>
-
-    **Response**: Returns `conversation_id` for sending messages.
-  </Step>
-
-  <Step title="Send Message">
-    Send messages to your conversation and receive AI responses.
-
-    **Endpoint**: `POST /api/v2/conversations/{conversation_id}/message`
-
-    **Request**:
+    **Request:**
     ```json
     {
       "content": "Where is authentication implemented?"
     }
     ```
 
-    **Headers**:
-    ```
-    x-api-key: your_api_key_here
-    ```
+    **Query Parameters:**
+    - `stream` (boolean, default: `true`): Set to `false` to receive the full response as a single JSON object.
 
-    **Query Parameters**:
-    - `stream` (boolean, default: `true`): Whether to stream the response
-
-    **Response**:
+    **Response:**
     ```json
     {
-      "response": "Markdown-formatted answer",
-      "tool_calls": [...],
-      "citations": ["file1.py", "file2.py"]
+      "response": "Markdown-formatted answer with citations",
+      "tool_calls": [],
+      "citations": ["app/auth/service.py", "app/middleware/auth.py"]
     }
     ```
   </Step>

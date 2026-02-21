@@ -1,0 +1,28 @@
+---
+title: 'Recipe'
+---
+
+**Recipe** is Potpie's **workflow orchestration** layer for coordinating agents in production. Engineers describe a Recipe in natural language, and Potpie translates it into a structured execution plan with defined **agent sequencing**, **retry policies**, **state management**, and **failure handling**. Each execution maintains **state** across steps, so Potpie can retry or resume partial failures from the point of failure.
+
+## Triggers
+
+| Trigger | When it runs |
+|---|---|
+| Scheduled | Time based execution on defined intervals via cron expressions or calendar schedules |
+| Event driven | Repository changes, incident alerts, deployment events, or external system signals |
+| Conditional | Adapts at runtime based on the outcome of prior steps or external conditions |
+
+## Composability
+
+Recipes orchestrate both predefined Potpie agents and custom agents:
+
+- **Predefined agents** bring structured capabilities for code analysis, debugging, validation, Q&A, and deployment checks
+- **Custom agents** handle domain specific logic or internal business rules
+
+## Integrations
+
+Recipes connect across source control, CI/CD pipelines, observability platforms, ticketing systems, cloud infrastructure APIs, and internal data services. Potpie provides predefined, standardized integrations, so workflows span systems through built-in connections.
+
+## Get Access
+
+Recipe is part of Potpie's enterprise offering. <a href="https://potpie.ai/enterprise" className="mode-link">Reach out</a> to learn more.

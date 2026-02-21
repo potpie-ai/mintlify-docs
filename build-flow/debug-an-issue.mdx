@@ -1,0 +1,75 @@
+---
+title: 'Debug'
+---
+
+The **Debug Agent** traces a reported issue from where it surfaces to where it originates. It walks the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> across every affected component, pins the **root cause** to an exact file and line, and returns a targeted fix.
+
+## Getting started
+
+<Steps>
+  <Step title="Describe the issue">
+    Paste an error message, stack trace, or describe the unexpected behavior. Include any context about when it occurs.
+
+    <img src="/images/agent-debug.png" alt="Describing the issue" />
+
+    <Tip>
+      Follow up messages within the same session retain full context. Start with a high-level symptom and narrow to the root cause across subsequent turns.
+    </Tip>
+  </Step>
+
+  <Step title="Potpie investigates">
+    The **Debug Agent** applies its **eight step methodology** automatically: validating the behavior, traversing code paths, pinning the **root cause**, and generating a targeted fix.
+
+    <img src="/images/debug-chat.png" alt="Debug agent investigating" />
+  </Step>
+</Steps>
+
+## Eight-step methodology
+
+Potpie applies an **eight step methodology** to every issue:
+
+<Steps>
+  <Step title="Understand and validate">
+    Confirms the reported behavior against the codebase, identifies every component involved, and establishes what the correct behavior should be at the point of failure.
+  </Step>
+  <Step title="Explore and hypothesize">
+    Traverses the relevant code paths in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> and generates candidate explanations for the failure.
+  </Step>
+  <Step title="Identify the root cause">
+    Pins the failure to a specific file and line, identifying the exact instruction that introduces the faulty state.
+  </Step>
+  <Step title="Generalize the issue">
+    Checks whether the same defect pattern appears elsewhere in the codebase.
+  </Step>
+  <Step title="Design a solution">
+    Generates a targeted fix scoped to the **root cause**.
+  </Step>
+  <Step title="Scrutinize and refine">
+    Evaluates the fix against edge cases and traces potential side effects through the <a href="/concepts/knowledge-graph" className="mode-link">dependency graph</a>.
+  </Step>
+  <Step title="Implement">
+    Produces the corrected code with exact file paths and line references.
+  </Step>
+  <Step title="Final verification">
+    Validates the fix against the original failure and checks for regressions.
+  </Step>
+</Steps>
+
+## Investigation mode
+
+Potpie resolves straightforward issues end to end. For failures that span multiple services or require deep dependency traversal, Potpie delegates to specialized subagents.
+
+## Using the API
+
+The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a debug session against a parsed project and returns the first investigation response in a single call.
+
+## Example uses
+
+<CardGroup cols={2}>
+  <Card title="Null Pointer" href="/examples/null-pointer">
+    Tracing a null pointer exception to its origin across service and data layers.
+  </Card>
+  <Card title="Memory Leak" href="/examples/memory-leak">
+    Tracing a memory leak in a long-running service to its source across object lifecycle and dependency chains.
+  </Card>
+</CardGroup>

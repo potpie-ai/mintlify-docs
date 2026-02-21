@@ -1,6 +1,6 @@
 ---
 title: 'Create Conversation And Message'
-openapi: 'POST /api/v1/project/{project_id}/message/'
+openapi: 'POST /api/v2/project/{project_id}/message/'
 ---
 
 ## Overview
@@ -40,13 +40,9 @@ x-api-key: YOUR_API_KEY
 | Body | `content` | string | required | - | The message content to send (your question about the codebase) |
 | Body | `agent_id` | string | optional | `codebase_qna_agent` | The ID of the agent to use |
 | Body | `node_ids` | array[object] | optional | - | Array of node context objects to focus the conversation |
-| Body | `attachment_ids` | array[string] | optional | - | Array of attachment IDs to include with the message |
-| Response | `id` | string | - | - | Unique message identifier |
-| Response | `conversation_id` | string | - | - | ID of the auto-created conversation |
-| Response | `content` | string | - | - | AI agent's response content |
-| Response | `type` | string | - | - | Message type (`"ai"`) |
-| Response | `created_at` | string | - | - | ISO 8601 timestamp |
-| Response | `status` | string | - | - | Processing status (`"completed"`, `"processing"`, `"failed"`) |
+| Response | `message` | string | - | - | AI agent's response content |
+| Response | `citations` | array[string] | - | - | Source code references used in the response |
+| Response | `tool_calls` | array | - | - | Tool invocations made by the agent during response generation |
 
   </Accordion>
 </AccordionGroup>
@@ -97,7 +93,7 @@ The endpoint returns this error when unexpected exceptions occur.
 
 ```json
 {
-  "detail": "Internal server error"
+  "detail": "An unexpected error occurred while creating the conversation."
 }
 ```
 
@@ -118,7 +114,7 @@ The endpoint returns this error when unexpected exceptions occur.
 ```typescript TypeScript
 // Quick codebase query
 const response = await fetch(
-  `https://production-api.potpie.ai/api/v1/project/${projectId}/message/`,
+  `https://production-api.potpie.ai/api/v2/project/${projectId}/message/`,
   {
     method: 'POST',
     headers: {
@@ -139,7 +135,7 @@ console.log(answer);
 ```python Python
 # Quick question about your codebase
 response = requests.post(
-    f'https://production-api.potpie.ai/api/v1/project/{project_id}/message/',
+    f'https://production-api.potpie.ai/api/v2/project/{project_id}/message/',
     headers={
         'x-api-key': os.environ["POTPIE_API_KEY"],
         'Content-Type': 'application/json'
@@ -156,7 +152,7 @@ print(answer)
 
 ```bash cURL
 curl -X POST \
-  "https://production-api.potpie.ai/api/v1/project/${PROJECT_ID}/message/" \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/" \
   -H 'x-api-key: YOUR_API_KEY' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -210,7 +206,7 @@ Create a conversation that appears in the web interface:
 
 ```bash
 curl -X POST \
-  "https://production-api.potpie.ai/api/v1/project/${PROJECT_ID}/message/?hidden=false" \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/?hidden=false" \
   -H 'x-api-key: YOUR_API_KEY' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -231,7 +227,7 @@ class PotpieQuickQuery:
         Ask a quick question about your codebase.
         Returns the AI response directly.
         """
-        url = f'{self.base_url}/api/v1/project/{project_id}/message/'
+        url = f'{self.base_url}/api/v2/project/{project_id}/message/'
 
         payload = {'content': question}
         if agent_id:

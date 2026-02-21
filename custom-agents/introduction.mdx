@@ -2,209 +2,39 @@
 title: 'Custom Agents'
 ---
 
-Custom agents execute repeatable tasks on your codebase with precise context and autonomous decision-making. You define the agent's role, goals, and tasks—then the agent handles the rest.
+**Custom agents** are purpose-built with a defined **role**, **goal**, and **task** set. Each agent runs against the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> and tool library as the built-in agents, scoped to a specific, repeatable workflow.
 
-## What Are Custom Agents?
+## Agent types
 
-Custom agents are AI-powered assistants that perform specialized tasks using your codebase's knowledge graph. Unlike general-purpose agents, custom agents focus on specific workflows you define.
+| Type | Access |
+|---|---|
+| Private | Accessible only to the creator. Use for personal workflows and agents under active development. |
+| Shared | Accessible to specific team members granted access by email. Collaborators can execute the agent but cannot modify its configuration. |
+| Public | Accessible to all members of the organization. Discoverable in the agent library for standardized, reusable workflows. |
 
-<CardGroup cols={2}>
-  <Card title="Autonomous Execution" icon="robot">
-    Execute multi-step tasks autonomously with 60+ specialized tools for code analysis
-  </Card>
-  <Card title="Semantic Search" icon="magnifying-glass">
-    Use semantic search across your knowledge graph with actual code context
-  </Card>
-  <Card title="Team Collaboration" icon="users">
-    Share agents across your team with granular permissions and access control
-  </Card>
-  <Card title="Knowledge Graph" icon="diagram-project">
-    Generate responses based on actual code relationships and dependencies
-  </Card>
-</CardGroup>
+## Agent definition
 
-### Common Use Cases
+Every custom agent specifies four attributes:
 
-<AccordionGroup>
-  <Accordion title="Code Quality & Optimization" icon="gauge-high">
-    - Analyze code and suggest optimizations
-    - Conduct code reviews with best practices
-    - Refactor code for maintainability
-    - Identify security vulnerabilities
-  </Accordion>
-  <Accordion title="Code Generation" icon="code">
-    - Generate boilerplate for new features
-    - Create unit tests from existing logic
-    - Extract documentation from code comments
-  </Accordion>
-  <Accordion title="Migration & Maintenance" icon="arrows-rotate">
-    - Assist with framework migrations
-    - Update deprecated patterns
-    - Modernize legacy code
-  </Accordion>
-</AccordionGroup>
+- **Role:** The professional function the agent adopts, such as `"Senior Python Developer"` or `"Security Auditor"`. This shapes how the agent frames its analysis.
+- **Goal:** The primary objective, defined with specific, measurable outcomes, such as `"Identify SQL injection vulnerabilities across all database query constructions"`.
+- **Backstory:** Professional context that informs decision-making. Include relevant methodology, standards, or principles the agent applies.
+- **System Prompt:** High-level instructions that control execution behavior: output format, edge case handling, and quality standards.
 
-## Architecture
+## Task configuration
 
-<Card>
-  Custom agents operate through a three-layer system:
+Each agent contains between one and five tasks. A task defines a discrete action and consists of three components:
 
-  <Tabs>
-    <Tab title="Agent Layer">
-      The foundation that defines your agent's identity and purpose.
+1. **Description:** A clear statement of what the task accomplishes, focused on outcomes. The system automatically enhances descriptions with step-by-step reasoning to improve execution quality.
+2. **Tools:** An array of tool IDs the agent can use. Each task requires at least one tool, selected from the <a href="/agents/tools-reference" className="mode-link">library of 60+ options</a>.
+3. **Expected Output:** A JSON object specifying the format and structure of the result.
 
-      **Role** - Professional function (e.g., "Senior Python Developer")
+## Execution
 
-      **Goal** - Primary objective (e.g., "Optimize database queries")
+<img src="/images/custom-agent-list.png" alt="Custom Agents List" />
 
-      **Backstory** - Context for credibility and decision-making
+Potpie runs each task in sequence using the configured tools and streams the result with file and line citations. Complex queries requiring synthesis across multiple files trigger **multiagent mode** automatically. A **supervisor agent** coordinates the work and delegates to specialized subagents.
 
-      **System Prompt** - High-level instructions and guidelines
-    </Tab>
+## Agent generation
 
-    <Tab title="Task Layer">
-      The work your agent performs.
-
-      **Description** - Clear statement of what to accomplish
-
-      **Tools** - Functions the agent can use (1-5 tasks per agent)
-
-      **Expected Output** - Format and structure of results
-
-      **MCP Servers** - Optional external tool integrations
-    </Tab>
-
-    <Tab title="Execution Layer">
-      How your agent runs tasks.
-
-      **Multi-Agent Mode** - Supervisor delegates to specialists (default)
-
-      **Single-Agent Mode** - Direct execution for simpler tasks
-
-      **Streaming Responses** - Real-time output as agent works
-    </Tab>
-  </Tabs>
-</Card>
-
-## How Custom Agents Work
-
-### Creation Flow
-
-```mermaid
-graph LR
-    A[Define Agent] --> B[Configure Tasks]
-    B --> C[Select Tools]
-    C --> D[LLM Enhancement]
-    D --> E[Agent Ready]
-
-    style A fill:#f0f0f0,stroke:#333,color:#000
-    style B fill:#e8f4f8,stroke:#333,color:#000
-    style C fill:#f4e8f8,stroke:#333,color:#000
-    style D fill:#e8f8f4,stroke:#333,color:#000
-    style E fill:#d4f4dd,stroke:#333,color:#000
-```
-
-<Steps>
-  <Step title="Define Agent Attributes">
-    Specify role, goal, and backstory. Write system-level instructions and set execution preferences.
-  </Step>
-
-  <Step title="Configure Tasks">
-    Describe what each task accomplishes (1-5 per agent). Assign tools from 60+ available options and define expected output format.
-  </Step>
-
-  <Step title="AI Enhancement">
-    The LLM analyzes your task descriptions, adds step-by-step reasoning prompts, optimizes tool usage patterns, and injects validation strategies.
-  </Step>
-
-  <Step title="Execution">
-    Agent receives query via conversation API, loads code context from knowledge graph, executes tasks with selected tools, and streams results with citations.
-  </Step>
-</Steps>
-
-### Auto-Generation
-
-<Info>
-  Generate complete agents from natural language prompts—no manual configuration required.
-</Info>
-
-```python
-POST /api/v1/custom-agents/agents/auto/
-{
-  "prompt": "Create an agent that reviews Python code for security issues"
-}
-```
-
-The LLM analyzes your prompt and generates:
-- Appropriate role and backstory
-- Optimized goal statement
-- Complete task breakdown
-- Tool recommendations
-- System instructions
-
-## Agent Types
-
-<CardGroup cols={3}>
-  <Card title="Private" icon="lock">
-    **Default**
-
-    Only you can access and execute. Perfect for personal workflows with full control over modifications.
-  </Card>
-
-  <Card title="Shared" icon="user-group">
-    **Team Collaboration**
-
-    Share with specific team members by email. Collaborators can execute but not modify. Owner retains full control.
-  </Card>
-
-  <Card title="Public" icon="globe">
-    **Organization-Wide**
-
-    Available to all users in your organization. Discoverable in agent library. Promote reusable workflows.
-  </Card>
-</CardGroup>
-
-## Multi-Agent Delegation
-
-<Note>
-  Complex queries trigger multi-agent mode automatically—no configuration needed.
-</Note>
-
-**Supervisor Pattern:**
-1. Main agent coordinates overall task
-2. Delegates to specialized sub-agents
-3. Each specialist handles specific aspects
-4. Supervisor synthesizes final answer
-
-**Activation Triggers:**
-- Query requires 5+ files
-- Task needs cross-system synthesis
-- Framework-specific expertise needed
-
-## Permissions & Sharing
-
-<AccordionGroup>
-  <Accordion title="Access Control" icon="shield">
-    - **Owner**: Full permissions (modify, delete, execute)
-    - **Shared Users**: Can execute only
-    - **Public Access**: Read-only for non-owners
-  </Accordion>
-
-  <Accordion title="Sharing Operations" icon="share-nodes">
-    - Share by email address
-    - Change visibility level
-    - Revoke access anytime
-    - View all shared users
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Create Your First Agent" icon="rocket" href="/custom-agents/configuration">
-    Step-by-step guide to building custom agents
-  </Card>
-  <Card title="Explore Available Tools" icon="wrench" href="/agents/tools-reference">
-    60+ tools for code analysis and generation
-  </Card>
-</CardGroup>
+Generate a custom agent from a natural language description. The system infers an appropriate **role**, **goal**, **backstory**, and task breakdown, and recommends tools matched to the described workflow. The agent executes immediately and accepts refinements through subsequent attribute updates.

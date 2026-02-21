@@ -1,89 +1,70 @@
 ---
 title: "Slack Integration"
-description: "How to get the Potpie bot in your Slack workspace"
+description: "Add the Potpie bot to a Slack workspace."
 ---
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+1. A PotpieAI account with an **API token**
+2. At least one <a href="/concepts/parsing" className="mode-link">parsed</a> project with `ready` status
+3. The PotpieAI app for Slack installed in the workspace
 
-Before using the PotpieAI integration for Slack, you need:
+## Installation
 
-1. A PotpieAI account with an API token
-2. At least one project that has been parsed and is in "ready" status
-3. The PotpieAI app for Slack installed in your workspace
-
-### Installation
-
-1. Add the PotpieAI app for Slack to your workspace by clicking [here](https://potpie-slack-1060968446103.asia-south1.run.app/slack/install)
-2. Grant the necessary permissions when prompted
-3. Once installed, you'll see PotpieAI in your Slack workspace's apps list
+1. [Install the PotpieAI app for Slack](https://potpie-slack-1060968446103.asia-south1.run.app/slack/install)
+2. Grant permissions when prompted
+3. PotpieAI appears in the workspace apps list
 
 ## Authentication
 
-Before you can start using PotpieAI in Slack, you need to authenticate with your API token:
+Authenticate with an **API token** before sending the first message.
 
 1. Type `/authenticate` in any channel or direct message
-2. A modal will open asking for your API token
-3. Enter your PotpieAI API token (follow [api access documentation](https://docs.potpie.ai/agents/api-access) to generate your token)
-4. Click "Submit"
+2. A modal opens asking for an API token
+3. Enter a PotpieAI API token. Follow the [API access documentation](https://docs.potpie.ai/agents/api-access) to generate one.
+4. Click **Submit**
 
-You'll receive a confirmation message once authenticated successfully.
+A confirmation message appears after successful authentication.
 
 ## Using PotpieAI in Slack
 
 ### Starting a Conversation
 
-To start a conversation with a PotpieAI agent:
-
 1. Type `/potpie` in any channel or direct message
-2. A modal will open with the following options:
-   - Repository selection (choose from your parsed repositories)
-   - Agent selection (choose which AI agent to use)
-   - Query input (ask your initial question)
-3. Fill in all fields and click "Submit"
+2. A modal opens with the following options:
+   - Repository selection from <a href="/concepts/parsing" className="mode-link">parsed</a> repositories
+   - **Agent** selection
+   - Query input
+3. Fill in all fields and click **Submit**
 
-PotpieAI will create a new thread with your query and respond with an answer based on your codebase.
+PotpieAI creates a new thread and responds based on the codebase.
 
 ### Continuing the Conversation
 
-To continue an existing conversation:
-
 1. Reply to the thread by @mentioning PotpieAI (e.g., `@PotpieAI tell me more about this function`)
-2. The agent will process your follow-up question within the context of the ongoing conversation
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: "You haven't authenticated yet" message  
-**Solution**: Use the `/authenticate` command to set up your API token
-
-**Issue**: "You don't have any ready projects" message  
-**Solution**: Go to the PotpieAI dashboard and parse your repository first
+2. The **agent** processes the follow-up question within the ongoing conversation context
 
 ## Command Reference
 
 | Command                | Description                               |
 | ---------------------- | ----------------------------------------- |
-| `/authenticate`        | Set up your PotpieAI API token            |
+| `/authenticate`        | Set up a PotpieAI API token               |
 | `/potpie`              | Start a new conversation with an AI agent |
-| `@PotpieAI [question]` | Continue conversation in thread           |
+| `@PotpieAI [question]` | Continue a conversation in a thread       |
 
 ## Privacy Policy
 
-For information about how we collect, use, and protect your data, please review our [Privacy Policy](https://potpie.ai/privacy-policy).
+Review the [Privacy Policy](https://potpie.ai/privacy-policy) for details on data collection and protection.
 
 ## Disclaimer
 
 <Warning>
-**AI-Generated Content Notice**: PotpieAI uses Large Language Models (LLMs) to analyze your codebase and generate responses. While our AI agents strive to provide accurate and helpful information, please be aware that:
+**AI-Generated Content Notice**: PotpieAI uses Large Language Models (LLMs) to analyze the codebase and generate responses. AI agents strive to provide accurate and helpful information, but:
 
 - AI-generated responses may contain inaccuracies, errors, or misinterpretations
 - Always verify critical information and code suggestions before implementation
-- The AI's understanding is based on the parsed codebase and may not reflect the most current state of your code
+- The AI's understanding reflects the <a href="/concepts/parsing" className="mode-link">parsed</a> codebase and may not match the current state of the code
 - Complex or ambiguous queries may result in incomplete or incorrect responses
 
-We recommend treating AI responses as helpful suggestions rather than definitive answers, and encourage you to review and validate all generated content.
-
+Treat AI responses as suggestions. Review and validate all generated content.
 </Warning>

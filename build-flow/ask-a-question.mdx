@@ -1,0 +1,56 @@
+---
+title: 'Ask'
+---
+
+**Ask** answers natural language questions about how the codebase is structured and how its components behave. It searches the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> by meaning to surface relationships, flows, and patterns across the code. When a query involves a third party library or external API, **Ask** fetches the relevant documentation alongside the code.
+
+## Getting started
+
+<Steps>
+  <Step title="Open a conversation">
+    After selecting **Ask** from the mode selector, the chat interface opens against the parsed repository.
+
+    <img src="/images/new-chat-interface.png" alt="Chat interface" />
+  </Step>
+
+  <Step title="Ask your question">
+    Type a natural language question about the codebase. **Ask** handles **flow tracing**, **dependency mapping**, and **pattern analysis**.
+
+    <img src="/images/qna-agent-processing.png" alt="Agent processing the question" />
+  </Step>
+
+  <Step title="Review the response">
+    Potpie returns an answer with exact file paths and line references for every claim.
+
+    <img src="/images/qna-agent-response-middle.png" alt="Response in progress" />
+
+    <img src="/images/qna-agent-response-end.png" alt="Completed response with citations" />
+
+    <Tip>
+      Follow up questions in the same session retain full context, so **Ask** can narrow from a broad overview to a specific function without re-establishing context.
+    </Tip>
+  </Step>
+</Steps>
+
+## Question types
+
+| Type | Response |
+|---|---|
+| Tracing flows | Full component sequence from entry point to output, with file paths and line references at each step |
+| Mapping dependencies | Every class, function, and module that imports or calls the target, organized by dependency type |
+| Pattern analysis | Every instance of the pattern across the codebase with code citations |
+
+## Using the API
+
+The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a session against a parsed project and returns a cited, markdown formatted answer in a single call.
+
+## Example uses
+
+<CardGroup cols={2}>
+  <Card title="Auth Flow" href="/examples/auth-flow">
+    Understanding how authentication works before building a protected endpoint.
+  </Card>
+  <Card title="Refactor Scope" href="/examples/refactor-scope">
+    Mapping every dependency before touching a core service.
+  </Card>
+</CardGroup>

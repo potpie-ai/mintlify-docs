@@ -1,0 +1,51 @@
+---
+title: 'Knowledge Graph'
+description: 'How Potpie builds a semantic map of your codebase.'
+---
+
+Potpie parses every source file in a connected repository and builds a **knowledge graph**, a structured representation of what every component does and how it relates to everything else. **Ask**, **Build**, and **Debug** all run against this graph.
+
+## What gets parsed
+
+Every source file breaks down into typed nodes.
+
+| Node type | What it captures |
+|---|---|
+| `Function` / `Method` | Signature, parameters, return type, call sites, and the file it lives in |
+| `Class` | Fields, methods, inheritance chain, and every file that instantiates or extends it |
+| `Module` / `File` | Exports, imports, and the dependency relationships between files |
+
+## How relationships are mapped
+
+Relationships between nodes become typed **edges** in the graph.
+
+| Edge type | What it represents |
+|---|---|
+| `Calls` | A function invoking another function |
+| `Imports` | A file or module depending on another |
+| `Extends` | A class inheriting from another |
+| `Implements` | A class implementing an interface or contract |
+
+<Info>
+Every edge carries directionality. The graph records which component depends on which, giving agents a precise map of every dependency in the codebase.
+</Info>
+
+## How agents use it
+
+<CardGroup cols={3}>
+  <Card title="Ask" href="/build-flow/ask-a-question">
+    Traces a flow by traversing edges from the entry point outward.
+  </Card>
+  <Card title="Build" href="/build-flow/build-a-feature">
+    Reads dependency edges around every file it plans to modify before generating a spec.
+  </Card>
+  <Card title="Debug" href="/build-flow/debug-an-issue">
+    Follows the call chain backwards from the point of failure to identify a root cause.
+  </Card>
+</CardGroup>
+
+Every answer is grounded in the graph. File paths and line numbers come directly from the indexed nodes.
+
+## One graph per branch
+
+Potpie indexes each branch independently. Queries always run against the graph for the selected branch, so answers reflect the exact state of code on that branch.

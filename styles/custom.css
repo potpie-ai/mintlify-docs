@@ -1,3 +1,29 @@
+
+/* Mode link styling - light blue, bold, no underline */
+.mode-link,
+.mode-link:link,
+.mode-link:visited,
+.mode-link:active {
+  color: #60a5fa !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.mode-link:hover {
+  color: #B6E343 !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
 /* Mermaid diagram text color - black */
 .mermaid text,
 .mermaid .label,
@@ -12,6 +38,49 @@
 [data-mode="wide"] article,
 [data-mode="wide"] .prose {
   max-width: 100% !important;
+}
+
+/* Full-bordered table styling — light mode */
+table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  border: 1px solid #5a7a15 !important;
+}
+
+table th,
+table td {
+  border: 1px solid #5a7a15 !important;
+  padding: 0.75rem 1rem !important;
+  text-align: left !important;
+}
+
+table th {
+  background: rgba(182, 227, 67, 0.15) !important;
+  font-weight: 600 !important;
+  color: #4d6612 !important;
+}
+
+table tr:nth-child(even) td {
+  background: rgba(182, 227, 67, 0.04) !important;
+}
+
+/* Full-bordered table styling — dark mode */
+.dark table {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table th,
+.dark table td {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table th {
+  background: rgba(182, 227, 67, 0.08) !important;
+  color: #B6E343 !important;
+}
+
+.dark table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* Increase card group gap for better spacing */
@@ -116,3 +185,4 @@
   border-radius: 0 0 0.5rem 0.5rem !important;
   background: rgba(0, 0, 0, 0.2) !important;
 }
+

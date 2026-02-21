@@ -52,7 +52,7 @@
     }
   ],
   "paths": {
-    "/api/v1/parse": {
+    "/api/v2/parse": {
       "post": {
         "operationId": "parseDirectory",
         "summary": "Parse Directory",
@@ -76,9 +76,9 @@
                 "remote_repo": {
                   "summary": "Parse remote repository",
                   "value": {
-                    "repo_name": "my-awesome-project",
+                    "repo_name": "facebook/react",
                     "branch_name": "main",
-                    "commit_id": "abc123def456"
+                    "commit_id": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
                   }
                 }
               }
@@ -106,17 +106,20 @@
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
           "422": {
             "$ref": "#/components/responses/ValidationError"
           }
         }
       }
     },
-    "/api/v1/parsing-status/{project_id}": {
+    "/api/v2/parsing-status/{project_id}": {
       "get": {
         "operationId": "getParsingStatus",
         "summary": "Get Parsing Status",
-        "description": "Check the parsing status of a specific project using its project ID. Returns current status, progress percentage, and any error messages.",
+        "description": "Check the parsing status of a specific project using its project ID. Returns the current status and whether the parsed commit matches the latest commit on the branch.",
         "tags": ["Parsing"],
         "parameters": [
           {
@@ -140,26 +143,12 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": ["submitted", "processing", "ready", "failed"],
+                      "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"],
                       "description": "Current parsing status"
                     },
-                    "progress": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 100,
-                      "description": "Parsing progress percentage"
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Status message"
-                    },
-                    "project_id": {
-                      "type": "string",
-                      "description": "Project identifier"
-                    },
-                    "error": {
-                      "type": "string",
-                      "description": "Error message if status is failed"
+                    "latest": {
+                      "type": "boolean",
+                      "description": "Whether the parsed commit matches the latest commit on the branch"
                     }
                   }
                 },
@@ -168,18 +157,14 @@
                     "summary": "Parsing in progress",
                     "value": {
                       "status": "processing",
-                      "progress": 45,
-                      "message": "Analyzing code structure",
-                      "project_id": "proj_abc123def456"
+                      "latest": false
                     }
                   },
                   "ready": {
-                    "summary": "Parsing ready",
+                    "summary": "Parsing complete",
                     "value": {
                       "status": "ready",
-                      "progress": 100,
-                      "message": "Parsing ready successfully",
-                      "project_id": "proj_abc123def456"
+                      "latest": true
                     }
                   }
                 }
@@ -195,7 +180,7 @@
         }
       }
     },
-    "/api/v1/parsing-status": {
+    "/api/v2/parsing-status": {
       "post": {
         "operationId": "getParsingStatusByRepo",
         "summary": "Get Parsing Status By Repo",
@@ -237,7 +222,7 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": ["submitted", "processing", "ready", "failed"]
+                      "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"]
                     },
                     "progress": {
                       "type": "integer",
@@ -287,7 +272,7 @@
             "description": "Whether to hide this conversation from the web UI",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             }
           }
         ],
@@ -297,8 +282,21 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["project_ids", "agent_ids"],
+                "required": ["user_id", "title", "status", "project_ids", "agent_ids"],
                 "properties": {
+                  "user_id": {
+                    "type": "string",
+                    "description": "User identifier. The server uses the authenticated user ID from the API key."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Name for the conversation. Pass \"Untitled\" to auto-generate a name from the project."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "archived", "deleted"],
+                    "description": "Initial conversation status. Use \"active\" for a standard new conversation."
+                  },
                   "project_ids": {
                     "type": "array",
                     "items": {
@@ -316,6 +314,9 @@
                 }
               },
               "example": {
+                "user_id": "YOUR_USER_ID",
+                "title": "Untitled",
+                "status": "active",
                 "project_ids": ["proj_abc123def456"],
                 "agent_ids": ["codebase_qna_agent"]
               }
@@ -331,7 +332,7 @@
                   "$ref": "#/components/schemas/CreateConversationResponse"
                 },
                 "example": {
-                  "message": "Conversation created successfully",
+                  "message": "Conversation created successfully.",
                   "conversation_id": "conv_xyz789abc123"
                 }
               }
@@ -349,7 +350,7 @@
         }
       }
     },
-    "/api/v1/conversations/{conversation_id}/message/": {
+    "/api/v2/conversations/{conversation_id}/message/": {
       "post": {
         "operationId": "postMessage",
         "summary": "Post Message",
@@ -380,9 +381,33 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/MessageRequest"
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "Your message or question. Cannot be empty or whitespace-only.",
+                    "minLength": 1
+                  },
+                  "node_ids": {
+                    "type": "string",
+                    "description": "JSON-encoded array of NodeContext objects to reference specific code nodes. Example: [{\"node_id\":\"node_123\",\"name\":\"AuthService\"}]"
+                  },
+                  "tunnel_url": {
+                    "type": "string",
+                    "description": "VS Code extension tunnel URL for local server routing"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Image attachments to include with your message"
+                  }
+                }
               },
               "examples": {
                 "simple": {
@@ -395,12 +420,7 @@
                   "summary": "Message with node context",
                   "value": {
                     "content": "Explain this function",
-                    "node_ids": [
-                      {
-                        "node_id": "func_authenticate_user_123",
-                        "name": "authenticate_user"
-                      }
-                    ]
+                    "node_ids": "[{\"node_id\":\"func_authenticate_user_123\",\"name\":\"authenticate_user\"}]"
                   }
                 }
               }
@@ -417,20 +437,26 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "description": "AI agent's response"
+                      "description": "AI agent's response content"
                     },
                     "citations": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
-                      "description": "Source code references"
+                      "description": "Source code references used in the response"
+                    },
+                    "tool_calls": {
+                      "type": "array",
+                      "items": {},
+                      "description": "Tool invocations made by the agent during response generation"
                     }
                   }
                 },
                 "example": {
                   "message": "The authentication system uses JWT tokens...",
-                  "citations": ["src/auth/jwt.ts", "src/middleware/auth.ts"]
+                  "citations": ["src/auth/jwt.ts", "src/middleware/auth.ts"],
+                  "tool_calls": []
                 }
               }
             }
@@ -501,13 +527,6 @@
                       "$ref": "#/components/schemas/NodeContext"
                     },
                     "description": "Optional node context"
-                  },
-                  "attachment_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Optional attachment IDs"
                   }
                 }
               },
@@ -538,15 +557,27 @@
                   "type": "object",
                   "properties": {
                     "message": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "AI agent's response content"
                     },
                     "citations": {
                       "type": "array",
                       "items": {
                         "type": "string"
-                      }
+                      },
+                      "description": "Source code references used in the response"
+                    },
+                    "tool_calls": {
+                      "type": "array",
+                      "items": {},
+                      "description": "Tool invocations made by the agent during response generation"
                     }
                   }
+                },
+                "example": {
+                  "message": "The main API endpoints are...",
+                  "citations": ["src/api/router.py"],
+                  "tool_calls": []
                 }
               }
             }
@@ -556,14 +587,11 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "402": {
-            "$ref": "#/components/responses/PaymentRequired"
           }
         }
       }
     },
-    "/api/v1/projects/list": {
+    "/api/v2/projects/list": {
       "get": {
         "operationId": "listProjects",
         "summary": "List Projects",
@@ -589,7 +617,7 @@
                       },
                       "status": {
                         "type": "string",
-                        "enum": ["submitted", "cloned", "parsed", "processing", "ready", "error"],
+                        "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"],
                         "description": "Project status"
                       }
                     }
@@ -616,7 +644,7 @@
         }
       }
     },
-    "/api/v1/list-available-agents/": {
+    "/api/v2/list-available-agents": {
       "get": {
         "operationId": "listAgents",
         "summary": "List Agents",
@@ -665,7 +693,7 @@
         }
       }
     },
-    "/api/v1/search": {
+    "/api/v2/search": {
       "post": {
         "operationId": "searchCodebase",
         "summary": "Search Codebase",
@@ -819,10 +847,10 @@
   "components": {
     "securitySchemes": {
       "ApiKeyAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "API Key",
-        "description": "API key authentication. Get your key from https://app.potpie.ai/settings/api-keys"
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key authentication. Get your key from https://app.potpie.ai/settings"
       }
     },
     "schemas": {
@@ -831,41 +859,37 @@
         "properties": {
           "repo_name": {
             "type": "string",
-            "description": "Repository name (optional if repo_path is provided)",
-            "example": "my-awesome-project"
+            "description": "Repository name in owner/repo format (optional if repo_path is provided)",
+            "example": "facebook/react"
           },
           "repo_path": {
             "type": "string",
-            "description": "Local or remote path to repository (optional if repo_name is provided)",
-            "example": "/path/to/repo"
+            "description": "Local filesystem path to repository (development mode only, optional if repo_name is provided)",
+            "example": "/path/to/local/repo"
           },
           "branch_name": {
             "type": "string",
-            "description": "Branch to parse",
+            "description": "Branch to parse (optional)",
             "example": "main"
           },
           "commit_id": {
             "type": "string",
-            "description": "Specific commit ID to parse (optional)",
-            "example": "abc123def456"
+            "description": "Specific commit SHA to parse (optional)",
+            "example": "2c3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e"
           }
-        },
-        "required": ["branch_name"]
+        }
       },
       "ParsingResponse": {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string",
-            "description": "Status message"
-          },
-          "status": {
-            "type": "string",
-            "description": "Parsing status"
-          },
           "project_id": {
             "type": "string",
             "description": "Unique project identifier"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["submitted", "inferring", "ready"],
+            "description": "Current parsing state"
           }
         }
       },
@@ -904,22 +928,16 @@
         "properties": {
           "content": {
             "type": "string",
-            "description": "Message content",
+            "description": "Message content. Cannot be empty or whitespace-only.",
             "minLength": 1
           },
           "node_ids": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/NodeContext"
-            },
-            "description": "Optional node context"
+            "type": "string",
+            "description": "JSON-encoded array of NodeContext objects. Passed as a form field string."
           },
-          "attachment_ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Optional attachment IDs"
+          "tunnel_url": {
+            "type": "string",
+            "description": "VS Code extension tunnel URL for local server routing"
           }
         }
       },
@@ -1136,6 +1154,24 @@
       }
     },
     "responses": {
+      "Forbidden": {
+        "description": "Forbidden - Development mode required for this operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Development mode is not enabled, cannot parse local repository."
+            }
+          }
+        }
+      },
       "BadRequest": {
         "description": "Bad request - Invalid parameters",
         "content": {

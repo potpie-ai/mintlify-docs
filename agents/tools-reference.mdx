@@ -2,461 +2,512 @@
 title: 'Tools Reference'
 ---
 
-# Tools Reference
-
-Custom agents access 60+ specialized tools across six categories: Knowledge Graph, Code Analysis, Integration Tools, Web & Research, Code Management, and Task Management.
-
-<Info>
-  Tools are organized by category. Click on any tool name to see detailed documentation including parameters, return values, and usage examples.
-</Info>
+**Custom agents** access specialized tools across eight categories: **Knowledge Graph**, **Code Query**, **Code Changes**, **Integration**, **Web**, **Execution**, **Task Management**, and **Requirements**. Assign tools per task at agent creation to control what the agent can access during execution.
 
 ## Tool Categories
 
-```mermaid
-graph LR
-    A[Custom Agent] --> B[Knowledge Graph Tools]
-    A --> C[Code Analysis Tools]
-    A --> D[Integration Tools]
-    A --> E[Web & Research Tools]
-    A --> F[Code Management Tools]
-    A --> G[Task Management Tools]
-
-    style A fill:#b3f5d1,stroke:#333,color:#000
-    style B fill:#e8f4f8,stroke:#333,color:#000
-    style C fill:#f0f0f0,stroke:#333,color:#000
-    style D fill:#fff4e1,stroke:#333,color:#000
-    style E fill:#bfe3ff,stroke:#333,color:#000
-    style F fill:#f4e8f8,stroke:#333,color:#000
-    style G fill:#ffc9c9,stroke:#333,color:#000
-```
-
-## Tool Categories Overview
-
-<CardGroup cols={3}>
-  <Card title="Knowledge Graph Tools" icon="sitemap" href="#knowledge-graph-tools">
-    Query and traverse the code knowledge graph
-  </Card>
-  <Card title="Code Query Tools" icon="file-code" href="#code-query-tools">
-    Retrieve and analyze code structure
-  </Card>
-  <Card title="Code Changes Tools" icon="code-compare" href="#code-changes-management-tools">
-    Manage code modifications (Code Agent only)
-  </Card>
-  <Card title="Integration Tools" icon="plug" href="#integration-tools">
-    Interface with external services
-  </Card>
-  <Card title="Web Tools" icon="globe" href="#web-tools">
-    Web search and external data retrieval
-  </Card>
-</CardGroup>
-
-## Agent Tool Mapping
-
-<Tabs>
-  <Tab title="Ask Agent">
-    **19 Tools Total**
-
-    <AccordionGroup>
-      <Accordion title="Knowledge Graph Tools (8)" icon="sitemap">
-        - [Fuzzy Search](/custom-agents/tools/get_code_from_probable_node_name)
-        - [Node Lookup](/custom-agents/tools/get_code_from_node_id)
-        - [Batch Fetch](/custom-agents/tools/get_code_from_multiple_node_ids)
-        - [Graph Query](/custom-agents/tools/ask_knowledge_graph_queries)
-        - [Tag Filter](/custom-agents/tools/get_nodes_from_tags)
-        - [Name Lookup](/custom-agents/tools/get_code_from_node_name)
-        - [Graph Structure](/custom-agents/tools/get_code_graph_from_node_id)
-        - [Name Graph](/custom-agents/tools/get_code_graph_from_node_name)
-      </Accordion>
-      <Accordion title="Code Query Tools (3)" icon="file-code">
-        - get_code_file_structure
-        - fetch_file
-        - analyze_code_structure
-      </Accordion>
-      <Accordion title="Web Tools (2)" icon="globe">
-        - web_search_tool
-        - webpage_extractor
-      </Accordion>
-      <Accordion title="Task Management Tools (8)" icon="list-check">
-        - create_todo
-        - update_todo_status
-        - get_todo
-        - list_todos
-        - add_todo_note
-        - get_todo_summary
-        - add_requirements
-        - get_requirements
-      </Accordion>
-      <Accordion title="Execution Tools (1)" icon="terminal">
-        - bash_command
-      </Accordion>
-    </AccordionGroup>
-  </Tab>
-
-  <Tab title="Code Agent">
-    **38 Tools Total** (Highest tool count)
-
-    <AccordionGroup>
-      <Accordion title="All Ask Agent Tools (20)" icon="sitemap">
-        The Code Agent includes all 20 tools from the Ask Agent, plus 18 unique code management tools below.
-      </Accordion>
-      <Accordion title="Code Changes Management (18)" icon="code-compare">
-        **Session-Based Change Tracking** (Code Agent Exclusive)
-        - add_file_to_changes
-        - update_file_in_changes
-        - delete_file_in_changes
-        - update_file_lines
-        - replace_in_file
-        - insert_lines
-        - delete_lines
-        - get_file_from_changes
-        - list_files_in_changes
-        - search_content_in_changes
-        - clear_file_from_changes
-        - clear_all_changes
-        - get_changes_summary
-        - export_changes
-        - show_updated_file
-        - show_diff
-        - get_file_diff
-        - get_session_metadata
-      </Accordion>
-      <Accordion title="Unique Tracking Tool (1)" icon="list">
-        - delete_requirements - Only Code Agent can delete requirements
-      </Accordion>
-    </AccordionGroup>
-  </Tab>
-
-  <Tab title="Debug Agent">
-    **19 Tools Total**
-
-    <AccordionGroup>
-      <Accordion title="Same as Ask Agent" icon="sitemap">
-        The Debug Agent uses the exact same 19 tools as the Ask Agent, but applies them methodically through the 8-step debugging process. See the Ask Agent tab for the complete list.
-      </Accordion>
-    </AccordionGroup>
-  </Tab>
-</Tabs>
+| Category | Description |
+|---|---|
+| Knowledge Graph | Query and traverse the codebase by node, tag, name, or semantic meaning |
+| Code Query | Retrieve file contents, directory structures, and analyzed code element breakdowns |
+| Code Changes | Manage code modifications through a session-based change tracking system. Available exclusively to the Code Agent |
+| Integration | Detect code changes between branches and commits |
+| Web | Search the web and extract content from external URLs |
+| Execution | Run read-only shell commands against the repository |
+| Task Management | Track and manage work items within the current agent session |
+| Requirements | Store and retrieve session-level requirements and constraints |
 
 ## Knowledge Graph Tools
 
-Tools for querying and traversing Potpie's code knowledge graph. These tools enable semantic code search and relationship discovery.
+Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
 
 <AccordionGroup>
-  <Accordion title="Fuzzy Search">
-    `get_code_from_probable_node_name` - Search for nodes with probable matches to a given name.
+  <Accordion title="Semantic Search">
+    `ask_knowledge_graph_queries`
 
-    **Parameters:** `name` (string), `project_id` (string)
+    Execute natural language queries against the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> using **vector similarity search** over docstring <a href="/concepts/inference" className="mode-link">embeddings</a>. The primary tool for semantic codebase search.
 
-    **Returns:** Code content and metadata for matching nodes
-  </Accordion>
-  <Accordion title="Node Lookup">
-    `get_code_from_node_id` - Fetch exact code content using a specific node ID.
-
-    **Parameters:** `node_id` (string)
-
-    **Returns:** Complete code content, file path, and node metadata
-  </Accordion>
-  <Accordion title="Batch Fetch">
-    `get_code_from_multiple_node_ids` - Retrieve code from multiple node IDs simultaneously.
-
-    **Parameters:** `node_ids` (string[])
-
-    **Returns:** Array of code contents and metadata for each node
-  </Accordion>
-  <Accordion title="Graph Query">
-    `ask_knowledge_graph_queries` - Execute natural language or structured queries against the knowledge graph.
-
-    **Parameters:** `query` (string), `project_id` (string)
+    **Parameters:**
+    - `query` (string, required): Natural language or structured query
+    - `project_id` (string, required): Project to query
 
     **Returns:** Matching nodes, relationships, and relevance scores
   </Accordion>
+  <Accordion title="Fuzzy Lookup">
+    `get_code_from_probable_node_name`
+
+    Search for nodes using a probable name match. Use when the exact node name is unknown. Accepts `file_path:function_name` or `file_path:class_name` format.
+
+    **Parameters:**
+    - `name` (string, required): Probable node name to search for
+    - `project_id` (string, required): Project to search within
+
+    **Returns:** Code content and metadata for matching nodes
+  </Accordion>
+  <Accordion title="Exact Lookup">
+    `get_code_from_node_name`
+
+    Retrieve code using the exact node name.
+
+    **Parameters:**
+    - `name` (string, required): Exact node name
+    - `project_id` (string, required): Project to search within
+
+    **Returns:** Code content and node metadata
+  </Accordion>
+  <Accordion title="Node Fetch">
+    `get_code_from_node_id`
+
+    Fetch the exact code content for a specific node ID.
+
+    **Parameters:**
+    - `node_id` (string, required): The exact node ID to retrieve
+
+    **Returns:** Complete code content, file path, and node metadata
+  </Accordion>
+  <Accordion title="Bulk Fetch">
+    `get_code_from_multiple_node_ids`
+
+    Retrieve code from multiple node IDs in a single request.
+
+    **Parameters:**
+    - `node_ids` (string[], required): Array of node IDs to retrieve
+
+    **Returns:** Array of code contents and metadata for each node
+  </Accordion>
   <Accordion title="Tag Filter">
-    `get_nodes_from_tags` - Retrieve code nodes filtered by specific tags or labels.
+    `get_nodes_from_tags`
 
-    **Parameters:** `tags` (string[]), `project_id` (string)
+    Retrieve all code nodes matching one or more specified tags or labels.
 
-    **Returns:** Nodes matching the specified tags
+    **Parameters:**
+    - `tags` (string[], required): Tags to filter by
+    - `project_id` (string, required): Project to search within
+
+    **Returns:** All nodes matching the specified tags
+  </Accordion>
+  <Accordion title="Graph by ID">
+    `get_code_graph_from_node_id`
+
+    Retrieve the dependency graph for a specific node by its ID. Works best with Python, JavaScript, and TypeScript repositories.
+
+    **Parameters:**
+    - `node_id` (string, required): Node ID to retrieve the graph for
+
+    **Returns:** Dependency graph with related nodes and edge types
+  </Accordion>
+  <Accordion title="Graph by Name">
+    `get_code_graph_from_node_name`
+
+    Retrieve the dependency graph for a node by its name. Works best with `.py`, `.js`, and `.ts` files.
+
+    **Parameters:**
+    - `name` (string, required): Node name to retrieve the graph for
+    - `project_id` (string, required): Project to search within
+
+    **Returns:** Dependency graph with related nodes and edge types
+  </Accordion>
+  <Accordion title="Node Neighbors">
+    `get_node_neighbours_from_node_id`
+
+    Retrieve the immediate neighboring nodes in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> for a given node ID.
+
+    **Parameters:**
+    - `node_id` (string, required): Node ID to retrieve neighbors for
+
+    **Returns:** List of neighboring nodes with relationship types
+  </Accordion>
+  <Accordion title="Smart Graph">
+    `intelligent_code_graph`
+
+    Generate a filtered, context-aware code graph. Useful for reducing graph size in larger codebases while preserving the most relevant relationships.
+
+    **Parameters:**
+    - `node_id` (string, required): Starting node for the graph
+    - `project_id` (string, required): Project to query
+
+    **Returns:** Filtered dependency graph optimized for context relevance
   </Accordion>
 </AccordionGroup>
 
 ## Code Query Tools
 
-Tools for retrieving code structure, file contents, and analyzing relationships.
+Retrieve file contents, directory structures, and structured code element breakdowns.
 
 <AccordionGroup>
-  <Accordion title="get_code_file_structure">
-    Get the complete directory structure and file organization of the project.
+  <Accordion title="File Structure">
+    `get_code_file_structure`
+
+    Retrieve the complete directory structure and file organization of a project.
 
     **Parameters:**
-    - `project_id` (string, required) - Project to retrieve structure for
-    - `path` (string, optional) - Specific path to get structure for (returns full tree if omitted)
+    - `project_id` (string, required): Project to retrieve structure for
+    - `path` (string, optional): Specific path to retrieve (returns full tree if omitted)
 
     **Returns:** Hierarchical file and directory structure
-
-    **Use Cases:**
-    - Navigate unfamiliar codebases
-    - Locate configuration files
-    - Understand project organization
-    - Find specific directories or file types
   </Accordion>
-  <Accordion title="fetch_file">
+  <Accordion title="Fetch File">
+    `fetch_file`
+
     Read file contents with line numbers.
 
     **Parameters:**
-    - `file_path` (string, required) - Path to the file to read
-    - `project_id` (string, required) - Project containing the file
+    - `file_path` (string, required): Path to the file
+    - `project_id` (string, required): Project containing the file
 
     **Returns:** File contents with line numbers
-
-    **Use Cases:**
-    - Examine specific files
-    - Read configuration or source files
-    - Get context around specific code locations
   </Accordion>
-  <Accordion title="analyze_code_structure">
-    Extract classes, functions, and structure from code files.
+  <Accordion title="Code Analysis">
+    `analyze_code_structure`
+
+    Extract classes, functions, imports, and structural elements from a file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to analyze
-    - `project_id` (string, required) - Project containing the file
+    - `file_path` (string, required): File to analyze
+    - `project_id` (string, required): Project containing the file
 
-    **Returns:** Structured representation of code elements (classes, functions, imports, etc.)
-
-    **Use Cases:**
-    - Understand file organization
-    - Map code structure
-    - Identify code elements without reading full file
+    **Returns:** Structured representation of all code elements in the file
   </Accordion>
 </AccordionGroup>
 
 ## Code Changes Management Tools
 
-**Available exclusively to Code Agent.** These tools manage code modifications through a Redis-backed session system with 24-hour expiration.
+Available exclusively to the **Code Agent**. A **Redis-backed session** tracks all modifications with a 24-hour expiration. Export changes before the session expires.
 
 <AccordionGroup>
-  <Accordion title="add_file_to_changes">
-    Create a new file in the session.
+  <Accordion title="Add File">
+    `add_file_to_changes`
+
+    Create a new file in the current session.
 
     **Parameters:**
-    - `file_path` (string, required) - Path for new file
-    - `content` (string, required) - File content
+    - `file_path` (string, required): Path for the new file
+    - `content` (string, required): File content
 
     **Returns:** Confirmation with file path
   </Accordion>
-  <Accordion title="update_file_in_changes">
-    Replace entire file content.
+  <Accordion title="Update File">
+    `update_file_in_changes`
+
+    Replace the entire content of an existing file in the session.
 
     **Parameters:**
-    - `file_path` (string, required) - File to update
-    - `new_content` (string, required) - New file content
+    - `file_path` (string, required): File to update
+    - `new_content` (string, required): Replacement content
 
     **Returns:** Update confirmation
   </Accordion>
-  <Accordion title="delete_file_in_changes">
-    Mark a file for deletion.
+  <Accordion title="Delete File">
+    `delete_file_in_changes`
+
+    Mark a file for deletion in the current session.
 
     **Parameters:**
-    - `file_path` (string, required) - File to delete
+    - `file_path` (string, required): File to delete
 
     **Returns:** Deletion confirmation
   </Accordion>
-  <Accordion title="update_file_lines">
-    Modify specific line ranges in a file.
+  <Accordion title="Update Lines">
+    `update_file_lines`
+
+    Modify a specific line range within a file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to modify
-    - `start_line` (integer, required) - Starting line number
-    - `end_line` (integer, required) - Ending line number
-    - `new_content` (string, required) - Replacement content
+    - `file_path` (string, required): File to modify
+    - `start_line` (integer, required): First line of the range
+    - `end_line` (integer, required): Last line of the range
+    - `new_content` (string, required): Replacement content
 
     **Returns:** Update confirmation
   </Accordion>
-  <Accordion title="replace_in_file">
-    Find and replace text with regex support.
+  <Accordion title="Find Replace">
+    `replace_in_file`
+
+    Find and replace text within a file, with regex support.
 
     **Parameters:**
-    - `file_path` (string, required) - File to modify
-    - `pattern` (string, required) - Search pattern (regex)
-    - `replacement` (string, required) - Replacement text
+    - `file_path` (string, required): File to search in
+    - `pattern` (string, required): Search pattern (supports regex)
+    - `replacement` (string, required): Replacement text
 
     **Returns:** Count of replacements made
   </Accordion>
-  <Accordion title="insert_lines">
-    Add lines at a specific position.
+  <Accordion title="Insert Lines">
+    `insert_lines`
+
+    Insert lines at a specific position within a file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to modify
-    - `line_number` (integer, required) - Position to insert at
-    - `content` (string, required) - Content to insert
+    - `file_path` (string, required): File to modify
+    - `line_number` (integer, required): Position to insert at
+    - `content` (string, required): Content to insert
 
     **Returns:** Insertion confirmation
   </Accordion>
-  <Accordion title="delete_lines">
-    Remove specific line ranges.
+  <Accordion title="Delete Lines">
+    `delete_lines`
+
+    Remove a specific line range from a file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to modify
-    - `start_line` (integer, required) - First line to delete
-    - `end_line` (integer, required) - Last line to delete
+    - `file_path` (string, required): File to modify
+    - `start_line` (integer, required): First line to delete
+    - `end_line` (integer, required): Last line to delete
 
     **Returns:** Deletion confirmation
   </Accordion>
-  <Accordion title="get_file_from_changes">
-    Retrieve current content of a file from the session.
+  <Accordion title="Get File">
+    `get_file_from_changes`
+
+    Retrieve the current content of a file from the session, including all pending changes.
 
     **Parameters:**
-    - `file_path` (string, required) - File to retrieve
+    - `file_path` (string, required): File to retrieve
 
-    **Returns:** Current file content (including pending changes)
+    **Returns:** Current file content with all pending changes applied
   </Accordion>
-  <Accordion title="list_files_in_changes">
+  <Accordion title="List Files">
+    `list_files_in_changes`
+
     List all files modified in the current session.
 
-    **Returns:** List of file paths with change types (added, modified, deleted)
+    **Returns:** List of file paths with their change types (added, modified, deleted)
   </Accordion>
-  <Accordion title="search_content_in_changes">
+  <Accordion title="Search Changes">
+    `search_content_in_changes`
+
     Search across all modified files in the session.
 
     **Parameters:**
-    - `query` (string, required) - Search query
-    - `regex` (boolean, optional) - Use regex matching
+    - `query` (string, required): Search query
+    - `regex` (boolean, optional): Enable regex matching
 
     **Returns:** Matching results with file paths and line numbers
   </Accordion>
-  <Accordion title="clear_file_from_changes">
-    Revert changes for a specific file.
+  <Accordion title="Revert File">
+    `clear_file_from_changes`
+
+    Revert all pending changes for a specific file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to revert
+    - `file_path` (string, required): File to revert
 
     **Returns:** Revert confirmation
   </Accordion>
-  <Accordion title="clear_all_changes">
-    Clear all changes in the current session.
+  <Accordion title="Clear Session">
+    `clear_all_changes`
+
+    Discard all changes tracked in the current session.
 
     **Returns:** Clear confirmation
   </Accordion>
-  <Accordion title="get_changes_summary">
-    Get overview of all modifications in the session.
+  <Accordion title="Changes Summary">
+    `get_changes_summary`
 
-    **Returns:** Summary including file count, line changes, change types
+    Get an overview of all modifications tracked in the current session.
+
+    **Returns:** Summary including file count, line changes, and change types
   </Accordion>
-  <Accordion title="export_changes">
-    Generate patch file or changeset for applying modifications.
+  <Accordion title="Export Changes">
+    `export_changes`
+
+    Generate a patch file or changeset for applying all session modifications.
 
     **Parameters:**
-    - `format` (string, default: patch) - Export format: patch, json, or git
+    - `format` (string, default: `patch`): Export format: `patch`, `json`, or `git`
 
     **Returns:** Formatted changeset ready for application
   </Accordion>
-  <Accordion title="show_updated_file">
-    View a file with all changes applied.
+  <Accordion title="Preview File">
+    `show_updated_file`
+
+    View a file with all pending changes applied.
 
     **Parameters:**
-    - `file_path` (string, required) - File to view
+    - `file_path` (string, required): File to view
 
-    **Returns:** Complete file content with changes applied
+    **Returns:** Complete file content with all changes applied
   </Accordion>
-  <Accordion title="show_diff">
-    Display unified diff for all pending changes.
+  <Accordion title="Show Diff">
+    `show_diff`
+
+    Display a unified diff of pending changes in the session.
 
     **Parameters:**
-    - `file_path` (string, optional) - Specific file to show diff for (shows all if omitted)
+    - `file_path` (string, optional): Specific file to diff. Shows all pending changes if omitted.
 
     **Returns:** Unified diff output
   </Accordion>
-  <Accordion title="get_file_diff">
-    Get diff for a specific file.
+  <Accordion title="File Diff">
+    `get_file_diff`
+
+    Get a line-by-line diff for a specific file.
 
     **Parameters:**
-    - `file_path` (string, required) - File to get diff for
+    - `file_path` (string, required): File to diff
 
-    **Returns:** Line-by-line diff for the file
+    **Returns:** Line-by-line diff for the specified file
   </Accordion>
-  <Accordion title="get_session_metadata">
-    Get session information and statistics.
+  <Accordion title="Session Info">
+    `get_session_metadata`
 
-    **Returns:** Session ID, conversation ID, file count, created/updated timestamps
+    Retrieve session information and statistics.
 
-    All changes are stored in Redis with 24-hour expiration. Export before session expires.
+    **Returns:** Session ID, conversation ID, file count, and created/updated timestamps. All session data expires after 24 hours.
+  </Accordion>
+</AccordionGroup>
+
+## Task Management Tools
+
+Track and manage work items within the current agent session. Agents use these tools to plan, sequence, and record progress across multi-step tasks.
+
+<AccordionGroup>
+  <Accordion title="Create Todo">
+    `create_todo`
+
+    Create a todo item to track work in the current session.
+
+    **Parameters:**
+    - `title` (string, required): Title of the todo item
+    - `description` (string, optional): Additional detail about the task
+
+    **Returns:** Todo ID and creation confirmation
+  </Accordion>
+  <Accordion title="Update Status">
+    `update_todo_status`
+
+    Update the completion status of an existing todo item.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to update
+    - `status` (string, required): New status: `pending`, `in_progress`, or `done`
+
+    **Returns:** Updated todo with new status
+  </Accordion>
+  <Accordion title="Get Todo">
+    `get_todo`
+
+    Retrieve a specific todo item by ID.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to retrieve
+
+    **Returns:** Todo details including title, description, status, and notes
+  </Accordion>
+  <Accordion title="List Todos">
+    `list_todos`
+
+    List all todo items tracked in the current session.
+
+    **Returns:** All todo items with their statuses and notes
+  </Accordion>
+  <Accordion title="Add Note">
+    `add_todo_note`
+
+    Append a note to an existing todo item.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to update
+    - `note` (string, required): Note content to append
+
+    **Returns:** Updated todo with the new note
+  </Accordion>
+  <Accordion title="Todo Summary">
+    `get_todo_summary`
+
+    Get an overview of all todo items and their statuses in the current session.
+
+    **Returns:** Todo counts by status and a summary of pending and completed work
+  </Accordion>
+</AccordionGroup>
+
+## Requirement Tools
+
+Store and retrieve session-level requirements and constraints that guide agent behavior throughout a task.
+
+<AccordionGroup>
+  <Accordion title="Add Requirements">
+    `add_requirements`
+
+    Store requirements or constraints for the current agent session.
+
+    **Parameters:**
+    - `requirements` (string, required): Requirements content to store
+
+    **Returns:** Confirmation of stored requirements
+  </Accordion>
+  <Accordion title="Get Requirements">
+    `get_requirements`
+
+    Retrieve requirements from the current session.
+
+    **Returns:** Stored requirements content
+  </Accordion>
+  <Accordion title="Delete Requirements">
+    `delete_requirements`
+
+    Remove requirements from the current session. Available exclusively to the **Code Agent**.
+
+    **Returns:** Deletion confirmation
   </Accordion>
 </AccordionGroup>
 
 ## Integration Tools
 
-Tools for interfacing with external services and detecting code changes.
-
 <AccordionGroup>
-  <Accordion title="change_detection">
-    Detect code changes between branches or commits in your repository.
+  <Accordion title="Change Detection">
+    `change_detection`
+
+    Detect code changes in the current branch compared to the default branch and retrieve updated function details.
 
     **Parameters:**
-    - `base_branch` (string, default: main) - Base branch to compare against
-    - `target_branch` (string, optional) - Branch or commit to compare (defaults to current)
-    - `project_id` (string, required) - Project to analyze
+    - `base_branch` (string, default: `main`): Branch to compare against
+    - `target_branch` (string, optional): Branch or commit to compare (defaults to current)
+    - `project_id` (string, required): Project to analyze
 
     **Returns:** Changed files with diff information and impact analysis
-
-    **Use Cases:**
-    - Review pull request changes
-    - Analyze blast radius of modifications
-    - Identify affected code components
-    - Detect breaking changes
   </Accordion>
 </AccordionGroup>
 
 ## Web Tools
 
-External web search and data retrieval tools.
-
 <AccordionGroup>
-  <Accordion title="web_search_tool">
-    Search external documentation and resources.
+  <Accordion title="Web Search">
+    `web_search_tool`
+
+    Search external documentation, resources, and references.
 
     **Parameters:**
-    - `query` (string, required) - Search query
-    - `num_results` (integer, default: 5) - Number of results to return
+    - `query` (string, required): Search query
+    - `num_results` (integer, default: `5`): Number of results to return
 
     **Returns:** Search results with titles, URLs, and snippets
-
-    **Use Cases:**
-    - Search framework documentation
-    - Find external resources
-    - Research best practices
   </Accordion>
-  <Accordion title="webpage_extractor">
-    Extract content from web pages.
+  <Accordion title="Page Extractor">
+    `webpage_extractor`
+
+    Extract text content from a specific URL.
 
     **Parameters:**
-    - `url` (string, required) - URL to extract content from
+    - `url` (string, required): URL to extract content from
 
-    **Returns:** Extracted text content and metadata
-
-    **Use Cases:**
-    - Read framework documentation
-    - Extract API documentation
-    - Get content from specific URLs
+    **Returns:** Extracted text content and page metadata
   </Accordion>
 </AccordionGroup>
 
 ## Execution Tools
 
 <AccordionGroup>
-  <Accordion title="bash_command">
-    Execute read-only shell commands.
+  <Accordion title="Shell Command">
+    `bash_command`
+
+    Execute read-only shell commands. Available only when the repository manager is active in the deployment. Agents cannot run commands that modify files or perform destructive operations.
 
     **Parameters:**
-    - `command` (string, required) - Shell command to execute
+    - `command` (string, required): Shell command to execute
 
     **Returns:** Command output
 
-    Agents can only run **read-only** commands. Cannot modify files or execute destructive operations.
-
-    **Use Cases:**
-    - Check git status
-    - List files
-    - Get system information
-    - Run read-only diagnostics
+    **Permitted use cases:** `git status`, directory listings, system information queries, read-only diagnostics.
   </Accordion>
 </AccordionGroup>
-

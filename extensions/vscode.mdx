@@ -54,34 +54,6 @@ code --install-extension potpie-vscode-extension.vsix
 - **VS Code Version:** 1.80.0 or higher
 - **Potpie Account:** Active account with API access
 
-## Features
-
-### AI Chat Interface
-
-Chat with AI agents directly in VS Code's sidebar. The extension provides a dedicated chat panel where you can:
-
-- Ask questions about your codebase
-- Request code changes and implementations
-- Debug issues with AI assistance
-- Get explanations of complex code
-
-### Local Code Execution
-
-The extension runs a local server that enables:
-
-- Direct file operations in your workspace
-- Code modifications through AI agents
-- Terminal command execution (with your approval)
-- Real-time synchronization with the cloud
-
-### Remote Collaboration
-
-Connect your local environment to Potpie's cloud agents through secure tunnels, allowing:
-
-- Cloud-based AI agents to access your workspace
-- Remote code execution with local file access
-- Seamless collaboration between local and cloud resources
-
 ## Commands
 
 The extension provides the following commands accessible via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
@@ -187,7 +159,7 @@ After installing the extension:
 2. Click **Sign In** in the chat panel
 3. Your default browser opens to the Potpie authentication page
 4. Complete the sign-in process
-5. Return to VS Code — you're now authenticated
+5. Return to VS Code. You're now authenticated
 
 The extension maintains your session across VS Code restarts.
 
@@ -225,9 +197,9 @@ The extension establishes a secure tunnel between your local VS Code and Potpie'
 
 The status bar shows your tunnel connection state:
 
-- 🔴 **Blinking Red Dot + "Connecting..."** — Tunnel is establishing
-- 🟢 **Solid Green Dot + "Online"** — Tunnel is active and registered
-- ⚪ **Gray/Hidden** — Not applicable (not signed in or tunnel disabled)
+- 🔴 **Blinking Red Dot + "Connecting..."**: Tunnel is establishing
+- 🟢 **Solid Green Dot + "Online"**: Tunnel is active and registered
+- ⚪ **Gray/Hidden**: Not applicable (not signed in or tunnel disabled)
 
 ### Manual Restart
 
@@ -249,59 +221,6 @@ When an AI agent requests terminal command execution:
    - Click **Always Allow** to add to your allowlist
    - Click **Deny** to block
 
-## Troubleshooting
-
-### Extension Not Loading
-
-**Symptom:** Potpie icon missing from Activity Bar
-
-**Solution:**
-1. Check VS Code version is 1.80.0 or higher
-2. Restart VS Code
-3. Reinstall the extension if issue persists
-
-### Authentication Fails
-
-**Symptom:** "Authentication failed" or stuck on sign-in
-
-**Solution:**
-1. Open Command Palette and run **Potpie: Open Sign-In in External Browser**
-2. Complete authentication in the browser
-3. If OAuth callback doesn't redirect, check firewall settings for port 54333
-4. Try setting `potpie.authCallbackPort` to `0` for dynamic port assignment
-
-### Tunnel Connection Issues
-
-**Symptom:** Status shows "Connecting..." indefinitely or red dot persists
-
-**Solution:**
-1. Run **Potpie: Retry Tunnel Setup** from Command Palette
-2. Check that port 8010 is not blocked by firewall
-3. Review Output panel (**View > Output > Potpie API**) for errors
-4. Verify internet connectivity
-5. Try changing `potpie.localServerPort` to a different port (e.g., 8011)
-
-### Commands Not Working
-
-**Symptom:** Terminal commands fail or aren't executing
-
-**Solution:**
-1. Check `potpie.terminalRules` configuration
-2. Ensure commands aren't in the `forbidden` list
-3. Review approval prompts for unlisted commands
-4. Run **Potpie: Clear Terminal Command Allowlist** to reset approvals
-
-### Chat Not Responding
-
-**Symptom:** Messages send but no response from AI
-
-**Solution:**
-1. Verify you're signed in (check status bar)
-2. Confirm selected project is in "ready" status
-3. Check tunnel connection status (should show green)
-4. Enable `potpie.logApiRequests` and check Output panel for API errors
-5. Try **Potpie: New Chat** to start a fresh conversation
-
 ## Advanced Configuration
 
 ### Multiple Environments
@@ -315,11 +234,3 @@ You can configure the extension for different environments (production, staging,
   "potpie.appUrl": "https://your-frontend.com"
 }
 ```
-
-## Support
-
-For issues, feature requests, or questions:
-
-- **GitHub:** [potpie-ai/potpie-vscode-extension](https://github.com/potpie-ai/potpie-vscode-extension)
-- **Documentation:** [docs.potpie.ai](https://docs.potpie.ai)
-- **Email:** support@potpie.ai

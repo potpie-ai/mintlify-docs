@@ -1,66 +1,37 @@
 ---
 title: 'Quickstart'
-description: 'Start using AI agents for your codebase in one click.'
+description: 'Start using AI agents for your codebase in two steps.'
 ---
 
-## Link your repository
+<Steps>
+  <Step title="Select your repository and branch">
+    Potpie captures your entire codebase in a **graphical index** with all the relationships between `classes`, `files`, and `functions`, and **inferences** at every granularity level.
 
-When you sign up for Potpie, we ask you to install the [Potpie GitHub app](https://github.com/apps/potpie-ai). This will allow you to select the repositories you'd like to create codebase agents for.
-After installing the app, you will be redirected to the dashboard where you can start creating codebase agents.
+    <img
+      src="/images/repo-select.png"
+      alt="Repository Selection"
+    />
 
-## Create your first codebase agent
+    <img
+      src="/images/branch-select.png"
+      alt="Select Branch"
+    />
 
+  </Step>
 
-### Select your repository
+  <Step title="Choose your mode">
+    <img src="/images/agent-select.png" alt="Select a Mode" />
 
-On the new chat screen, select the Repository dropdown and select the repository you'd like to use. You also need to select the branch you'd like to use.
-This will ensure that your chat has the correct context of the codebase for the agent to answer questions.
-
-<img
-  src="/images/repo-select.png"
-  alt="Repository Selection"
-/>
-
-<img
-  src="/images/branch-select.png"
-  alt="Select Branch"
-/>
-
-
-### Select your agent
-
-Select the agent you'd like to use from the options.
-
-<img
-  src="/images/agent-selection-cards.png"
-  alt="Agent Selection Cards"
-/>
-
-## Chat with your codebase agent
-
-Send a message to your agent to get started. You can ask questions, follow up on previous instructions, or ask clarifying questions.
-
-<img
-  src="/images/feature-description-input.png"
-  alt="Feature Description Input"
-/>
-
-<img
-  src="/images/file-attachment-interface.png"
-  alt="File Attachment Interface"
-/>
-
-<img
-  src="/images/file-attachment-with-files.png"
-  alt="File Attachment with Files"
-/>
-
-<img
-  src="/images/qna-question-cards-collapsed.png"
-  alt="Q&A Agent Questions"
-/>
-
-That's it, its that easy! 
-
-You're now ready to start using AI agents to help you with your workflows.
-
+    <CardGroup cols={3}>
+      <Card title="Ask a Question" href="/build-flow/ask-a-question">
+        Cited and precise graph answers.
+      </Card>
+      <Card title="Build a Feature" href="/build-flow/build-a-feature">
+        Builds that adapt to the codebase.
+      </Card>
+      <Card title="Debug an Issue" href="/build-flow/debug-an-issue">
+        Root cause traced through the graph.
+      </Card>
+    </CardGroup>
+  </Step>
+</Steps>

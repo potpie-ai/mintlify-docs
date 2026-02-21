@@ -1,0 +1,30 @@
+---
+title: 'Inference'
+description: 'How Potpie gives every node in the graph a semantic meaning.'
+---
+
+After parsing completes, Potpie runs **inference** on every node in the graph. Inference generates a **vector embedding** for each node, a numerical representation of what that node does in context.
+
+<Info>
+A **vector embedding** encodes the **semantic meaning** of a node. Two functions handling similar responsibilities produce embeddings close together in vector space, regardless of their names or signatures. Agents use this to locate relevant code by concept.
+</Info>
+
+## How inference runs
+
+<Steps>
+  <Step title="Node processing">
+    Inference processes each node individually through the configured **LLM provider**.
+  </Step>
+  <Step title="Caching">
+    Potpie caches results. Nodes unchanged since the last parse skip re-embedding. Only new or modified code runs through inference on subsequent parses.
+  </Step>
+  <Step title="Storage">
+    Potpie stores **embeddings** alongside the structural nodes and edges. Every component in the graph carries both a structural position and a **semantic address**.
+  </Step>
+</Steps>
+
+## What this enables
+
+Once every node carries an embedding, agents query the graph by concept. A query for authentication handlers resolves to the nodes with the closest embeddings to that concept, regardless of function naming conventions.
+
+**Structural edges** from parsing give agents the paths to traverse. **Embeddings** give agents the starting points.

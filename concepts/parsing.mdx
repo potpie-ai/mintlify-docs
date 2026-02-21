@@ -1,0 +1,43 @@
+---
+title: 'Parsing'
+description: 'How Potpie reads a repository and extracts its structure.'
+---
+
+Potpie reads every source file in a connected repository through a **Tree-Sitter** **AST** parser using language specific query patterns. Each file produces a set of typed **nodes**. The relationships between those nodes become **edges**.
+
+Potpie extracts three node types from every source file.
+
+| Node type | What it captures |
+|---|---|
+| `File` | Path, imports, exports, and the definitions it contains |
+| `Function` / `Method` | Name, parameters, return type, line number, and containing file |
+| `Class` | Name, methods, fields, and containing file |
+
+<Info>
+Each node receives a fully qualified name such as `auth/service.py:AuthService.validate_token`, making it referenceable across the entire graph.
+</Info>
+
+## How files are read
+
+<Steps>
+  <Step title="First pass — definitions">
+    Potpie extracts every **definition** in the file and turns it into a node. Each node stores its source text, file path, and line numbers.
+  </Step>
+  <Step title="Second pass — references">
+    Potpie extracts every **reference** and turns it into an edge pointing back to the definition it uses. Two edge types connect nodes.
+
+    | Edge type | What it represents |
+    |---|---|
+    | `CONTAINS` | A file holding a function or class |
+    | `REFERENCES` | One definition referencing another |
+  </Step>
+  <Step title="Scoring">
+    **PageRank** scores each node by how frequently other nodes reference it.
+  </Step>
+</Steps>
+
+Supported languages: Python, Java, JavaScript, TypeScript, C#, C++, Go, Ruby, Rust, and PHP.
+
+## One parse per branch
+
+Potpie parses each branch independently. Nodes and edges reflect the exact state of code on the selected branch.

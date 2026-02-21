@@ -1,6 +1,6 @@
 ---
 title: 'List Projects'
-openapi: 'GET /api/v1/projects/list'
+openapi: 'GET /api/v2/projects/list'
 ---
 
 ## Use Cases
@@ -26,10 +26,7 @@ x-api-key: YOUR_API_KEY
 |----------|-------|------|----------|-------------|
 | Response | `id` | string | - | Unique project identifier (UUID) - use this for conversations and searches |
 | Response | `repo_name` | string | - | Repository name (e.g., "facebook/react") |
-| Response | `branch_name` | string | - | The branch that was parsed |
 | Response | `status` | string | - | Current project status (see Project Status table below) |
-| Response | `created_at` | string | - | ISO 8601 timestamp of project creation |
-| Response | `updated_at` | string | - | ISO 8601 timestamp of last update |
 
   </Accordion>
 </AccordionGroup>
@@ -41,8 +38,10 @@ Projects can have different statuses:
 | Status | Description | Actions Available |
 |--------|-------------|-------------------|
 | `submitted` | Parsing queued but not started | Wait for processing |
-| `processing` | Initial parsing in progress | Wait for completion |
-| `indexing` | Building knowledge graph | Wait for completion |
+| `cloned` | Repository cloned successfully | Wait for processing |
+| `parsed` | Code structure analyzed | Wait for processing |
+| `processing` | Building knowledge graph | Wait for completion |
+| `inferring` | Generating knowledge graph inferences | Wait for completion |
 | `ready` | Ready for use | All operations available |
 | `error` | Parsing failed | Review errors, retry parsing |
 
@@ -76,7 +75,7 @@ The endpoint returns this error when unexpected exceptions occur.
 
 ```json
 {
-  "detail": "Internal server error"
+  "detail": "<exception message>"
 }
 ```
 
@@ -94,7 +93,7 @@ The endpoint returns this error when unexpected exceptions occur.
 
 ```typescript TypeScript
 const response = await fetch(
-  'https://production-api.potpie.ai/api/v1/projects/list',
+  'https://production-api.potpie.ai/api/v2/projects/list',
   {
     headers: {
       'x-api-key': 'YOUR_API_KEY'
@@ -106,7 +105,7 @@ const projects = await response.json();
 
 console.log(`Total projects: ${projects.length}`);
 projects.forEach(project => {
-  console.log(`- ${project.repo_name} (${project.branch_name}) - ${project.status}`);
+  console.log(`- ${project.repo_name} - ${project.status}`);
 });
 ```
 
@@ -114,7 +113,7 @@ projects.forEach(project => {
 import requests
 
 response = requests.get(
-    'https://production-api.potpie.ai/api/v1/projects/list',
+    'https://production-api.potpie.ai/api/v2/projects/list',
     headers={'x-api-key': 'YOUR_API_KEY'}
 )
 
@@ -122,18 +121,18 @@ projects = response.json()
 
 print(f"Total projects: {len(projects)}")
 for project in projects:
-    print(f"- {project['repo_name']} ({project['branch_name']}) - {project['status']}")
+    print(f"- {project['repo_name']} - {project['status']}")
 ```
 
 ```bash cURL
 # List all projects
 curl -X GET \
-  'https://production-api.potpie.ai/api/v1/projects/list' \
+  'https://production-api.potpie.ai/api/v2/projects/list' \
   -H 'x-api-key: YOUR_API_KEY'
 
 # Pretty print with jq
 curl -X GET \
-  'https://production-api.potpie.ai/api/v1/projects/list' \
+  'https://production-api.potpie.ai/api/v2/projects/list' \
   -H 'x-api-key: YOUR_API_KEY' | jq '.'
 ```
 
@@ -147,11 +146,8 @@ import { useEffect, useState } from 'react';
 
 interface Project {
   id: string;
-  name: string;
-  repo_path: string;
-  branch_name: string;
+  repo_name: string;
   status: string;
-  created_at: string;
 }
 
 function ProjectDashboard() {
@@ -162,7 +158,7 @@ function ProjectDashboard() {
     async function loadProjects() {
       try {
         const response = await fetch(
-          'https://production-api.potpie.ai/api/v1/projects/list',
+          'https://production-api.potpie.ai/api/v2/projects/list',
           {
             headers: {
               'x-api-key': process.env.POTPIE_API_KEY
@@ -189,12 +185,10 @@ function ProjectDashboard() {
       <ul>
         {projects.map(project => (
           <li key={project.id}>
-            <strong>{project.name}</strong>
+            <strong>{project.repo_name}</strong>
             <span className={`status ${project.status}`}>
               {project.status}
             </span>
-            <span>{project.branch_name}</span>
-            <span>{new Date(project.created_at).toLocaleDateString()}</span>
           </li>
         ))}
       </ul>
@@ -207,17 +201,12 @@ function ProjectDashboard() {
 
 ```javascript
 // Filter projects by status
-const activeProjects = projects.filter(p => p.status === 'active');
-const parsingProjects = projects.filter(p => p.status === 'parsing');
-
-// Sort by creation date (newest first)
-const sortedProjects = [...projects].sort((a, b) =>
-  new Date(b.created_at) - new Date(a.created_at)
-);
+const readyProjects = projects.filter(p => p.status === 'ready');
+const processingProjects = projects.filter(p => p.status === 'processing');
 
 // Sort by name alphabetically
 const alphabeticalProjects = [...projects].sort((a, b) =>
-  a.name.localeCompare(b.name)
+  a.repo_name.localeCompare(b.repo_name)
 );
 
 // Group by status
@@ -242,14 +231,14 @@ function ProjectSelector({ onSelect }: { onSelect: (projectId: string) => void }
     fetchProjects().then(setProjects);
   }, []);
 
-  const activeProjects = projects.filter(p => p.status === 'active');
+  const readyProjects = projects.filter(p => p.status === 'ready');
 
   return (
     <select onChange={(e) => onSelect(e.target.value)}>
       <option value="">Select a project...</option>
-      {activeProjects.map(project => (
+      {readyProjects.map(project => (
         <option key={project.id} value={project.id}>
-          {project.name} ({project.branch_name})
+          {project.repo_name}
         </option>
       ))}
     </select>
@@ -269,8 +258,8 @@ async function validateProject(projectId: string): Promise<boolean> {
     return false;
   }
 
-  if (project.status !== 'active') {
-    console.error(`Project ${projectId} is not active (status: ${project.status})`);
+  if (project.status !== 'ready') {
+    console.error(`Project ${projectId} is not ready (status: ${project.status})`);
     return false;
   }
 
@@ -301,7 +290,7 @@ async function validateProject(projectId: string): Promise<boolean> {
     - Contact support if projects are definitely missing
   </Accordion>
 
-  <Accordion title="Status shows 'error' or 'failed'">
+  <Accordion title="Status shows 'error'">
     **Problem:** Project status indicates parsing failure.
 
     **Solution:**

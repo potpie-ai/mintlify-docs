@@ -1,9 +1,9 @@
 ---
 title: 'Get Parsing Status'
-openapi: 'GET /api/v1/parsing-status/{project_id}'
+openapi: 'GET /api/v2/parsing-status/{project_id}'
 ---
 
-Check the current parsing status and progress of a repository. Monitor whether parsing has completed and if the parsed version matches the latest commit on the branch.
+Check the current parsing status of a repository. Monitor whether parsing has completed and if the parsed version matches the latest commit on the branch.
 
 ## Authentication
 
@@ -19,7 +19,7 @@ x-api-key: YOUR_API_KEY
 | Location | Field | Type | Required | Description |
 |----------|-------|------|----------|-------------|
 | Path | `project_id` | string | required | Unique identifier of the project (returned from Parse Directory endpoint) |
-| Response | `status` | string | - | Current parsing state: `submitted`, `cloned`, `parsed`, `processing`, `ready`, or `error` |
+| Response | `status` | string | - | Current parsing state: `submitted`, `cloned`, `parsed`, `processing`, `inferring`, `ready`, or `error` |
 | Response | `latest` | boolean | - | Whether the parsed commit matches the latest commit on the branch |
 
   </Accordion>
@@ -36,7 +36,7 @@ async function waitForParsingComplete(projectId: string): Promise<void> {
 
   while (attempts < maxAttempts) {
     const response = await fetch(
-      `https://production-api.potpie.ai/api/v1/parsing-status/${projectId}`,
+      `https://production-api.potpie.ai/api/v2/parsing-status/${projectId}`,
       {
         headers: {
           'x-api-key': 'YOUR_API_KEY'
@@ -78,7 +78,7 @@ import time
 def get_parsing_status(project_id: str) -> dict:
     """Get the current parsing status for a project."""
     response = requests.get(
-        f'https://production-api.potpie.ai/api/v1/parsing-status/{project_id}',
+        f'https://production-api.potpie.ai/api/v2/parsing-status/{project_id}',
         headers={'x-api-key': 'YOUR_API_KEY'}
     )
     return response.json()
@@ -120,12 +120,12 @@ except Exception as e:
 ```bash cURL
 # Simple status check
 curl -X GET \
-  'https://production-api.potpie.ai/api/v1/parsing-status/proj_456' \
+  'https://production-api.potpie.ai/api/v2/parsing-status/proj_456' \
   -H 'x-api-key: YOUR_API_KEY'
 
 # Continuous monitoring with watch (Linux/Mac)
 watch -n 10 'curl -s -X GET \
-  "https://production-api.potpie.ai/api/v1/parsing-status/proj_456" \
+  "https://production-api.potpie.ai/api/v2/parsing-status/proj_456" \
   -H "x-api-key: YOUR_API_KEY" | jq'
 ```
 
@@ -233,5 +233,6 @@ During parsing, you'll see different status values corresponding to analysis sta
 | `cloned` | Repository cloned successfully | 10-30 seconds |
 | `parsed` | Code structure analyzed | 1-5 minutes |
 | `processing` | Building knowledge graph | 5-15 minutes |
+| `inferring` | Generating knowledge graph inferences | 5-20 minutes |
 | `ready` | Parsing complete and ready | Final state |
 | `error` | Parsing failed | Final state |

@@ -5,7 +5,7 @@ description: 'Connect Potpie with Confluence to manage documentation and knowled
 
 ## Overview
 
-The Confluence integration enables Potpie agents to interact with your Confluence workspace using Atlassian OAuth 2.0 (3LO), providing access to spaces, pages, and content management.
+The Confluence integration enables Potpie agents to interact with Confluence workspaces using Atlassian OAuth 2.0 (3LO), providing access to spaces, pages, and content management.
 
 <CardGroup cols={2}>
   <Card title="7 Tools" icon="toolbox">
@@ -48,7 +48,7 @@ The Confluence integration enables Potpie agents to interact with your Confluenc
   <Step title="Connect Confluence Site">
     1. Settings → Integrations → Confluence
     2. Click "Connect"
-    3. Select your Confluence site
+    3. Select the Confluence site
     4. Authorize permissions
     5. Name the integration
   </Step>
@@ -170,12 +170,6 @@ creator = currentUser() AND space in (DOCS, ENG)
 "Add new page to ENG space with title 'Setup Guide'"
 ```
 
-**Parameters**:
-- Space key (required)
-- Title (required)
-- Content (storage format or plain text)
-- Parent page ID (optional)
-
 ### 6. Update Confluence Page
 
 **Tool**: `update_confluence_page_tool`
@@ -196,123 +190,6 @@ creator = currentUser() AND space in (DOCS, ENG)
 ```
 "Add comment to Confluence page 123456: 'Needs review'"
 "Comment on page ID 789: 'Updated with latest info'"
-```
-
----
-
-## Usage Examples
-
-### Search Documentation
-
-**Query**: *"Search Confluence for all pages about OAuth implementation"*
-
-**Response**:
-```markdown
-## Confluence Search Results
-
-Found 5 pages matching "OAuth implementation":
-
-### 1. OAuth 2.0 Implementation Guide
-- **Space**: DOCS
-- **Last Modified**: 2 days ago
-- **Author**: @alice
-- **URL**: https://yoursite.atlassian.net/wiki/spaces/DOCS/pages/123456
-
-### 2. OAuth Flow Diagrams
-- **Space**: ENG
-- **Last Modified**: 1 week ago
-- **Author**: @bob
-- **URL**: https://yoursite.atlassian.net/wiki/spaces/ENG/pages/123457
-
-### 3. OAuth Security Best Practices
-- **Space**: SECURITY
-- **Last Modified**: 2 weeks ago
-- **Author**: @security-team
-- **URL**: https://yoursite.atlassian.net/wiki/spaces/SECURITY/pages/123458
-```
-
-### Create Documentation Page
-
-**Query**: *"Create a Confluence page in DOCS space documenting the new API endpoints"*
-
-**Response**:
-```markdown
-✅ Created Confluence Page
-
-**Title**: API Endpoints Documentation
-**Space**: DOCS
-**Page ID**: 987654
-**URL**: https://yoursite.atlassian.net/wiki/spaces/DOCS/pages/987654
-
-**Content**:
-# API Endpoints Documentation
-
-## Overview
-This page documents all available API endpoints for the Potpie integration.
-
-## Authentication
-All endpoints require Bearer token authentication.
-
-## Endpoints
-
-### POST /api/v1/parse
-Parses a repository and builds knowledge graph.
-
-**Request**:
-```json
-{
-  "repo_name": "owner/repo",
-  "branch_name": "main"
-}
-```
-
-**Response**:
-```json
-{
-  "project_id": "proj_123",
-  "status": "parsing"
-}
-```
-
----
-
-Page created successfully. You can now:
-1. Add more content
-2. Attach files
-3. Set page permissions
-4. Link to other pages
-```
-
-### Update Existing Page
-
-**Query**: *"Update Confluence page 123456 to add a troubleshooting section"*
-
-**Response**:
-```markdown
-✅ Updated Confluence Page 123456
-
-**Previous Version**: v5
-**New Version**: v6
-**Changes**: Added troubleshooting section
-
-**Added Content**:
-
-## Troubleshooting
-
-### Issue: Integration not connecting
-**Solution**: Check OAuth credentials and permissions
-
-### Issue: Page not found
-**Solution**: Verify page ID and access permissions
-
----
-
-**Change Summary**:
-- Added troubleshooting section
-- Included 2 common issues with solutions
-- Updated last modified timestamp
-
-**URL**: https://yoursite.atlassian.net/wiki/spaces/DOCS/pages/123456
 ```
 
 ---
@@ -404,40 +281,6 @@ space = DOCS AND type = page ORDER BY lastModified desc
 
 ---
 
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Integration Not Found" icon="circle-xmark">
-    **Solution**:
-    1. Check integration status
-    2. Reconnect if expired
-    3. Verify environment variables
-  </Accordion>
-
-  <Accordion title="Page Not Found" icon="file-circle-xmark">
-    **Solution**:
-    - Verify page ID is correct
-    - Check space permissions
-    - Ensure page isn't archived
-  </Accordion>
-
-  <Accordion title="Insufficient Permissions" icon="lock">
-    **Solution**:
-    1. Review required scopes
-    2. Revoke and reconnect
-    3. Grant space permissions
-  </Accordion>
-
-  <Accordion title="Content Format Error" icon="code">
-    **Solution**:
-    - Use plain text (auto-converted)
-    - Check storage format syntax
-    - Validate macros format
-  </Accordion>
-</AccordionGroup>
-
----
-
 ## API Reference
 
 ### Endpoints
@@ -467,55 +310,6 @@ POST /api/v2/integrations/confluence/save
 
 ---
 
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Content Organization" icon="folder-tree">
-    - Use clear space names
-    - Organize pages hierarchically
-    - Add labels for categorization
-    - Link related pages
-    - Keep titles descriptive
-  </Accordion>
-
-  <Accordion title="Search Optimization" icon="magnifying-glass">
-    - Use specific CQL queries
-    - Filter by space first
-    - Add relevant labels
-    - Use descriptive titles
-    - Include keywords in content
-  </Accordion>
-
-  <Accordion title="Version Control" icon="clock-rotate-left">
-    - Review version history
-    - Add change comments
-    - Use page restrictions
-    - Back up important pages
-    - Monitor page changes
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Support
-
-<CardGroup cols={2}>
-  <Card title="Confluence API" icon="book" href="https://developer.atlassian.com/cloud/confluence/rest/v2/intro/">
-    Official Confluence REST API v2
-  </Card>
-  <Card title="CQL Reference" icon="code" href="https://developer.atlassian.com/cloud/confluence/cql/">
-    Confluence Query Language guide
-  </Card>
-  <Card title="Storage Format" icon="file-code" href="https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html">
-    Content storage format docs
-  </Card>
-  <Card title="Support" icon="life-ring" href="mailto:hi@potpie.ai">
-    Contact Potpie support
-  </Card>
-</CardGroup>
-
----
-
 ## What's Next?
 
 <CardGroup cols={2}>
@@ -528,7 +322,7 @@ POST /api/v2/integrations/confluence/save
   <Card title="Custom Agents" icon="robot" href="/custom-agents/introduction">
     Build agents with Confluence tools
   </Card>
-  <Card title="Ask Agent" icon="messages-question" href="/agents/qna-agent">
+  <Card title="Ask a Question" icon="messages-question" href="/build-flow/ask-a-question">
     Query Confluence knowledge base
   </Card>
 </CardGroup>

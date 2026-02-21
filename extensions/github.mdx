@@ -5,7 +5,7 @@ description: 'Connect Potpie with GitHub to manage code, PRs, and issues directl
 
 ## Overview
 
-The GitHub integration enables Potpie agents to interact with your GitHub repositories through a GitHub App installation, providing secure access to code, pull requests, branches, and issues.
+The **GitHub integration** enables Potpie agents to interact with GitHub repositories through a **GitHub App** installation. The app provides secure, fine-grained access to code, pull requests, branches, and issues.
 
 <CardGroup cols={2}>
   <Card title="GitHub App" icon="github">
@@ -36,15 +36,13 @@ The GitHub integration enables Potpie agents to interact with your GitHub reposi
 
 <Steps>
   <Step title="Install Potpie GitHub App">
-    Go to [Potpie GitHub App](https://github.com/apps/potpie-ai)
-
-    Click "Install" and select repositories:
+    Open [Potpie GitHub App](https://github.com/apps/potpie-ai) and click **Install**. Select repositories:
     - All repositories, or
-    - Select specific repositories
+    - Specific repositories only
   </Step>
 
   <Step title="Configure Backend">
-    Add GitHub App credentials to your environment:
+    Add **GitHub App** credentials to the environment:
 
     ```bash
     GITHUB_APP_ID=your_app_id
@@ -54,10 +52,10 @@ The GitHub integration enables Potpie agents to interact with your GitHub reposi
   </Step>
 
   <Step title="Verify Installation">
-    In Potpie, parse a repository:
+    Parse a repository in Potpie to verify the connection:
     1. Go to New Chat
-    2. Select repository dropdown
-    3. Your GitHub repos should appear
+    2. Select the repository dropdown
+    3. GitHub repos appear in the list
   </Step>
 
   <Step title="Start Using">
@@ -97,8 +95,7 @@ The GitHub integration enables Potpie agents to interact with your GitHub reposi
    ```
 
 4. **Installation ID**
-   After installation, GitHub provides an installation ID.
-   Potpie uses this to authenticate API calls.
+   After installation, GitHub provides an **installation ID**. Potpie uses this to authenticate API calls.
 
 ### Authentication Flow
 
@@ -124,17 +121,16 @@ sequenceDiagram
 
 ### Key Concepts
 
-**GitHub App vs OAuth App**:
+**GitHub App vs OAuth App:**
 - **GitHub App**: Installation-based, fine-grained permissions, app-level auth
 - **OAuth App**: User-based, broader permissions, user-level auth
-- **Potpie uses**: GitHub App for better security and control
 
-**Installation Token**:
+**Installation Token:**
 - Short-lived (1 hour)
-- Generated from JWT signed with private key
+- Generated from a **JWT** signed with the private key
 - Scoped to installed repositories only
 
-**JWT Creation**:
+**JWT Creation:**
 ```python
 import jwt
 import time
@@ -156,254 +152,74 @@ jwt_token = jwt.encode(payload, private_key, algorithm='RS256')
 
 Fetch GitHub issues and pull requests with full details.
 
-**Tool**: `github_tool`
+**Tool:** `github_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Show me issue #123 from owner/repo"
 "Get PR #456 with diff from owner/repo"
 "What's in pull request #789 for owner/repo?"
 ```
 
-**Features**:
-- Issue details (title, body, comments, labels)
-- PR information (title, description, status)
-- PR diffs (file changes, additions, deletions)
-- Metadata (author, created/updated dates, assignees)
-
 ### 2. Code Provider Tool
 
 Read file contents from repositories.
 
-**Tool**: `code_provider_tool`
+**Tool:** `code_provider_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Read src/index.js from owner/repo"
 "Show me the contents of package.json"
 "Get README.md file"
 ```
 
-**Features**:
-- Fetch file contents
-- Support for all file types
-- Directory listing
-- Branch specification
-
 ### 3. Create Branch
 
 Create new branches from existing branches or commits.
 
-**Tool**: `code_provider_create_branch`
+**Tool:** `code_provider_create_branch`
 
-**Usage**:
+**Usage:**
 ```
 "Create a branch called feature/oauth from main"
 "Make a new branch hotfix/auth-bug from develop"
 ```
 
-**Parameters**:
-- Branch name
-- Base branch/commit SHA
-- Repository
-
 ### 4. Update File
 
 Modify file contents and commit changes.
 
-**Tool**: `code_provider_update_file`
+**Tool:** `code_provider_update_file`
 
-**Usage**:
+**Usage:**
 ```
 "Update src/config.js to add new API endpoint"
 "Change line 45 in auth.py to fix the bug"
 ```
 
-**Features**:
-- Single file updates
-- Automatic commit creation
-- Commit message generation
-- Branch targeting
-
 ### 5. Create Pull Request
 
 Create PRs with title, description, and reviewers.
 
-**Tool**: `code_provider_create_pr`
+**Tool:** `code_provider_create_pr`
 
-**Usage**:
+**Usage:**
 ```
 "Create a PR from feature/oauth to main"
 "Open pull request for branch feature/new-auth"
 ```
 
-**Parameters**:
-- Source branch (head)
-- Target branch (base)
-- Title
-- Description
-- Reviewers (optional)
-- Assignees (optional)
-
 ### 6. Add PR Comment
 
 Add comments to pull requests or specific lines.
 
-**Tool**: `code_provider_add_pr_comment`
+**Tool:** `code_provider_add_pr_comment`
 
-**Usage**:
+**Usage:**
 ```
 "Add comment to PR #123: 'Looks good!'"
 "Comment on line 45 of src/auth.js in PR #456"
-```
-
-**Features**:
-- General PR comments
-- Line-specific comments
-- Review comments
-- Reply to existing comments
-
----
-
-## Usage Examples
-
-### Example 1: Analyze Pull Request
-
-**User Query**:
-```
-"Analyze PR #142 in potpie-ai/potpie and suggest improvements"
-```
-
-**Agent Response**:
-```markdown
-## Pull Request #142 Analysis
-
-**Title**: Add OAuth authentication flow
-
-**Status**: Open
-**Author**: @john-dev
-**Created**: 2 days ago
-**Changed Files**: 5 files (+243, -67)
-
-### Files Changed:
-1. `src/auth/oauth.py` (+156, -12)
-2. `src/config.py` (+23, -8)
-3. `tests/test_oauth.py` (+52, -0)
-4. `README.md` (+10, -5)
-5. `requirements.txt` (+2, -42)
-
-### Code Review:
-
-✅ **Strengths**:
-- Comprehensive test coverage
-- Clean implementation
-- Good error handling
-
-⚠️ **Suggestions**:
-1. **Line 45, oauth.py**: Consider adding rate limiting
-2. **Line 89, oauth.py**: Token refresh logic could use exponential backoff
-3. **Config**: Missing environment variable documentation
-
-### Recommended Changes:
-```python
-# In oauth.py, line 45
-+from ratelimit import limits
-+
-+@limits(calls=10, period=60)
- def exchange_code_for_token(code):
-     # ...
-```
-
-**Verdict**: Approve with minor changes
-```
-
-### Example 2: Create Feature Branch and PR
-
-**User Query**:
-```
-"Create a new branch called feature/rate-limiting, update src/api.py to add rate limiting, and create a PR"
-```
-
-**Agent Actions**:
-1. Creates branch `feature/rate-limiting` from `main`
-2. Updates `src/api.py` with rate limiting code
-3. Commits changes
-4. Creates pull request
-
-**Agent Response**:
-```markdown
-✅ Created branch: feature/rate-limiting
-
-✅ Updated src/api.py:
-- Added rate limiting middleware
-- Configured limits: 100 req/min
-- Added Redis for rate limit storage
-
-✅ Committed changes:
-Commit: abc123def
-Message: "Add rate limiting middleware"
-
-✅ Created Pull Request #143:
-**Title**: Add rate limiting to API endpoints
-**URL**: https://github.com/potpie-ai/potpie/pull/143
-**Status**: Open
-
-**Description**:
-Implements rate limiting using Flask-Limiter:
-- 100 requests per minute per IP
-- Redis backend for distributed limiting
-- Graceful degradation if Redis unavailable
-
-Ready for review!
-```
-
-### Example 3: Review and Comment on PR
-
-**User Query**:
-```
-"Review PR #144 and add comments on any security issues"
-```
-
-**Agent Response**:
-```markdown
-## Security Review: PR #144
-
-**Title**: User authentication endpoint
-
-### 🔒 Security Issues Found:
-
-**1. SQL Injection Risk (HIGH)**
-📍 File: `src/db/users.py`, Line 23
-```python
-# Current (VULNERABLE):
-query = f"SELECT * FROM users WHERE email = '{email}'"
-
-# Suggested fix:
-query = "SELECT * FROM users WHERE email = %s"
-cursor.execute(query, (email,))
-```
-💬 Added comment to PR
-
-**2. Password Storage (HIGH)**
-📍 File: `src/auth/password.py`, Line 45
-```python
-# Current (WEAK):
-hashed = hashlib.md5(password.encode()).hexdigest()
-
-# Suggested fix:
-from bcrypt import hashpw, gensalt
-hashed = hashpw(password.encode(), gensalt(12))
-```
-💬 Added comment to PR
-
-**3. Missing Rate Limiting (MEDIUM)**
-📍 File: `src/routes/auth.py`, Line 12
-No rate limiting on login endpoint - susceptible to brute force
-
-💬 Added comment to PR
-
-### ✅ Request Changes
-PR needs security fixes before merging.
 ```
 
 ---
@@ -412,7 +228,7 @@ PR needs security fixes before merging.
 
 ### GitHub App Authentication
 
-**JWT Generation**:
+**JWT Generation:**
 ```python
 # 1. Create JWT
 jwt_token = create_jwt(
@@ -429,7 +245,7 @@ response = requests.post(
 installation_token = response.json()["token"]
 ```
 
-**API Calls**:
+**API Calls:**
 ```python
 # Use installation token for API calls
 headers = {
@@ -443,115 +259,9 @@ response = requests.get(
 )
 ```
 
-### Rate Limits
-
-**GitHub API Rate Limits**:
-- **REST API**: 5,000 requests/hour (per installation)
-- **GraphQL API**: 5,000 points/hour
-- **Search API**: 30 requests/minute
-
-**Potpie Handling**:
-- Automatic retry with exponential backoff
-- Rate limit monitoring
-- Request queuing when approaching limits
-- Fallback to PAT if app token unavailable
-
 ---
 
-## Troubleshooting
-
-### Issue: "Repository not accessible"
-
-**Cause**: GitHub App not installed on repository
-
-**Solution**:
-1. Go to https://github.com/apps/potpie-ai
-2. Click "Configure"
-3. Add the repository to the installation
-4. Refresh Potpie
-
-### Issue: "Invalid private key"
-
-**Cause**: Wrong private key or incorrect format
-
-**Solution**:
-1. Download private key from GitHub App settings
-2. Save as `.pem` file
-3. Update `GITHUB_PRIVATE_KEY_PATH` environment variable
-4. Ensure file has correct permissions (600)
-
-### Issue: "Installation not found"
-
-**Cause**: Installation ID not available for repository
-
-**Solution**:
-1. Verify app is installed: Settings → Integrations → GitHub Apps
-2. Reinstall if necessary
-3. Check installation webhook was received
-4. Contact support if issue persists
-
-### Issue: "Rate limit exceeded"
-
-**Cause**: Too many API requests
-
-**Solution**:
-- Wait for rate limit reset (shown in error)
-- Use GraphQL API for batch queries
-- Implement caching for frequent queries
-- Consider upgrading GitHub plan
-
----
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Security" icon="shield-halved">
-    - Store private key securely (not in repo)
-    - Use environment variables for credentials
-    - Rotate GitHub App credentials periodically
-    - Review app permissions regularly
-    - Monitor installation access logs
-  </Accordion>
-
-  <Accordion title="Performance" icon="gauge-high">
-    - Cache file contents when possible
-    - Use GraphQL for multiple resource queries
-    - Batch operations when available
-    - Monitor rate limit usage
-    - Implement exponential backoff
-  </Accordion>
-
-  <Accordion title="Workflow" icon="diagram-project">
-    - Use descriptive branch names
-    - Write clear commit messages
-    - Include context in PR descriptions
-    - Request reviews from relevant team members
-    - Link PRs to issues
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Support & Resources
-
-<CardGroup cols={2}>
-  <Card title="GitHub Apps Docs" icon="book" href="https://docs.github.com/en/developers/apps">
-    Official GitHub Apps documentation
-  </Card>
-  <Card title="REST API Reference" icon="code" href="https://docs.github.com/en/rest">
-    GitHub REST API documentation
-  </Card>
-  <Card title="Install App" icon="download" href="https://github.com/apps/potpie-ai">
-    Install Potpie GitHub App
-  </Card>
-  <Card title="Support" icon="life-ring" href="mailto:hi@potpie.ai">
-    Contact Potpie support
-  </Card>
-</CardGroup>
-
----
-
-## What's Next?
+## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Linear Integration" icon="link" href="/extensions/linear">
@@ -560,7 +270,7 @@ response = requests.get(
   <Card title="Jira Integration" icon="puzzle-piece" href="/extensions/jira">
     Connect GitHub with Jira workflow
   </Card>
-  <Card title="Code Agent" icon="robot" href="/agents/code-changes-agent">
+  <Card title="Build a Feature" icon="robot" href="/build-flow/build-a-feature">
     Use AI to generate code changes
   </Card>
   <Card title="Custom Agents" icon="screwdriver-wrench" href="/custom-agents/introduction">

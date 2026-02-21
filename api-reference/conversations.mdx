@@ -424,6 +424,64 @@ const answer = await quickQuery(
   Optional array of code nodes to reference
 </ParamField>
 
+## Using a Custom Agent
+
+Execute a custom agent by passing its ID through the standard v2 conversation flow. Authentication uses an API key via the `x-api-key` header.
+
+<Steps>
+  <Step title="Create a conversation">
+    Initialize a conversation with your custom agent ID and the target project.
+
+    **Endpoint:** `POST /api/v2/conversations/`
+
+    **Headers:**
+    ```
+    x-api-key: your_api_key_here
+    ```
+
+    **Request:**
+    ```json
+    {
+      "project_ids": ["your_project_id"],
+      "agent_ids": ["your_custom_agent_id"]
+    }
+    ```
+
+    **Response:**
+    ```json
+    {
+      "message": "Conversation created successfully",
+      "conversation_id": "conv_01HQXYZ789ABCDEF"
+    }
+    ```
+  </Step>
+
+  <Step title="Send a message">
+    Submit a query to the agent. The agent executes its configured tasks using the assigned tools and returns a response with citations.
+
+    **Endpoint:** `POST /api/v2/conversations/{conversation_id}/message/`
+
+    **Headers:**
+    ```
+    x-api-key: your_api_key_here
+    ```
+
+    **Request:**
+    ```json
+    {
+      "content": "Your query for the custom agent"
+    }
+    ```
+
+    **Query Parameters:**
+    - `stream` (boolean, default: `true`): Set to `false` to receive the full response as a single JSON object.
+  </Step>
+</Steps>
+
+<Note>
+  Custom agent IDs are UUIDs returned when the agent is created. To find your agent ID, retrieve the agent from your account settings or the agent management interface.
+</Note>
+
 ## List Conversations
 
 Get a paginated list of conversations with sorting options.

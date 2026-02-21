@@ -1,11 +1,11 @@
 ---
 title: 'Jira Integration'
-description: 'Connect Potpie with Jira for seamless issue tracking and project management'
+description: 'Connect Potpie with Jira for issue tracking and project management'
 ---
 
 ## Overview
 
-The Jira integration enables Potpie agents to interact with your Jira workspace using Atlassian OAuth 2.0 (3LO), providing secure access to issues, projects, and workflows with webhook support.
+The **Jira integration** enables Potpie agents to access issues, projects, and workflows in the Jira workspace. Authentication uses **Atlassian OAuth 2.0 (3LO)** with **webhook** support for real-time notifications.
 
 <CardGroup cols={2}>
   <Card title="10 Tools" icon="toolbox">
@@ -30,10 +30,10 @@ The Jira integration enables Potpie agents to interact with your Jira workspace 
   <Step title="Create Atlassian OAuth App">
     Go to [Atlassian Developer Console](https://developer.atlassian.com/console/myapps/)
 
-    Create OAuth 2.0 integration:
+    Create an **OAuth 2.0** integration with:
     - **App name**: Potpie AI
     - **Callback URL**: `https://app.potpie.ai/integrations/jira/callback`
-    - **Permissions**: See scopes section below
+    - **Permissions**: See Required Scopes below
   </Step>
 
   <Step title="Configure Environment">
@@ -46,8 +46,8 @@ The Jira integration enables Potpie agents to interact with your Jira workspace 
 
   <Step title="Connect Jira Site">
     1. Settings → Integrations → Jira
-    2. Click "Connect"
-    3. Select your Jira site
+    2. Click **Connect**
+    3. Select the Jira site
     4. Authorize permissions
     5. Name the integration
   </Step>
@@ -65,9 +65,9 @@ The Jira integration enables Potpie agents to interact with your Jira workspace 
 
 ### Atlassian OAuth 2.0 (3LO)
 
-**Authorization URL**: `https://auth.atlassian.com/authorize`
-**Token URL**: `https://auth.atlassian.com/oauth/token`
-**API Base**: `https://api.atlassian.com/ex/jira/{cloud_id}`
+**Authorization URL:** `https://auth.atlassian.com/authorize`
+**Token URL:** `https://auth.atlassian.com/oauth/token`
+**API Base:** `https://api.atlassian.com/ex/jira/{cloud_id}`
 
 ### Required Scopes
 
@@ -95,7 +95,7 @@ Response:
 }]
 ```
 
-All API calls use cloud ID:
+All API calls require the **cloud ID:**
 ```
 https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3/issue/ENG-123
 ```
@@ -106,40 +106,31 @@ https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3/issue/ENG-123
 
 ### 1. Create Jira Issue
 
-**Tool**: `create_jira_issue_tool`
+**Tool:** `create_jira_issue_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Create Jira issue in ENG: Fix authentication bug"
 "Add issue to PROJ with summary 'Update docs' and priority high"
 ```
 
-**Parameters**:
-- Project key (required)
-- Issue type (Bug, Task, Story, Epic)
-- Summary (required)
-- Description (optional)
-- Priority (Highest, High, Medium, Low, Lowest)
-- Assignee (optional)
-- Labels (optional)
-
 ### 2. Get Jira Issue
 
-**Tool**: `get_jira_issue_tool`
+**Tool:** `get_jira_issue_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Show me Jira issue ENG-123"
 "Get details for PROJ-456"
 ```
 
-**Returns**: Title, description, status, assignee, priority, comments, attachments
+**Returns:** Title, description, status, assignee, priority, comments, attachments
 
 ### 3. Update Jira Issue
 
-**Tool**: `update_jira_issue_tool`
+**Tool:** `update_jira_issue_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Update ENG-123 description to include root cause"
 "Change assignee of PROJ-456 to john@company.com"
@@ -147,16 +138,16 @@ https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3/issue/ENG-123
 
 ### 4. Search Jira Issues
 
-**Tool**: `search_jira_issues_tool`
+**Tool:** `search_jira_issues_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Find all high priority issues in ENG"
 "Search Jira for issues assigned to me"
 "Show open bugs in project BACKEND"
 ```
 
-**JQL Examples**:
+**JQL Examples:**
 ```jql
 project = ENG AND priority = High
 assignee = currentUser() AND status != Done
@@ -166,9 +157,9 @@ created >= -7d AND project in (ENG, BACKEND)
 
 ### 5. Add Jira Comment
 
-**Tool**: `add_jira_comment_tool`
+**Tool:** `add_jira_comment_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Add comment to ENG-123: 'Fixed in PR #456'"
 "Comment on PROJ-789: 'Needs more investigation'"
@@ -176,9 +167,9 @@ created >= -7d AND project in (ENG, BACKEND)
 
 ### 6. Transition Jira Issue
 
-**Tool**: `transition_jira_issue_tool`
+**Tool:** `transition_jira_issue_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Move ENG-123 to In Progress"
 "Change PROJ-456 status to Done"
@@ -186,21 +177,21 @@ created >= -7d AND project in (ENG, BACKEND)
 
 ### 7. Link Jira Issues
 
-**Tool**: `link_jira_issues_tool`
+**Tool:** `link_jira_issues_tool`
 
-**Usage**:
+**Usage:**
 ```
 "Link ENG-123 blocks ENG-124"
 "Create link: PROJ-456 relates to PROJ-457"
 ```
 
-**Link Types**: blocks, is blocked by, relates to, duplicates, clones
+**Link Types:** blocks, is blocked by, relates to, duplicates, clones
 
-### 8-10. Project Management
+### 8–10. Project Management
 
-- **get_jira_projects_tool**: List all projects
-- **get_jira_project_details_tool**: Get project metadata
-- **get_jira_project_users_tool**: List project members
+- **`get_jira_projects_tool`**: List all projects
+- **`get_jira_project_details_tool`**: Get project metadata
+- **`get_jira_project_users_tool`**: List project members
 
 ---
 
@@ -208,7 +199,7 @@ created >= -7d AND project in (ENG, BACKEND)
 
 ### Create Webhook
 
-Jira integration supports programmatic webhook creation:
+The Jira integration supports programmatic **webhook** creation:
 
 ```python
 webhook = await jira_oauth.create_webhook(
@@ -227,16 +218,16 @@ webhook = await jira_oauth.create_webhook(
 
 ### Webhook Events
 
-Subscribe to:
-- `jira:issue_created` - New issues
-- `jira:issue_updated` - Issue changes
-- `jira:issue_deleted` - Deleted issues
-- `comment_created` - New comments
-- `comment_updated` - Comment edits
+Supported events:
+- `jira:issue_created` — New issues
+- `jira:issue_updated` — Issue changes
+- `jira:issue_deleted` — Deleted issues
+- `comment_created` — New comments
+- `comment_updated` — Comment edits
 
 ### JQL Filters
 
-Limit webhook events with JQL:
+Limit webhook events with **JQL:**
 ```jql
 project = ENG AND priority IN (High, Highest)
 type = Bug AND status = "In Progress"
@@ -245,66 +236,9 @@ assignee = currentUser()
 
 ---
 
-## Usage Examples
-
-### Create and Track Issue
-
-**Query**: *"Create a bug in ENG project: Users can't login with special characters in password"*
-
-**Response**:
-```markdown
-✅ Created Jira Issue: ENG-534
-
-**Title**: Users can't login with special characters in password
-**Type**: Bug
-**Priority**: High
-**Status**: To Do
-**Assignee**: Unassigned
-
-**URL**: https://yoursite.atlassian.net/browse/ENG-534
-
-Next steps:
-1. Assign to security team
-2. Add to current sprint
-3. Link to related authentication issues
-```
-
-### Search and Analyze
-
-**Query**: *"Find all P0 bugs in backend project from last week"*
-
-**Response**:
-```markdown
-## High Priority Bugs (Last 7 Days)
-
-Found 4 P0 bugs in BACKEND project:
-
-### BACKEND-123: Database connection timeout
-- **Status**: In Progress
-- **Assignee**: @alice
-- **Created**: 2 days ago
-
-### BACKEND-145: API rate limiting not working
-- **Status**: To Do
-- **Assignee**: Unassigned
-- **Created**: 3 days ago
-
-### BACKEND-167: Memory leak in parser
-- **Status**: Code Review
-- **Assignee**: @bob
-- **Created**: 5 days ago
-
-### BACKEND-189: Authentication bypass vulnerability
-- **Status**: In Progress
-- **Assignee**: @security-team
-- **Created**: 6 days ago
-```
-
----
-
 ## ADF Format
 
-Jira uses Atlassian Document Format (ADF) for rich text:
+Jira uses **Atlassian Document Format (ADF)** for rich text:
 
 ```python
 # Simple text
@@ -324,41 +258,7 @@ Jira uses Atlassian Document Format (ADF) for rich text:
 ]}
 ```
 
-Potpie automatically converts plain text to ADF.
-
----
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Integration Not Found" icon="circle-xmark">
-    **Solution**:
-    1. Check `/api/v2/integrations/jira/status/{user_id}`
-    2. Reconnect if expired
-    3. Verify credentials in environment
-  </Accordion>
-
-  <Accordion title="Insufficient Permissions" icon="lock">
-    **Solution**:
-    1. Revoke integration
-    2. Add required scopes (see OAuth setup)
-    3. Reconnect
-  </Accordion>
-
-  <Accordion title="Issue Not Found" icon="magnifying-glass">
-    **Solution**:
-    - Verify issue key format (PROJ-123)
-    - Check project permissions
-    - Confirm issue exists and isn't deleted
-  </Accordion>
-
-  <Accordion title="Webhook Creation Failed" icon="webhook">
-    **Solution**:
-    - Verify `manage:jira-webhook` scope
-    - Check webhook URL is accessible
-    - Use valid JQL filter
-  </Accordion>
-</AccordionGroup>
+Potpie automatically converts plain text to **ADF**.
 
 ---
 
@@ -366,7 +266,7 @@ Potpie automatically converts plain text to ADF.
 
 ### Endpoints
 
-**Base**: `/api/v2/integrations/jira`
+**Base:** `/api/v2/integrations/jira`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -391,26 +291,7 @@ POST /api/v2/integrations/jira/save
 
 ---
 
-## Support
-
-<CardGroup cols={2}>
-  <Card title="Jira API Docs" icon="book" href="https://developer.atlassian.com/cloud/jira/platform/rest/v3/">
-    Official Jira REST API v3 documentation
-  </Card>
-  <Card title="Atlassian OAuth" icon="shield" href="https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/">
-    OAuth 2.0 (3LO) guide
-  </Card>
-  <Card title="JQL Reference" icon="code" href="https://support.atlassian.com/jira-software-cloud/docs/use-advanced-search-with-jira-query-language-jql/">
-    JQL (Jira Query Language) guide
-  </Card>
-  <Card title="Potpie Support" icon="life-ring" href="mailto:hi@potpie.ai">
-    Contact support
-  </Card>
-</CardGroup>
-
----
-
-## What's Next?
+## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Confluence" icon="file-lines" href="/extensions/confluence">
