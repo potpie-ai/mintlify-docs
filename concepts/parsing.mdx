@@ -20,10 +20,10 @@ Each node receives a fully qualified name such as `auth/service.py:AuthService.v
 ## How files are read
 
 <Steps>
-  <Step title="First pass — definitions">
+  <Step title="Definitions">
     Potpie extracts every **definition** in the file and turns it into a node. Each node stores its source text, file path, and line numbers.
   </Step>
-  <Step title="Second pass — references">
+  <Step title="References">
     Potpie extracts every **reference** and turns it into an edge pointing back to the definition it uses. Two edge types connect nodes.
 
     | Edge type | What it represents |
