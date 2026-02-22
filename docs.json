@@ -1,13 +1,25 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Potpie",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373"
+    "primary": "#B6E343",
+    "light": "#B6E343",
+    "dark": "#B6E343"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
+  "customCSS": ["/styles/custom.css"],
+  "openapi": "/api-reference/openapi.json",
+  "api": {
+    "baseUrl": "https://production-api.potpie.ai",
+    "auth": {
+      "method": "key",
+      "name": "x-api-key"
+    },
+    "playground": {
+      "mode": "show"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -15,116 +27,132 @@
         "groups": [
           {
             "group": "Get Started",
-            "icon": "rocket",
             "pages": [
               "introduction",
               "quickstart"
             ]
           },
           {
-            "group": "How to use Agents",
-            "icon": "robot",
+            "group": "Concepts",
             "pages": [
-              "agents/introduction",
-              "agents/debugging-agent",
-              "agents/qna-agent",
-              "agents/integration-test-agent",
-              "agents/unit-test-agent",
-              "agents/code-changes-agent"
+              "concepts/parsing",
+              "concepts/inference",
+              "concepts/knowledge-graph"
             ]
           },
           {
-            "group": "API Access ",
-            "icon": "key",
+            "group": "Modes",
             "pages": [
-              "agents/api-access"
+              "build-flow/overview",
+              "build-flow/ask-a-question",
+              "build-flow/build-a-feature",
+              "build-flow/debug-an-issue"
             ]
           },
           {
-            "group": "Custom Agents",
-            "icon": "screwdriver-wrench",
+            "group": "Platform",
             "pages": [
-              "custom-agents/introduction",
-              "custom-agents/configuration",
+              "build-flow/forge",
+              "build-flow/specialists",
+              "build-flow/recipe"
+            ]
+          },
+          {
+            "group": "Developer",
+            "pages": [
+              "agents/api-access",
               {
-                "group": "Tools",
-                "icon": "toolbox",
+                "group": "Custom Agents",
                 "pages": [
-                  "custom-agents/tools",
-                  "custom-agents/tools/get_code_from_probable_node_name",
-                  "custom-agents/tools/get_code_from_node_id",
-                  "custom-agents/tools/get_code_from_multiple_node_ids",
-                  "custom-agents/tools/ask_knowledge_graph_queries",
-                  "custom-agents/tools/get_nodes_from_tags",
-                  "custom-agents/tools/get_code_from_node_name",
-                  "custom-agents/tools/get_code_graph_from_node_id",
-                  "custom-agents/tools/get_code_graph_from_node_name",
-                  "custom-agents/tools/change_detection"
+                  "custom-agents/introduction",
+                  "custom-agents/configuration"
                 ]
-              }
+              },
+              {
+                "group": "Integrations",
+                "pages": [
+                  "extensions/overview",
+                  "extensions/github",
+                  "extensions/linear",
+                  "extensions/jira",
+                  "extensions/confluence",
+                  "extensions/sentry",
+                  "extensions/slack",
+                  "extensions/vscode"
+                ]
+              },
+              {
+                "group": "Self-Hosting",
+                "pages": [
+                  "self-hosting/setup",
+                  "self-hosting/getting-started"
+                ]
+              },
+              "agents/tools-reference"
             ]
           },
           {
-            "group": "Extensions",
-            "icon": "puzzle-piece",
+            "group": "Example Uses",
             "pages": [
-              "extensions/slack"
-            ]
-          },
-          {
-            "group": "Self-Hosting",
-            "icon": "server",
-            "pages": [
-              "self-hosting/setup",
-              "self-hosting/getting-started"
+              "examples/impact-analysis",
+              "examples/code-migration",
+              "examples/race-conditions",
+              "examples/auth-flow",
+              "examples/refactor-scope",
+              "examples/api-endpoint",
+              "examples/auth-middleware",
+              "examples/null-pointer",
+              "examples/memory-leak"
             ]
           }
         ]
       },
       {
-        "tab": "API Reference",
-        "openapi": {
-          "source": "https://production-api.potpie.ai/openapi.json",
-          "directory": "api-reference"
-        }
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Potpie API",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/endpoint/parse-directory",
+              "api-reference/endpoint/get-parsing-status",
+              "api-reference/endpoint/create-conversation",
+              "api-reference/endpoint/post-message",
+              "api-reference/endpoint/create-conversation-and-message",
+              "api-reference/endpoint/list-projects",
+              "api-reference/endpoint/list-agents",
+              "api-reference/endpoint/save-integration"
+            ]
+          }
+        ]
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://docs.potpie.ai",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://discord.gg/ryk5CMD5v6",
-          "icon": "discord"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://www.potpie.ai/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    "global": {}
+
+  },
+  "feedback": {
+    "thumbsRating": true
   },
   "logo": {
     "light": "/logo/light.png",
-    "dark": "/logo/dark.png"
+    "dark": "/logo/dark.png",
+    "href": "https://potpie.ai"
   },
   "navbar": {
     "links": [
       {
+        "label": "GitHub",
+        "href": "https://github.com/potpie-ai/potpie"
+      },
+      {
+        "label": "Discord",
+        "href": "https://discord.gg/ryk5CMD5v6"
+      },
+      {
         "label": "Support",
-        "href": "mailto:hi@potpie.ai."
+        "href": "mailto:hi@potpie.ai"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Star us on GitHub ⭐️ ",
-      "href": "https://github.com/potpie-ai/potpie"
-    }
+    ]
   },
   "footer": {
     "socials": {

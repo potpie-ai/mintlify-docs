@@ -1,0 +1,238 @@
+---
+title: 'Get Parsing Status'
+openapi: 'GET /api/v2/parsing-status/{project_id}'
+---
+
+Check the current parsing status of a repository. Monitor whether parsing has completed and if the parsed version matches the latest commit on the branch.
+
+## Authentication
+
+This endpoint requires API key authentication via the `x-api-key` header.
+
+```bash
+x-api-key: YOUR_API_KEY
+```
+
+<AccordionGroup>
+  <Accordion title="Request & Response">
+
+| Location | Field | Type | Required | Description |
+|----------|-------|------|----------|-------------|
+| Path | `project_id` | string | required | Unique identifier of the project (returned from Parse Directory endpoint) |
+| Response | `status` | string | - | Current parsing state: `submitted`, `cloned`, `parsed`, `processing`, `inferring`, `ready`, or `error` |
+| Response | `latest` | boolean | - | Whether the parsed commit matches the latest commit on the branch |
+
+  </Accordion>
+</AccordionGroup>
+
+## Complete Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+async function waitForParsingComplete(projectId: string): Promise<void> {
+  const maxAttempts = 60; // 10 minutes with 10s intervals
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    const response = await fetch(
+      `https://production-api.potpie.ai/api/v2/parsing-status/${projectId}`,
+      {
+        headers: {
+          'x-api-key': 'YOUR_API_KEY'
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(`Status: ${data.status}`);
+    console.log(`Is Latest: ${data.latest}`);
+
+    if (data.status === 'ready') {
+      console.log('Parsing ready successfully!');
+      return;
+    }
+
+    if (data.status === 'error') {
+      throw new Error('Parsing failed');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10s
+    attempts++;
+  }
+
+  throw new Error('Parsing timeout - took longer than expected');
+}
+
+// Usage
+waitForParsingComplete('proj_456')
+  .then(() => console.log('Ready to use agents!'))
+  .catch(error => console.error(error));
+```
+
+```python Python
+import requests
+import time
+
+def get_parsing_status(project_id: str) -> dict:
+    """Get the current parsing status for a project."""
+    response = requests.get(
+        f'https://production-api.potpie.ai/api/v2/parsing-status/{project_id}',
+        headers={'x-api-key': 'YOUR_API_KEY'}
+    )
+    return response.json()
+
+def wait_for_parsing(project_id: str, timeout: int = 600):
+    """
+    Wait for parsing to complete with timeout.
+
+    Args:
+        project_id: The project ID to monitor
+        timeout: Maximum time to wait in seconds (default 10 minutes)
+    """
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        status_data = get_parsing_status(project_id)
+
+        print(f"Status: {status_data['status']}")
+        print(f"Is Latest: {status_data['latest']}")
+        print("-" * 50)
+
+        if status_data['status'] == 'ready':
+            return True
+        elif status_data['status'] == 'error':
+            raise Exception("Parsing failed")
+
+        time.sleep(10)
+
+    raise TimeoutError(f"Parsing did not complete within {timeout} seconds")
+
+# Usage
+try:
+    wait_for_parsing('proj_456')
+    print("Project is ready!")
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+```bash cURL
+# Simple status check
+curl -X GET \
+  'https://production-api.potpie.ai/api/v2/parsing-status/proj_456' \
+  -H 'x-api-key: YOUR_API_KEY'
+
+# Continuous monitoring with watch (Linux/Mac)
+watch -n 10 'curl -s -X GET \
+  "https://production-api.potpie.ai/api/v2/parsing-status/proj_456" \
+  -H "x-api-key: YOUR_API_KEY" | jq'
+```
+
+</CodeGroup>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    The endpoint requires a valid API key for authentication.
+
+    ```json
+    {
+      "detail": "API key is required"
+    }
+    ```
+
+    **Causes:**
+    - Missing `x-api-key` header
+    - Invalid or expired API key
+    - API key doesn't match any user account
+
+    **Solution:** Include a valid API key in the request header:
+    ```bash
+    x-api-key: YOUR_API_KEY
+    ```
+  </Accordion>
+
+  <Accordion title="404 Not Found">
+    The endpoint returns this error when the project doesn't exist or you lack access permissions.
+
+    ```json
+    {
+      "detail": "Project not found or access denied"
+    }
+    ```
+
+    **Causes:**
+    - The `project_id` doesn't exist in the database
+    - You are not the project owner
+    - The project is not shared with your account
+    - The project was deleted
+
+    **Solution:** Verify the `project_id` is correct and ensure you have appropriate access permissions.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+    The endpoint returns this error when unexpected exceptions occur during status retrieval.
+
+    ```json
+    {
+      "detail": "Internal server error"
+    }
+    ```
+
+    **Causes:**
+    - Database connection failures
+    - Unexpected data format issues
+    - Service unavailability
+
+    **Solution:** Retry the request after a brief delay. If the issue persists, contact support with the `project_id`.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Status stuck at 'submitted'">
+    **Problem:** Status remains at 'submitted' for an extended period.
+
+    **Solution:**
+    - The parsing queue might be busy. Wait a few minutes and check again
+    - If it persists for more than 5 minutes, contact support with your project ID
+    - Very large repositories may take longer to begin processing
+  </Accordion>
+
+  <Accordion title="Status shows 'error'">
+    **Problem:** Parsing failed to complete.
+
+    **Solution:**
+    - Verify the repository is accessible
+    - Check that the branch exists
+    - Ensure the repository structure is valid
+    - Consider that very large repositories may timeout
+    - Contact support if the issue persists
+  </Accordion>
+
+  <Accordion title="latest field is false">
+    **Problem:** The `latest` field shows `false` even though status is `ready`.
+
+    **Solution:**
+    - This indicates the branch has new commits since parsing
+    - Re-parse the repository to get the latest code analysis
+    - This is expected behavior for active branches with ongoing development
+  </Accordion>
+</AccordionGroup>
+
+## Status Phases
+
+During parsing, you'll see different status values corresponding to analysis stages:
+
+| Status | Description | Typical Duration |
+|--------|-------------|------------------|
+| `submitted` | Parsing request queued | Immediate |
+| `cloned` | Repository cloned successfully | 10-30 seconds |
+| `parsed` | Code structure analyzed | 1-5 minutes |
+| `processing` | Building knowledge graph | 5-15 minutes |
+| `inferring` | Generating knowledge graph inferences | 5-20 minutes |
+| `ready` | Parsing complete and ready | Final state |
+| `error` | Parsing failed | Final state |

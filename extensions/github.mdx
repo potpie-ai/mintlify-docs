@@ -1,0 +1,186 @@
+---
+title: 'GitHub Integration'
+description: 'Connect Potpie with GitHub to manage code, PRs, and issues directly from AI agents'
+---
+
+## Overview
+
+The **GitHub integration** enables Potpie agents to interact with GitHub repositories through a **GitHub App** installation. The app provides secure, fine-grained access to code, pull requests, branches, and issues.
+
+
+## Quick Start
+
+### Prerequisites
+
+- GitHub account with repository access
+- Repository admin permissions (for app installation)
+- Potpie account
+
+### Setup Steps
+
+<Steps>
+  <Step title="Install Potpie GitHub App">
+    Open <a href="https://github.com/apps/potpie-ai" className="mode-link">Potpie GitHub App</a> and click **Install**. Select repositories:
+    - All repositories, or
+    - Specific repositories only
+  </Step>
+
+  <Step title="Verify Installation">
+    Parse a repository in Potpie to verify the connection:
+    1. Go to New Chat
+    2. Select the repository dropdown
+    3. GitHub repos appear in the list
+  </Step>
+
+  <Step title="Start Using">
+    Ask agents to interact with GitHub:
+
+    *"Show me the latest PR for repo owner/repo"*
+
+    *"Create a branch called feature/new-auth"*
+
+    *"Read the contents of src/auth.js"*
+  </Step>
+</Steps>
+
+---
+
+## Available Tools
+
+The GitHub integration provides 6 tools. See <a href="/agents/tools-reference#github-tools" className="mode-link">GitHub Tools</a> in the Tools Reference for full documentation.
+
+| Tool | Description |
+|------|-------------|
+| `github_tool` | Fetch issues and pull requests |
+| `code_provider_tool` | Read file contents |
+| `code_provider_create_branch` | Create branches |
+| `code_provider_update_file` | Modify and commit files |
+| `code_provider_create_pr` | Create pull requests |
+| `code_provider_add_pr_comment` | Add PR comments |
+
+---
+
+## Self-Hosted Setup
+
+For self-hosted Potpie instances, configure GitHub App credentials and authentication in addition to the cloud installation steps above.
+
+### Backend Configuration
+
+Add these environment variables to your deployment:
+
+```bash
+GITHUB_APP_ID=your_app_id
+GITHUB_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
+CODE_PROVIDER_TOKEN=fallback_personal_access_token
+CODE_PROVIDER_TOKEN_POOL=token1,token2,token3
+```
+
+- `GITHUB_PRIVATE_KEY` — the raw PEM content of the private key generated in your GitHub App settings
+- `CODE_PROVIDER_TOKEN` — a personal access token used as a fallback for unauthenticated operations
+- `CODE_PROVIDER_TOKEN_POOL` — optional comma-separated list of tokens for distributing API rate limits
+
+### GitHub App Setup
+
+#### Installation Process
+
+1. **Navigate to App Installation**
+   - Go to <a href="https://github.com/apps/potpie-ai" className="mode-link">github.com/apps/potpie-ai</a>
+   - Or in repository: Settings → GitHub Apps
+
+2. **Grant Permissions**
+   The Potpie GitHub App requests:
+   - **Read**: Repository contents, pull requests, issues
+   - **Write**: Pull requests, branches, commit status
+   - **Admin**: Webhooks (optional)
+
+3. **Select Repositories**
+   ```
+   ○ All repositories
+   ● Only select repositories
+     ☑ my-project
+     ☑ backend-api
+     ☐ private-repo
+   ```
+
+4. **Installation ID**
+   After installation, GitHub provides an **installation ID**. Potpie uses this to authenticate API calls.
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Potpie
+    participant GitHub
+
+    User->>GitHub: Install Potpie App
+    GitHub->>User: Show permission request
+    User->>GitHub: Approve installation
+    GitHub->>Potpie: Webhook: installation created
+    Potpie->>Potpie: Store installation ID
+    User->>Potpie: Request repo operation
+    Potpie->>Potpie: Generate JWT from App credentials
+    Potpie->>GitHub: Exchange JWT for installation token
+    GitHub->>Potpie: Return installation access token
+    Potpie->>GitHub: Make API call with token
+    GitHub->>Potpie: Return data
+    Potpie->>User: Show results
+```
+
+### Key Concepts
+
+**GitHub App vs OAuth App:**
+- **GitHub App**: Installation-based, fine-grained permissions, app-level auth
+- **OAuth App**: User-based, broader permissions, user-level auth
+
+**Installation Token:**
+- Short-lived (1 hour)
+- Generated from a **JWT** signed with the private key
+- Scoped to installed repositories only
+
+**JWT Creation:**
+```python
+import jwt
+import time
+
+payload = {
+    'iat': int(time.time()),
+    'exp': int(time.time()) + 600,  # 10 minutes
+    'iss': GITHUB_APP_ID
+}
+
+jwt_token = jwt.encode(payload, private_key, algorithm='RS256')
+```
+
+### API Integration Details
+
+**JWT Generation:**
+```python
+# 1. Create JWT
+jwt_token = create_jwt(
+    app_id=GITHUB_APP_ID,
+    private_key=PRIVATE_KEY
+)
+
+# 2. Get installation token
+response = requests.post(
+    f"https://api.github.com/app/installations/{installation_id}/access_tokens",
+    headers={"Authorization": f"Bearer {jwt_token}"}
+)
+
+installation_token = response.json()["token"]
+```
+
+**API Calls:**
+```python
+# Use installation token for API calls
+headers = {
+    "Authorization": f"Bearer {installation_token}",
+    "Accept": "application/vnd.github.v3+json"
+}
+
+response = requests.get(
+    "https://api.github.com/repos/owner/repo/pulls/123",
+    headers=headers
+)
+```

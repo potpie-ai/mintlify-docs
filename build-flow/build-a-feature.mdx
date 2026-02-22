@@ -1,0 +1,80 @@
+---
+title: 'Build a Feature'
+sidebarTitle: 'Build'
+---
+
+Potpie reads existing patterns, conventions, and dependencies from the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before writing a line of code. It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. Code reaches the repository only after diff approval.
+
+## Workflow
+
+<Steps>
+  <Step title="Describe the feature">
+    Enter a description of the feature to build. Potpie asks clarifying questions before generating anything.
+
+    <img src="/images/feature-description-input.png" alt="Feature description input" />
+  </Step>
+
+  <Step title="Clarifying questions">
+    Potpie surfaces a set of clarifying questions as multiple choice options. Answers lock in the scope and requirements before the specification begins.
+
+    <img src="/images/code-agent-clarifying-questions.png" alt="Clarifying questions" />
+  </Step>
+
+  <Step title="Specification">
+    Potpie parses the codebase against the confirmed requirements and generates a specification covering every file to create or modify, implementation details for each change, and dependency relationships between affected components.
+
+    <img src="/images/code-agent-spec-page.png" alt="Specification page" />
+  </Step>
+
+  <Step title="Plan">
+    Once the spec is confirmed, Potpie generates a plan across three tabs:
+
+    | Tab | Contents |
+    |---|---|
+    | Summary | Written description of what will be built and how it fits the existing system |
+    | Architecture | Visual map of component relationships across client, API, and data layers |
+    | Plan items | Each task with the files to create or modify and verification criteria |
+
+    <img src="/images/code-agent-plan-summary.png" alt="Plan summary tab" />
+
+    <img src="/images/code-agent-plan-architecture.png" alt="Architecture tab" />
+
+    <img src="/images/code-agent-plan-items.png" alt="Plan items tab" />
+  </Step>
+
+  <Step title="Code generation">
+    Potpie generates the code and presents every change as a **diff**. Every modification appears at the file and line level before anything reaches the codebase. Changes match the existing code style and conventions identified during **specification**.
+
+    <img src="/images/code-agent-codegen.png" alt="Code generation diff view" />
+  </Step>
+
+  <Step title="Pull request">
+    Clicking **Create PR** pushes the full diff to the repository.
+
+    <img src="/images/code-agent-final-review.png" alt="Final review before PR" />
+  </Step>
+</Steps>
+
+## Multi-agent mode
+
+Potpie runs in two modes depending on request complexity:
+
+- **Single agent:** Potpie handles the full request from start to finish.
+- **Multi agent:** Potpie's subagents can do research as well as coding.
+
+Potpie determines the mode automatically.
+
+## Using the API
+
+The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a session against a <a href="/concepts/parsing" className="mode-link">parsed</a> project and returns the specification and plan in a single call.
+
+## Example uses
+
+<CardGroup cols={2}>
+  <Card title="API Endpoint" href="/examples/api-endpoint">
+    Adding a new endpoint with full dependency awareness and matching code style.
+  </Card>
+  <Card title="Auth Middleware" href="/examples/auth-middleware">
+    Updating authentication middleware across all protected routes.
+  </Card>
+</CardGroup>

@@ -1,35 +1,105 @@
 ---
-title: 'Configuration and Development'
-description: 'How to build your own custom agents with Potpie'
+title: 'Configuration'
 ---
 
-## Creating a Custom Agent
+Create a **custom agent** by defining agent attributes, configuring tasks, and assigning tools. Execute agents through the **Conversations API** using an **API key**.
 
-To create a custom agent in Potpie, you'll need to define the agent's characteristics and the tasks it will perform. Here's a step-by-step guide:
+Custom agents are invoked through the <a href="/api-reference/conversations" className="mode-link">Conversations API</a> using their agent ID.
 
-### 1. Define the System Instructions
+## Creating an Agent
 
-The system instructions are the instructions that the agent will follow to perform a task. They include details like the goal of the task, the output format, and other relevant guidelines.
+<Steps>
+  <Step title="Define agent attributes">
+    Specify the agent's **role**, **goal**, **backstory**, and **system prompt**. These four attributes establish the agent's identity and govern how it approaches every task.
 
-### 2. Define the Agent
+    <img src="/images/custom-agent-identity.png" alt="Agent Identity Configuration" />
+  </Step>
 
-Create an `Agent` with the following key attributes:
+  <Step title="Add tasks and assign tools">
+    Define between one and five tasks. For each task, provide a description, select the tools the agent may use, and specify the expected output format.
 
-#### Agent Attributes:
-- `role`: Defines the agent's function.
-- `goal`: The individual objective that the agent aims to achieve.
-- `backstory`: Provides context to the agent's role and goal.
+    <img src="/images/custom-agent-tools.png" alt="Task and Tool Configuration" />
+  </Step>
 
-### 3. Create Tasks
+  <Step title="Create the agent">
+    Review the configuration and create the agent. The agent is ready for immediate use in conversations.
 
-Define the tasks that your agent will perform:
+    <img src="/images/custom-agent-create.png" alt="Agent Creation" />
+  </Step>
+</Steps>
 
-#### Task Attributes:
-- `description`: A clear, concise statement of what the task entails.
-- `expected_output`: A detailed description of what the task's completion looks like.
-- `tools`: The functions or capabilities the agent can utilize to perform the task.
+## Agent Attributes
 
+All four attributes are required. They define the agent's identity and shape how it approaches every task.
 
-## Conclusion
+### Role
 
-Creating a custom agent in CrewAI involves defining the agent's characteristics, creating tasks, and optionally providing custom tools. By carefully crafting the agent's role, goal, and backstory, along with clear task descriptions and expected outputs, you can create highly specialized agents capable of performing complex tasks within your AI system.
+The professional function or area of expertise the agent adopts. Use specific, descriptive titles.
+
+**Examples:**
+- `"Senior Python Developer"`
+- `"Security Auditor"`
+- `"Code Reviewer"`
+
+### Goal
+
+The primary objective the agent targets. State it specifically and measurably.
+
+**Examples:**
+- `"Optimize database queries for performance"`
+- `"Identify SQL injection vulnerabilities in all query constructions"`
+- `"Refactor legacy code to modern idiomatic patterns"`
+
+### Backstory
+
+Professional context that establishes credibility and informs decision-making. Include relevant experience, methodology, or standards the agent applies when reasoning about tasks.
+
+### System Prompt
+
+High-level instructions that control execution behavior across all tasks. Define output format requirements, edge case handling guidelines, and quality standards.
+
+## Task Configuration
+
+Each agent requires between one and five tasks. Each task defines a discrete action the agent performs.
+
+### Description
+
+A clear statement of what the task accomplishes, focused on outcomes. The system automatically enhances descriptions with step-by-step reasoning to improve execution quality.
+
+**Example:**
+```
+Scan the codebase for SQL injection vulnerabilities in database query construction.
+```
+
+### Tools
+
+An array of tool IDs the agent uses to complete the task. Each task requires at least one tool. Tool IDs must match exactly from the <a href="/agents/tools-reference" className="mode-link">Tools Reference</a>.
+
+**Example:**
+```python
+["ask_knowledge_graph_queries", "get_code_from_probable_node_name"]
+```
+
+### Expected Output
+
+A JSON object specifying the format and structure of the task's result.
+
+**Example:**
+```json
+{
+  "format": "markdown",
+  "sections": ["summary", "findings", "recommendations"]
+}
+```
+
+### MCP Servers (Optional)
+
+Add **Model Context Protocol** server configurations per task. The schema accepts the field, but MCP execution is not active in the current release.
+
+**Schema format:**
+```python
+[
+  {"name": "github", "link": "https://github.com/mcp-servers/github"},
+  {"name": "postgres", "link": "https://github.com/mcp-servers/postgres"}
+]
+```

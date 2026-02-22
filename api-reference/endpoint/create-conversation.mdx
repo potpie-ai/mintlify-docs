@@ -1,0 +1,192 @@
+---
+title: 'Create Conversation'
+openapi: 'POST /api/v2/conversations/'
+---
+
+## Use Cases
+
+- Start a new debugging session
+- Begin a code review conversation
+- Ask questions about specific parts of your codebase
+- Generate test plans for a feature
+- Request code changes or improvements
+
+## Authentication
+
+This endpoint requires API key authentication via the `x-api-key` header.
+
+```bash
+x-api-key: YOUR_API_KEY
+```
+
+<AccordionGroup>
+  <Accordion title="Request & Response">
+
+| Location | Field | Type | Required | Default | Description |
+|----------|-------|------|----------|---------|-------------|
+| Query | `hidden` | boolean | optional | `false` | Controls visibility in the web UI. Set to `true` to hide the conversation from your dashboard. |
+| Body | `user_id` | string | required | - | User identifier. The server uses the authenticated user ID from the API key. |
+| Body | `title` | string | required | - | Name for the conversation. Pass `"Untitled"` to auto-generate a name from the project. |
+| Body | `status` | string | required | - | Initial conversation status. Use `"active"` for a standard new conversation. Valid values: `active`, `archived`, `deleted`. |
+| Body | `project_ids` | array[string] | required | - | List of project UUIDs to include in the conversation context |
+| Body | `agent_ids` | array[string] | required | - | List of agent identifiers to enable (e.g., `["codebase_qna_agent"]`) |
+| Response | `message` | string | - | - | Confirmation message indicating successful creation |
+| Response | `conversation_id` | string | - | - | Unique identifier for the conversation. Use this ID to send messages. |
+
+  </Accordion>
+</AccordionGroup>
+
+## Complete Workflow
+
+<CodeGroup>
+
+```javascript TypeScript
+// Create a conversation
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v2/conversations',
+  {
+    method: 'POST',
+    headers: {
+      'x-api-key': 'YOUR_API_KEY',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      user_id: 'YOUR_USER_ID',
+      title: 'Untitled',
+      status: 'active',
+      project_ids: ['550e8400-e29b-41d4-a716-446655440000'],
+      agent_ids: ['codebase_qna_agent']
+    })
+  }
+);
+
+const data = await response.json();
+console.log('Conversation ID:', data.conversation_id);
+
+// Use conversation_id to send messages
+// See the Post Message endpoint
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://production-api.potpie.ai/api/v2/conversations',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'user_id': 'YOUR_USER_ID',
+        'title': 'Untitled',
+        'status': 'active',
+        'project_ids': ['550e8400-e29b-41d4-a716-446655440000'],
+        'agent_ids': ['codebase_qna_agent']
+    }
+)
+
+data = response.json()
+print(f"Conversation ID: {data['conversation_id']}")
+```
+
+```bash cURL
+curl -X POST \
+  'https://production-api.potpie.ai/api/v2/conversations' \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "user_id": "YOUR_USER_ID",
+    "title": "Untitled",
+    "status": "active",
+    "project_ids": ["550e8400-e29b-41d4-a716-446655440000"],
+    "agent_ids": ["codebase_qna_agent"]
+  }'
+```
+
+</CodeGroup>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    The endpoint requires a valid API key for authentication.
+
+    ```json
+    {
+      "detail": "API key is required"
+    }
+    ```
+
+    **Causes:**
+    - Missing `x-api-key` header
+    - Invalid or expired API key
+    - API key doesn't match any user account
+
+    **Solution:** Include a valid API key in the request header:
+    ```bash
+    x-api-key: YOUR_API_KEY
+    ```
+  </Accordion>
+
+  <Accordion title="402 Payment Required">
+    The endpoint returns this error when you have exceeded your plan's usage limits.
+
+    ```json
+    {
+      "detail": "Subscription required to create a conversation."
+    }
+    ```
+
+    **Causes:**
+    - You have reached the maximum number of conversations for your current plan
+    - Your subscription has expired
+    - Usage limits have been exceeded
+
+    **Solution:**
+    - Upgrade your subscription plan to increase limits
+    - Delete unused conversations to free up capacity
+    - Contact support to review your usage limits
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+    The endpoint returns this error when unexpected exceptions occur during conversation creation.
+
+    ```json
+    {
+      "detail": "An unexpected error occurred while creating the conversation."
+    }
+    ```
+
+    **Causes:**
+    - Database connection failures
+    - Invalid project or agent IDs
+    - Service unavailability
+
+    **Solution:** Retry the request after a brief delay. If the issue persists, contact support.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Empty response or missing conversation_id">
+    **Problem:** Response doesn't contain expected `conversation_id`.
+
+    **Solution:**
+    - Check the HTTP status code (should be 200 for success)
+    - Verify the response body is valid JSON
+    - Ensure all required fields are included in the request
+    - Check server logs if you have access
+  </Accordion>
+
+  <Accordion title="Invalid project_ids or agent_ids">
+    **Problem:** Conversation created but doesn't work properly.
+
+    **Solution:**
+    - Verify project IDs are valid UUIDs from successful parse operations
+    - Use the List Projects endpoint to confirm project IDs
+    - Use the List Available Agents endpoint to get valid agent IDs
+    - Ensure at least one project and one agent are specified
+  </Accordion>
+</AccordionGroup>
+

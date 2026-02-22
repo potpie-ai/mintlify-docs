@@ -1,0 +1,130 @@
+---
+title: 'Get Parsing Status By Repo'
+openapi: 'POST /api/v2/parsing-status'
+---
+
+Retrieve parsing status using repository name and branch instead of project ID.
+
+## Use Cases
+
+- Check parsing status when you only have repository details
+- Query status before knowing the project ID
+- Verify if a specific repo + branch combination has been parsed
+- Monitor parsing for repositories with specific commit IDs
+
+## Request Body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `repo_name` | string | required | The name of your repository |
+| `branch_name` | string | optional* | Branch name to check |
+| `commit_id` | string | optional* | Specific commit ID to check |
+
+<Note>
+  Either `commit_id` or `branch_name` should be provided. If both are given, `commit_id` takes precedence.
+</Note>
+
+## Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | string | Current parsing state: `submitted`, `cloned`, `parsed`, `processing`, `inferring`, `ready`, or `error` |
+| `project_id` | string | The unique project identifier |
+| `progress` | number | Percentage completion (0-100) |
+| `message` | string | Status description |
+
+## Example Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+const response = await fetch('https://production-api.potpie.ai/api/v2/parsing-status', {
+  method: 'POST',
+  headers: {
+    'x-api-key': 'YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    repo_name: 'my-awesome-app',
+    branch_name: 'main'
+  })
+});
+
+const status = await response.json();
+console.log(`Status: ${status.status}, Progress: ${status.progress}%`);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://production-api.potpie.ai/api/v2/parsing-status',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'repo_name': 'my-awesome-app',
+        'branch_name': 'main'
+    }
+)
+
+status = response.json()
+print(f"Status: {status['status']}, Progress: {status['progress']}%")
+```
+
+```bash cURL
+curl -X POST \
+  'https://production-api.potpie.ai/api/v2/parsing-status' \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "repo_name": "my-awesome-app",
+    "branch_name": "main"
+  }'
+```
+
+</CodeGroup>
+
+## Polling for Completion
+
+```python
+import time
+
+def wait_for_parsing_by_repo(repo_name: str, branch_name: str):
+    while True:
+        response = requests.post(
+            'https://production-api.potpie.ai/api/v2/parsing-status',
+            headers={'x-api-key': 'YOUR_API_KEY'},
+            json={
+                'repo_name': repo_name,
+                'branch_name': branch_name
+            }
+        )
+
+        status = response.json()
+        print(f"Status: {status['status']} - {status['progress']}%")
+
+        if status['status'] == 'ready':
+            return status
+        elif status['status'] == 'error':
+            raise Exception(f"Parsing failed: {status.get('message')}")
+
+        time.sleep(5)  # Check every 5 seconds
+```
+
+## Comparison: By Repo vs By Project ID
+
+| Feature | By Repo (POST) | By Project ID (GET) |
+|---------|---------------|---------------------|
+| Required Info | Repo name + branch/commit | Project ID |
+| HTTP Method | POST | GET |
+| Use Case | Initial status check | Ongoing monitoring |
+| Performance | Slightly slower | Faster |
+
+## Best Practices
+
+- **Cache the project_id** once you receive it for future queries
+- **Prefer the project ID endpoint** (<a href="/api-reference/endpoint/get-parsing-status" className="mode-link">Get Parsing Status</a>) once you have the project_id
+- **Use exponential backoff** when polling to reduce server load
+- **Set reasonable timeouts** for long-running parsing operations

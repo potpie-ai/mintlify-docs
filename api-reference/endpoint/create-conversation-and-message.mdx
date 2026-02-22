@@ -1,0 +1,287 @@
+---
+title: 'Create Conversation And Message'
+openapi: 'POST /api/v2/project/{project_id}/message/'
+---
+
+## Overview
+
+Create a new conversation and send the first message in a single API call. This streamlined endpoint is perfect for quick interactions where you want to ask a question about your codebase without managing conversation state.
+
+## Key Benefits
+
+- **Simplified Workflow**: Combine conversation creation and messaging in one request
+- **Auto-hidden Conversations**: Conversations are automatically hidden from the UI (configurable)
+- **Default Agent**: Uses the Q&A agent by default for codebase queries
+- **Immediate Response**: Get AI responses without managing conversation IDs
+
+## Use Cases
+
+- Quick codebase queries without managing conversations
+- Automated analysis scripts
+- CI/CD integration for code insights
+- Stateless API integrations
+- One-off questions about specific projects
+
+## Authentication
+
+This endpoint requires API key authentication via the `x-api-key` header.
+
+```bash
+x-api-key: YOUR_API_KEY
+```
+
+<AccordionGroup>
+  <Accordion title="Request & Response">
+
+| Location | Field | Type | Required | Default | Description |
+|----------|-------|------|----------|---------|-------------|
+| Path | `project_id` | string | required | - | The ID of the project to query about |
+| Query | `hidden` | boolean | optional | `true` | Whether to hide this conversation from the web UI |
+| Body | `content` | string | required | - | The message content to send (your question about the codebase) |
+| Body | `agent_id` | string | optional | `codebase_qna_agent` | The ID of the agent to use |
+| Body | `node_ids` | array[object] | optional | - | Array of node context objects to focus the conversation |
+| Response | `message` | string | - | - | AI agent's response content |
+| Response | `citations` | array[string] | - | - | Source code references used in the response |
+| Response | `tool_calls` | array | - | - | Tool invocations made by the agent during response generation |
+
+  </Accordion>
+</AccordionGroup>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="400 Bad Request">
+
+The endpoint validates that message content is not empty.
+
+```json
+{
+  "detail": "Message content cannot be empty"
+}
+```
+
+**Causes:**
+- Empty string provided in `content` field
+- Whitespace-only content
+- Missing `content` field
+
+**Solution:** Provide non-empty message content.
+
+  </Accordion>
+
+  <Accordion title="401 Unauthorized">
+
+The endpoint requires a valid API key for authentication.
+
+```json
+{
+  "detail": "API key is required"
+}
+```
+
+**Causes:**
+- Missing `x-api-key` header
+- Invalid or expired API key
+
+**Solution:** Include a valid API key in the request header.
+
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+
+The endpoint returns this error when unexpected exceptions occur.
+
+```json
+{
+  "detail": "An unexpected error occurred while creating the conversation."
+}
+```
+
+**Causes:**
+- Invalid project ID
+- Project not yet ready (still parsing)
+- Database connection failures
+- Invalid agent ID
+
+**Solution:** Verify project ID is valid and project has completed parsing. Retry after a brief delay.
+  </Accordion>
+</AccordionGroup>
+
+## Complete Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+// Quick codebase query
+const response = await fetch(
+  `https://production-api.potpie.ai/api/v2/project/${projectId}/message/`,
+  {
+    method: 'POST',
+    headers: {
+      'x-api-key': process.env.POTPIE_API_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      content: 'Explain how the authentication system works',
+      agent_id: 'codebase_qna_agent'
+    })
+  }
+);
+
+const answer = await response.json();
+console.log(answer);
+```
+
+```python Python
+# Quick question about your codebase
+response = requests.post(
+    f'https://production-api.potpie.ai/api/v2/project/{project_id}/message/',
+    headers={
+        'x-api-key': os.environ["POTPIE_API_KEY"],
+        'Content-Type': 'application/json'
+    },
+    json={
+        'content': 'What are the main API endpoints in this project?',
+        'agent_id': 'codebase_qna_agent'
+    }
+)
+
+answer = response.json()
+print(answer)
+```
+
+```bash cURL
+curl -X POST \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/" \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "content": "Show me the database schema",
+    "agent_id": "codebase_qna_agent"
+  }'
+```
+
+</CodeGroup>
+
+## Advanced Usage
+
+### With Node Context
+
+Focus the query on specific code elements:
+
+```typescript
+const response = await fetch(url, {
+  method: 'POST',
+  headers: headers,
+  body: JSON.stringify({
+    content: 'How does this function handle errors?',
+    node_ids: [
+      {
+        node_id: 'func_process_payment_xyz',
+        name: 'processPayment'
+      }
+    ]
+  })
+});
+```
+
+### Make Visible in UI
+
+Create a conversation that appears in the web interface:
+
+```bash
+curl -X POST \
+  "https://production-api.potpie.ai/api/v2/project/${PROJECT_ID}/message/?hidden=false" \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "content": "Review the security implementation"
+  }'
+```
+
+## Complete Integration Example
+
+```python
+class PotpieQuickQuery:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://production-api.potpie.ai'
+
+    def ask_codebase(self, project_id: str, question: str, agent_id: str = None):
+        """
+        Ask a quick question about your codebase.
+        Returns the AI response directly.
+        """
+        url = f'{self.base_url}/api/v2/project/{project_id}/message/'
+
+        payload = {'content': question}
+        if agent_id:
+            payload['agent_id'] = agent_id
+
+        response = requests.post(
+            url,
+            headers={
+                'x-api-key': self.api_key,
+                'Content-Type': 'application/json'
+            },
+            json=payload
+        )
+
+        response.raise_for_status()
+        return response.json()
+
+# Usage
+client = PotpieQuickQuery(api_key='your-api-key')
+answer = client.ask_codebase(
+    project_id='proj_123',
+    question='What design patterns are used in this codebase?'
+)
+print(answer)
+```
+
+## Comparison with Standard Flow
+
+| Feature | Create Conversation + Message | Direct Message (This Endpoint) |
+|---------|------------------------------|-------------------------------|
+| API Calls | 2 separate calls | 1 combined call |
+| Conversation ID | You manage it | Automatically managed |
+| UI Visibility | Configurable | Hidden by default |
+| Use Case | Multi-turn conversations | Quick queries |
+| Complexity | Higher | Lower |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Project not ready">
+    **Problem:** Error occurs even with valid project ID.
+
+    **Solution:**
+    - Check the project's parsing status using the Get Parsing Status endpoint
+    - Wait for parsing to complete before sending messages
+    - Ensure the project status is "ready" before querying
+  </Accordion>
+
+  <Accordion title="Response takes too long">
+    **Problem:** Request times out or takes very long.
+
+    **Solution:**
+    - Complex queries may take longer to process
+    - Implement appropriate timeout values (30-60 seconds recommended)
+    - Consider breaking complex questions into simpler ones
+    - Check if the project is very large
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Standard vs. Direct Flow
+
+**Use This Endpoint When:**
+- Making quick, one-off queries
+- Building stateless integrations
+- Automating codebase analysis
+- Don't need conversation history
+
+**Use Standard Flow When:**
+- Building interactive chat experiences
+- Need multi-turn conversations
+- Managing conversation history
+- Require fine-grained control over conversation state

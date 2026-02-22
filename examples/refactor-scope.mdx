@@ -1,0 +1,20 @@
+---
+title: 'Refactor Scope'
+description: 'Map every dependency before touching a shared service.'
+---
+
+Refactoring a shared service with an incomplete dependency tree breaks callers the refactor missed. In a large codebase, the actual scope of a "small" change rarely surfaces from the service itself.
+
+**Ask** maps every dependent across the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> using the **Node Neighbors** tool, organized by dependency type, so the full impact surfaces before touching a single line.
+
+**Question:**
+```
+What depends on UserService?
+```
+
+**Ask returns:**
+- Every class, function, and module that imports or calls `UserService`
+- Every call site with its exact file path and line number, organized by dependency type
+- Transitive dependencies that could be affected by interface changes
+
+**Ask** maps the full **blast radius** before the refactor begins. <a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> uses the same dependency map to generate a spec and **diff** scoped to every affected file.

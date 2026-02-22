@@ -1,0 +1,215 @@
+---
+title: 'Confluence Integration'
+description: 'Connect Potpie with Confluence to manage documentation and knowledge bases'
+---
+
+## Overview
+
+The Confluence integration enables Potpie agents to interact with Confluence workspaces using Atlassian OAuth 2.0 (3LO), providing access to spaces, pages, and content management.
+
+
+## Quick Start
+
+<Steps>
+  <Step title="Create Atlassian OAuth App">
+    Go to <a href="https://developer.atlassian.com/console/myapps/" className="mode-link">Atlassian Developer Console</a>
+
+    Create OAuth 2.0 integration:
+    - **App name**: Potpie AI
+    - **Callback URL**: `https://app.potpie.ai/integrations/confluence/callback`
+    - **Permissions**: See scopes below
+  </Step>
+
+  <Step title="Configure Environment">
+    ```bash
+    # Can reuse Jira credentials if same Atlassian account
+    CONFLUENCE_CLIENT_ID=your_client_id
+    CONFLUENCE_CLIENT_SECRET=your_client_secret
+    CONFLUENCE_OAUTH_SCOPE="write:confluence-content read:confluence-space.summary ... offline_access"
+    ```
+  </Step>
+
+  <Step title="Connect Confluence Site">
+    1. Settings → Integrations → Confluence
+    2. Click "Connect"
+    3. Select the Confluence site
+    4. Authorize permissions
+    5. Name the integration
+  </Step>
+
+  <Step title="Test Integration">
+    *"List all Confluence spaces"*
+
+    *"Search Confluence for 'API documentation'"*
+  </Step>
+</Steps>
+
+---
+
+## OAuth Setup
+
+### Atlassian OAuth 2.0 (3LO)
+
+**Authorization URL**: `https://auth.atlassian.com/authorize`
+**Token URL**: `https://auth.atlassian.com/oauth/token`
+**API Base**: `https://api.atlassian.com/ex/confluence/{cloud_id}`
+
+### Required Scopes
+
+```
+write:confluence-content         # Create/update pages
+read:confluence-space.summary    # Read space info
+write:confluence-space           # Manage spaces
+write:confluence-file            # Upload attachments
+read:confluence-props            # Read properties
+write:confluence-props           # Write properties
+read:confluence-content.all      # Read all content
+read:confluence-content.summary  # Read summaries
+search:confluence                # Search (CQL)
+read:confluence-content.permission # Read permissions
+read:confluence-user             # Read user info
+read:confluence-groups           # Read groups
+readonly:content.attachment:confluence # Read attachments
+read:space:confluence            # Read spaces
+read:page:confluence             # Read pages
+write:page:confluence            # Write pages
+write:comment:confluence         # Write comments
+read:content-details:confluence  # Read details
+offline_access                   # Refresh tokens
+```
+
+### Cloud ID
+
+Same as Jira - fetch accessible resources after OAuth:
+```bash
+GET https://api.atlassian.com/oauth/token/accessible-resources
+Authorization: Bearer {access_token}
+```
+
+---
+
+## Available Tools
+
+The Confluence integration provides 7 tools. See <a href="/agents/tools-reference#confluence-tools" className="mode-link">Confluence Tools</a> in the Tools Reference for full documentation.
+
+| Tool | Description |
+|------|-------------|
+| `get_confluence_spaces_tool` | List all spaces |
+| `get_confluence_page_tool` | Fetch a page by ID |
+| `get_confluence_space_pages_tool` | List pages in a space |
+| `search_confluence_pages_tool` | Search using CQL |
+| `create_confluence_page_tool` | Create a new page |
+| `update_confluence_page_tool` | Update an existing page |
+| `add_confluence_comment_tool` | Add a comment to a page |
+
+---
+
+## Storage Format
+
+Confluence uses its own storage format for content:
+
+### Simple HTML-like Format
+```html
+<p>Hello world!</p>
+<p>This is <strong>bold</strong> and <em>italic</em> text.</p>
+
+<h2>Heading 2</h2>
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+</ul>
+
+<ac:structured-macro ac:name="code">
+  <ac:plain-text-body><![CDATA[
+    console.log('Hello');
+  ]]></ac:plain-text-body>
+</ac:structured-macro>
+```
+
+### Input Format
+The `create_confluence_page_tool` accepts **HTML or plain text**.
+
+- **HTML**: Passed through directly as Confluence storage format.
+- **Plain text**: Automatically wrapped in `<p>` tags.
+
+For code blocks, wrap content manually using HTML tags (`<pre>`, `<code>`) or the Confluence macro XML shown above.
+
+---
+
+## CQL (Confluence Query Language)
+
+### Basic Syntax
+
+```cql
+# Search by text
+text ~ "authentication"
+
+# Filter by space
+space = DOCS
+
+# Filter by type
+type = page
+
+# Combine conditions
+space = DOCS AND type = page AND text ~ "API"
+
+# Date filters
+lastModified >= "2024-01-01"
+created >= now("-7d")
+
+# User filters
+creator = currentUser()
+contributor = "john@company.com"
+
+# Sort results
+order by lastModified desc
+```
+
+### Advanced Examples
+
+```cql
+# Recent pages in multiple spaces
+space in (DOCS, ENG) AND lastModified >= now("-30d")
+
+# Pages with specific label
+label = "api-docs" AND space = DOCS
+
+# My recent edits
+contributor = currentUser() AND lastModified >= now("-7d")
+
+# Popular pages
+space = DOCS AND type = page ORDER BY lastModified desc
+```
+
+---
+
+## Webhook Support
+
+<Warning>
+  Confluence OAuth 2.0 apps **cannot** register webhooks via API. Webhooks are only available for Atlassian Connect apps.
+</Warning>
+
+**Alternative**: Use Confluence's built-in automation rules to trigger external webhooks for page events.
+
+---
+
+For endpoint details and request schemas, see the <a href="/api-reference/endpoint/save-integration" className="mode-link">API reference</a>.
+
+---
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Jira Integration" icon="puzzle-piece" href="/extensions/jira">
+    Connect Confluence with Jira
+  </Card>
+  <Card title="GitHub Integration" icon="github" href="/extensions/github">
+    Link docs to GitHub repos
+  </Card>
+  <Card title="Custom Agents" icon="robot" href="/custom-agents/introduction">
+    Build agents with Confluence tools
+  </Card>
+  <Card title="Ask a Question" icon="messages-question" href="/build-flow/ask-a-question">
+    Query Confluence knowledge base
+  </Card>
+</CardGroup>

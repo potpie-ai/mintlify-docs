@@ -1,0 +1,143 @@
+---
+title: 'Jira Integration'
+description: 'Connect Potpie with Jira for issue tracking and project management'
+---
+
+## Overview
+
+The **Jira integration** enables Potpie agents to access issues, projects, and workflows in the Jira workspace. Authentication uses **Atlassian OAuth 2.0 (3LO)** with **webhook** support for real-time notifications.
+
+
+## Quick Start
+
+<Steps>
+  <Step title="Create Atlassian OAuth App">
+    Go to <a href="https://developer.atlassian.com/console/myapps/" className="mode-link">Atlassian Developer Console</a>
+
+    Create an **OAuth 2.0** integration with:
+    - **App name**: Potpie AI
+    - **Callback URL**: `https://app.potpie.ai/api/v2/integrations/jira/callback`
+    - **Scopes**: `read:jira-user read:jira-work write:jira-work manage:jira-webhook offline_access manage:jira-configuration`
+  </Step>
+
+  <Step title="Connect Jira Site">
+    1. Settings → Integrations → Jira
+    2. Click **Connect**
+    3. Select the Jira site
+    4. Authorize permissions
+    5. Name the integration
+  </Step>
+
+  <Step title="Test Integration">
+    *"Create a Jira issue in project ENG with title 'Test issue'"*
+
+    *"Show me issue ENG-123"*
+  </Step>
+</Steps>
+
+---
+
+## Available Tools
+
+The Jira integration provides 10 tools. See <a href="/agents/tools-reference#jira-tools" className="mode-link">Jira Tools</a> in the Tools Reference for full documentation.
+
+| Tool | Description |
+|------|-------------|
+| `create_jira_issue_tool` | Create a new issue |
+| `get_jira_issue_tool` | Fetch issue details |
+| `update_jira_issue_tool` | Update issue fields |
+| `search_jira_issues_tool` | Search using JQL |
+| `add_jira_comment_tool` | Add a comment |
+| `transition_jira_issue_tool` | Move issue to a new status |
+| `link_jira_issues_tool` | Link two issues |
+| `get_jira_projects_tool` | List all projects |
+| `get_jira_project_details_tool` | Get project metadata |
+| `get_jira_project_users_tool` | List project members |
+
+---
+
+## Webhook Configuration
+
+When you connect Jira, Potpie automatically registers a webhook to receive real-time issue events — no manual setup required.
+
+### Webhook Events
+
+- `jira:issue_created` — New issues
+- `jira:issue_updated` — Issue changes
+- `jira:issue_deleted` — Deleted issues
+- `comment_created` — New comments
+
+---
+
+## ADF Format
+
+Jira uses **Atlassian Document Format (ADF)** for rich text:
+
+```python
+# Simple text
+{"type": "doc", "content": [
+    {"type": "paragraph", "content": [
+        {"type": "text", "text": "Hello world"}
+    ]}
+]}
+
+# With formatting
+{"type": "doc", "content": [
+    {"type": "paragraph", "content": [
+        {"type": "text", "text": "Bold text", "marks": [{"type": "strong"}]},
+        {"type": "text", "text": " and "},
+        {"type": "text", "text": "italic", "marks": [{"type": "em"}]}
+    ]}
+]}
+```
+
+Potpie automatically converts plain text to **ADF**.
+
+---
+
+## Self-Hosted Setup
+
+### Backend Configuration
+
+Add Jira OAuth credentials to the environment:
+
+```bash
+JIRA_CLIENT_ID=your_client_id
+JIRA_CLIENT_SECRET=your_client_secret
+JIRA_OAUTH_SCOPE="read:jira-user read:jira-work write:jira-work manage:jira-webhook offline_access manage:jira-configuration"
+```
+
+### OAuth App Setup
+
+**Authentication Type:** Atlassian OAuth 2.0 (3LO)
+**Authorization URL:** `https://auth.atlassian.com/authorize`
+**Token URL:** `https://auth.atlassian.com/oauth/token`
+**API Base:** `https://api.atlassian.com/ex/jira/{cloud_id}`
+
+<Note>
+  The callback URL is dynamically constructed from the deployment hostname: `https://{your-deployment-hostname}/api/v2/integrations/jira/callback`
+</Note>
+
+### Cloud ID
+
+After OAuth, Potpie fetches accessible resources to determine the Cloud ID for your Jira site:
+
+```bash
+GET https://api.atlassian.com/oauth/token/accessible-resources
+Authorization: Bearer {access_token}
+```
+
+```json
+[{
+  "id": "cloud-id-123",
+  "name": "My Jira Site",
+  "url": "https://mysite.atlassian.net"
+}]
+```
+
+All API calls use the Cloud ID:
+```
+https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3/issue/ENG-123
+```
+
+For Potpie API endpoints that manage the Jira integration lifecycle, see the <a href="/api-reference/introduction" className="mode-link">API Reference</a>.

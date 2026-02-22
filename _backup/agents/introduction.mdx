@@ -1,0 +1,119 @@
+---
+title: 'Introduction'
+mode: 'wide'
+---
+
+Potpie provides three specialized AI agents that understand your codebase through knowledge graph analysis and systematic code exploration.
+
+<CardGroup cols={3}>
+  <Card title="Understand Code" icon="book-open" href="/agents/qna-agent">
+    Use **Ask Agent** for exploration and comprehension
+  </Card>
+  <Card title="Modify Code" icon="pen-to-square" href="/agents/code-changes-agent">
+    Use **Code Agent** for changes and features
+  </Card>
+  <Card title="Fix Bugs" icon="wrench" href="/agents/debugging-agent">
+    Use **Debug Agent** for issues and errors
+  </Card>
+</CardGroup>
+
+## How to Use Agents
+
+All agents follow the same usage pattern: create a conversation, send messages, get responses. They differ in what they do with your messages.
+
+<Steps>
+  <Step title="Create Conversation">
+    ```python Choose your agent and create a conversation
+    response = requests.post(
+        "https://production-api.potpie.ai/api/v1/conversations/",
+        headers={"Authorization": "Bearer <firebase_token>"},
+        json={
+            "user_id": "user_123",
+            "title": "Your task description",
+            "status": "active",
+            "project_ids": ["proj_abc123"],
+            "agent_ids": ["codebase_qna_agent"]  # or "code_generation_agent" or "debugging_agent"
+        }
+    )
+    conversation_id = response.json()["conversation_id"]
+    ```
+  </Step>
+
+  <Step title="Send Message">
+    ```python All agents use Form data (not JSON) for messages
+    message_response = requests.post(
+        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        headers={"Authorization": "Bearer <firebase_token>"},
+        data={
+            "content": "Your question, request, or bug report"
+        },
+        params={"stream": False}
+    )
+
+    answer = message_response.json()["response"]
+    ```
+
+    <Warning>
+      Message endpoint uses **Form data** (`data=`), not JSON (`json=`). Use `multipart/form-data` content type.
+    </Warning>
+  </Step>
+
+  <Step title="Get Response">
+    ```typescript All agents return the same response format
+    {
+      response: string           // Markdown-formatted answer
+      tool_calls: ToolCall[]     // Tools the agent used
+      citations: string[]        // Files referenced
+    }
+    ```
+  </Step>
+</Steps>
+
+
+<AccordionGroup>
+  <Accordion title="When to Use Each Agent" icon="question">
+    <Tabs>
+      <Tab title="Ask Agent">
+        **Perfect for:**
+        - "How does this feature work?"
+        - "Where is X implemented?"
+        - "What files handle Y?"
+        - "Show me the authentication flow"
+
+        **Not ideal for:**
+        - Making code changes (use Code Agent)
+        - Debugging specific bugs (use Debug Agent)
+      </Tab>
+
+      <Tab title="Code Agent">
+        **Perfect for:**
+        - "Add rate limiting to API"
+        - "Refactor the auth middleware"
+        - "Create a new user service"
+        - "Update error handling across controllers"
+
+        **Not ideal for:**
+        - Just understanding code (use Ask Agent)
+        - Diagnosing bugs without implementing (use Debug Agent)
+      </Tab>
+
+      <Tab title="Debug Agent">
+        **Perfect for:**
+        - "Users get null pointer during checkout"
+        - "Login fails with special characters"
+        - "Race condition in payment processing"
+        - "Memory leak in background worker"
+
+        **Not ideal for:**
+        - General code questions (use Ask Agent)
+        - Implementing new features (use Code Agent)
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+
+</AccordionGroup>
+
+
+
+

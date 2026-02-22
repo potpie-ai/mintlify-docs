@@ -1,2195 +1,1283 @@
 {
   "openapi": "3.1.0",
   "info": {
-      "title": "FastAPI",
-      "version": "0.1.0"
+    "title": "Potpie API",
+    "version": "2.0.0",
+    "description": "AI-powered codebase intelligence API. Build powerful integrations with Potpie's parsing, conversation, search, and agent capabilities.",
+    "contact": {
+      "name": "Potpie Support",
+      "email": "hi@potpie.ai",
+      "url": "https://potpie.ai"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://potpie.ai/terms"
+    }
   },
+  "servers": [
+    {
+      "url": "https://production-api.potpie.ai",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Parsing",
+      "description": "Repository parsing and status management"
+    },
+    {
+      "name": "Projects",
+      "description": "Project management and listing"
+    },
+    {
+      "name": "Conversations",
+      "description": "AI conversation management"
+    },
+    {
+      "name": "Agents",
+      "description": "AI agent information and selection"
+    },
+    {
+      "name": "Search",
+      "description": "Codebase semantic search"
+    },
+    {
+      "name": "Integrations",
+      "description": "External service integrations"
+    }
+  ],
   "paths": {
-      "/api/v1/signup": {
-          "post": {
-              "tags": [
-                  "Auth"
-              ],
-              "summary": "Signup",
-              "operationId": "signup_api_v1_signup_post",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/user/conversations": {
-          "get": {
-              "tags": [
-                  "User"
-              ],
-              "summary": "Get Conversations For User",
-              "operationId": "get_conversations_for_user_api_v1_user_conversations_get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "start",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "default": 0,
-                          "title": "Start"
-                      }
-                  },
-                  {
-                      "name": "limit",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "default": 10,
-                          "title": "Limit"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "type": "array",
-                                  "items": {
-                                      "$ref": "#/components/schemas/UserConversationListResponse"
-                                  },
-                                  "title": "Response Get Conversations For User Api V1 User Conversations Get"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/parse": {
-          "post": {
-              "tags": [
-                  "Parsing"
-              ],
-              "summary": "Parse Directory",
-              "operationId": "parse_directory_api_v1_parse_post",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/ParsingRequest"
-                          }
-                      }
-                  },
-                  "required": true
+    "/api/v2/parse": {
+      "post": {
+        "operationId": "parseDirectory",
+        "summary": "Parse Directory",
+        "description": "Initiate parsing of a repository or directory to build Potpie's knowledge graph. This analyzes your codebase structure, relationships, and creates the foundational data that enables AI agents to understand and work with your code.",
+        "tags": ["Parsing"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParsingRequest"
               },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
+              "examples": {
+                "local_repo": {
+                  "summary": "Parse local repository",
+                  "value": {
+                    "repo_path": "/path/to/local/repo",
+                    "branch_name": "main"
                   }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
+                },
+                "remote_repo": {
+                  "summary": "Parse remote repository",
+                  "value": {
+                    "repo_name": "facebook/react",
+                    "branch_name": "main",
+                    "commit_id": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
                   }
-              ]
-          }
-      },
-      "/api/v1/parsing-status/{project_id}": {
-          "get": {
-              "tags": [
-                  "Parsing"
-              ],
-              "summary": "Get Parsing Status",
-              "operationId": "get_parsing_status_api_v1_parsing_status__project_id__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "project_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Project Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
+                }
               }
+            }
           }
-      },
-      "/api/v1/conversations/": {
-          "post": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Create Conversation",
-              "operationId": "create_conversation_api_v1_conversations__post",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/CreateConversationRequest"
-                          }
-                      }
-                  },
-                  "required": true
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/CreateConversationResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/info/": {
-          "get": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Get Conversation Info",
-              "operationId": "get_conversation_info_api_v1_conversations__conversation_id__info__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/ConversationInfoResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
+        },
+        "responses": {
+          "200": {
+            "description": "Parsing initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsingResponse"
+                },
+                "example": {
+                  "project_id": "proj_123",
+                  "status": "submitted"
+                }
               }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/messages/": {
-          "get": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Get Conversation Messages",
-              "operationId": "get_conversation_messages_api_v1_conversations__conversation_id__messages__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  },
-                  {
-                      "name": "start",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "default": 0,
-                          "title": "Start"
-                      }
-                  },
-                  {
-                      "name": "limit",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "default": 10,
-                          "title": "Limit"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "type": "array",
-                                  "items": {
-                                      "$ref": "#/components/schemas/MessageResponse"
-                                  },
-                                  "title": "Response Get Conversation Messages Api V1 Conversations  Conversation Id  Messages  Get"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/message/": {
-          "post": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Post Message",
-              "operationId": "post_message_api_v1_conversations__conversation_id__message__post",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/MessageRequest"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/regenerate/": {
-          "post": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Regenerate Last Message",
-              "operationId": "regenerate_last_message_api_v1_conversations__conversation_id__regenerate__post",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/RegenerateRequest"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/MessageResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/": {
-          "delete": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Delete Conversation",
-              "operationId": "delete_conversation_api_v1_conversations__conversation_id___delete",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "type": "object",
-                                  "title": "Response Delete Conversation Api V1 Conversations  Conversation Id   Delete"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/stop/": {
-          "post": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Stop Generation",
-              "operationId": "stop_generation_api_v1_conversations__conversation_id__stop__post",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "type": "object",
-                                  "title": "Response Stop Generation Api V1 Conversations  Conversation Id  Stop  Post"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/conversations/{conversation_id}/rename/": {
-          "patch": {
-              "tags": [
-                  "Conversations"
-              ],
-              "summary": "Rename Conversation",
-              "operationId": "rename_conversation_api_v1_conversations__conversation_id__rename__patch",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "conversation_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Conversation Id"
-                      }
-                  }
-              ],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/RenameConversationRequest"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "type": "object",
-                                  "title": "Response Rename Conversation Api V1 Conversations  Conversation Id  Rename  Patch"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/prompts/": {
-          "post": {
-              "tags": [
-                  "Prompts"
-              ],
-              "summary": "Create Prompt",
-              "operationId": "create_prompt_api_v1_prompts__post",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/PromptCreate"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/PromptResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
+            }
           },
-          "get": {
-              "tags": [
-                  "Prompts"
-              ],
-              "summary": "List Prompts",
-              "operationId": "list_prompts_api_v1_prompts__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "query",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "anyOf": [
-                              {
-                                  "type": "string"
-                              },
-                              {
-                                  "type": "null"
-                              }
-                          ],
-                          "title": "Query"
-                      }
-                  },
-                  {
-                      "name": "skip",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "minimum": 0,
-                          "default": 0,
-                          "title": "Skip"
-                      }
-                  },
-                  {
-                      "name": "limit",
-                      "in": "query",
-                      "required": false,
-                      "schema": {
-                          "type": "integer",
-                          "maximum": 100,
-                          "minimum": 1,
-                          "default": 10,
-                          "title": "Limit"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/PromptListResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/prompts/{prompt_id}": {
-          "put": {
-              "tags": [
-                  "Prompts"
-              ],
-              "summary": "Update Prompt",
-              "operationId": "update_prompt_api_v1_prompts__prompt_id__put",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "prompt_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Prompt Id"
-                      }
-                  }
-              ],
-              "requestBody": {
-                  "required": true,
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/PromptUpdate"
-                          }
-                      }
-                  }
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/PromptResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
-          "delete": {
-              "tags": [
-                  "Prompts"
-              ],
-              "summary": "Delete Prompt",
-              "operationId": "delete_prompt_api_v1_prompts__prompt_id__delete",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "prompt_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Prompt Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
-          "get": {
-              "tags": [
-                  "Prompts"
-              ],
-              "summary": "Fetch Prompt",
-              "operationId": "fetch_prompt_api_v1_prompts__prompt_id__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "prompt_id",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Prompt Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/PromptResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/secrets": {
-          "put": {
-              "tags": [
-                  "Secret Manager"
-              ],
-              "summary": "Update Secret",
-              "operationId": "update_secret_api_v1_secrets_put",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/UpdateSecretRequest"
-                          }
-                      }
-                  },
-                  "required": true
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
-          "post": {
-              "tags": [
-                  "Secret Manager"
-              ],
-              "summary": "Create Secret",
-              "operationId": "create_secret_api_v1_secrets_post",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/CreateSecretRequest"
-                          }
-                      }
-                  },
-                  "required": true
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           }
-      },
-      "/api/v1/secrets/{provider}": {
-          "get": {
-              "tags": [
-                  "Secret Manager"
-              ],
-              "summary": "Get Secret For Provider",
-              "operationId": "get_secret_for_provider_api_v1_secrets__provider__get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "provider",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "enum": [
-                              "openai",
-                              "anthropic"
-                          ],
-                          "type": "string",
-                          "title": "Provider"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          },
-          "delete": {
-              "tags": [
-                  "Secret Manager"
-              ],
-              "summary": "Delete Secret",
-              "operationId": "delete_secret_api_v1_secrets__provider__delete",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "provider",
-                      "in": "path",
-                      "required": true,
-                      "schema": {
-                          "enum": [
-                              "openai",
-                              "anthropic"
-                          ],
-                          "type": "string",
-                          "title": "Provider"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/projects/list": {
-          "get": {
-              "tags": [
-                  "Projects"
-              ],
-              "summary": "Get Project List",
-              "operationId": "get_project_list_api_v1_projects_list_get",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/projects": {
-          "delete": {
-              "tags": [
-                  "Projects"
-              ],
-              "summary": "Delete Project",
-              "operationId": "delete_project_api_v1_projects_delete",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "project_id",
-                      "in": "query",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "title": "Project Id"
-                      }
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/search": {
-          "post": {
-              "tags": [
-                  "Search"
-              ],
-              "summary": "Search Codebase",
-              "operationId": "search_codebase_api_v1_search_post",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/SearchRequest"
-                          }
-                      }
-                  },
-                  "required": true
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/SearchResponse"
-                              }
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/github/user-repos": {
-          "get": {
-              "tags": [
-                  "Github"
-              ],
-              "summary": "Get User Repos",
-              "operationId": "get_user_repos_api_v1_github_user_repos_get",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/github/get-branch-list": {
-          "get": {
-              "tags": [
-                  "Github"
-              ],
-              "summary": "Get Branch List",
-              "operationId": "get_branch_list_api_v1_github_get_branch_list_get",
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ],
-              "parameters": [
-                  {
-                      "name": "repo_name",
-                      "in": "query",
-                      "required": true,
-                      "schema": {
-                          "type": "string",
-                          "description": "Repository name",
-                          "title": "Repo Name"
-                      },
-                      "description": "Repository name"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      },
-      "/api/v1/list-available-agents/": {
-          "get": {
-              "tags": [
-                  "Agents"
-              ],
-              "summary": "List Available Agents",
-              "operationId": "list_available_agents_api_v1_list_available_agents__get",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "items": {
-                                      "$ref": "#/components/schemas/AgentInfo"
-                                  },
-                                  "type": "array",
-                                  "title": "Response List Available Agents Api V1 List Available Agents  Get"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/list-available-llms/": {
-          "get": {
-              "tags": [
-                  "Providers"
-              ],
-              "summary": "List Available Llms",
-              "operationId": "list_available_llms_api_v1_list_available_llms__get",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "items": {
-                                      "$ref": "#/components/schemas/ProviderInfo"
-                                  },
-                                  "type": "array",
-                                  "title": "Response List Available Llms Api V1 List Available Llms  Get"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/api/v1/set-global-ai-provider/": {
-          "post": {
-              "tags": [
-                  "Providers"
-              ],
-              "summary": "Set Global Ai Provider",
-              "operationId": "set_global_ai_provider_api_v1_set_global_ai_provider__post",
-              "requestBody": {
-                  "content": {
-                      "application/json": {
-                          "schema": {
-                              "$ref": "#/components/schemas/SetProviderRequest"
-                          }
-                      }
-                  },
-                  "required": true
-              },
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  },
-                  "422": {
-                      "description": "Validation Error",
-                      "content": {
-                          "application/json": {
-                              "schema": {
-                                  "$ref": "#/components/schemas/HTTPValidationError"
-                              }
-                          }
-                      }
-                  }
-              },
-              "security": [
-                  {
-                      "HTTPBearer": []
-                  }
-              ]
-          }
-      },
-      "/health": {
-          "get": {
-              "tags": [
-                  "Health"
-              ],
-              "summary": "Health Check",
-              "operationId": "health_check_health_get",
-              "responses": {
-                  "200": {
-                      "description": "Successful Response",
-                      "content": {
-                          "application/json": {
-                              "schema": {}
-                          }
-                      }
-                  }
-              }
-          }
+        }
       }
-  },
-  "components": {
-      "schemas": {
-          "AgentInfo": {
-              "properties": {
-                  "id": {
+    },
+    "/api/v2/parsing-status/{project_id}": {
+      "get": {
+        "operationId": "getParsingStatus",
+        "summary": "Get Parsing Status",
+        "description": "Check the parsing status of a specific project using its project ID. Returns the current status and whether the parsed commit matches the latest commit on the branch.",
+        "tags": ["Parsing"],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "The unique project identifier returned from the parse endpoint",
+            "schema": {
+              "type": "string"
+            },
+            "example": "proj_abc123def456"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Parsing status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
                       "type": "string",
-                      "title": "Id"
-                  },
-                  "name": {
-                      "type": "string",
-                      "title": "Name"
-                  },
-                  "description": {
-                      "type": "string",
-                      "title": "Description"
+                      "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"],
+                      "description": "Current parsing status"
+                    },
+                    "latest": {
+                      "type": "boolean",
+                      "description": "Whether the parsed commit matches the latest commit on the branch"
+                    }
                   }
-              },
-              "type": "object",
-              "required": [
-                  "id",
-                  "name",
-                  "description"
-              ],
-              "title": "AgentInfo"
+                },
+                "examples": {
+                  "processing": {
+                    "summary": "Parsing in progress",
+                    "value": {
+                      "status": "processing",
+                      "latest": false
+                    }
+                  },
+                  "ready": {
+                    "summary": "Parsing complete",
+                    "value": {
+                      "status": "ready",
+                      "latest": true
+                    }
+                  }
+                }
+              }
+            }
           },
-          "ConversationInfoResponse": {
-              "properties": {
-                  "id": {
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v2/parsing-status": {
+      "post": {
+        "operationId": "getParsingStatusByRepo",
+        "summary": "Get Parsing Status By Repo",
+        "description": "Retrieve parsing status using repository name and branch/commit information instead of project ID. Useful when you know the repository details but not the project ID.",
+        "tags": ["Parsing"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParsingStatusRequest"
+              },
+              "examples": {
+                "by_branch": {
+                  "summary": "Check by branch name",
+                  "value": {
+                    "repo_name": "my-awesome-project",
+                    "branch_name": "main"
+                  }
+                },
+                "by_commit": {
+                  "summary": "Check by commit ID",
+                  "value": {
+                    "repo_name": "my-awesome-project",
+                    "commit_id": "abc123def456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parsing status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
                       "type": "string",
-                      "title": "Id"
-                  },
-                  "title": {
-                      "type": "string",
-                      "title": "Title"
-                  },
-                  "status": {
-                      "$ref": "#/components/schemas/ConversationStatus"
-                  },
-                  "project_ids": {
-                      "items": {
-                          "type": "string"
-                      },
-                      "type": "array",
-                      "title": "Project Ids"
-                  },
-                  "created_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "Created At"
-                  },
-                  "updated_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "Updated At"
-                  },
-                  "total_messages": {
+                      "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"]
+                    },
+                    "progress": {
                       "type": "integer",
-                      "title": "Total Messages"
-                  },
-                  "agent_ids": {
-                      "items": {
-                          "type": "string"
-                      },
-                      "type": "array",
-                      "title": "Agent Ids"
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "project_id": {
+                      "type": "string"
+                    }
                   }
-              },
-              "type": "object",
-              "required": [
-                  "id",
-                  "title",
-                  "status",
-                  "project_ids",
-                  "created_at",
-                  "updated_at",
-                  "total_messages",
-                  "agent_ids"
-              ],
-              "title": "ConversationInfoResponse"
+                },
+                "example": {
+                  "status": "ready",
+                  "progress": 100,
+                  "message": "Parsing ready successfully",
+                  "project_id": "proj_abc123def456"
+                }
+              }
+            }
           },
-          "ConversationStatus": {
-              "type": "string",
-              "enum": [
-                  "active",
-                  "archived",
-                  "deleted"
-              ],
-              "title": "ConversationStatus"
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
-          "CreateConversationRequest": {
-              "properties": {
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v2/conversations/": {
+      "post": {
+        "operationId": "createConversation",
+        "summary": "Create Conversation",
+        "description": "Create a new conversation with AI agents. Conversations maintain context across multiple messages and allow for interactive discussions about your codebase.",
+        "tags": ["Conversations"],
+        "parameters": [
+          {
+            "name": "hidden",
+            "in": "query",
+            "required": false,
+            "description": "Whether to hide this conversation from the web UI",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["user_id", "title", "status", "project_ids", "agent_ids"],
+                "properties": {
                   "user_id": {
-                      "type": "string",
-                      "title": "User Id"
+                    "type": "string",
+                    "description": "User identifier. The server uses the authenticated user ID from the API key."
                   },
                   "title": {
-                      "type": "string",
-                      "title": "Title"
+                    "type": "string",
+                    "description": "Name for the conversation. Pass \"Untitled\" to auto-generate a name from the project."
                   },
                   "status": {
-                      "$ref": "#/components/schemas/ConversationStatus"
+                    "type": "string",
+                    "enum": ["active", "archived", "deleted"],
+                    "description": "Initial conversation status. Use \"active\" for a standard new conversation."
                   },
                   "project_ids": {
-                      "items": {
-                          "type": "string"
-                      },
-                      "type": "array",
-                      "title": "Project Ids"
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of project IDs to include in the conversation"
                   },
                   "agent_ids": {
-                      "items": {
-                          "type": "string"
-                      },
-                      "type": "array",
-                      "title": "Agent Ids"
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of agent IDs to use in the conversation"
                   }
+                }
               },
-              "type": "object",
-              "required": [
-                  "user_id",
-                  "title",
-                  "status",
-                  "project_ids",
-                  "agent_ids"
-              ],
-              "title": "CreateConversationRequest"
+              "example": {
+                "user_id": "YOUR_USER_ID",
+                "title": "Untitled",
+                "status": "active",
+                "project_ids": ["proj_abc123def456"],
+                "agent_ids": ["codebase_qna_agent"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Conversation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConversationResponse"
+                },
+                "example": {
+                  "message": "Conversation created successfully.",
+                  "conversation_id": "conv_xyz789abc123"
+                }
+              }
+            }
           },
-          "CreateConversationResponse": {
-              "properties": {
-                  "message": {
-                      "type": "string",
-                      "title": "Message"
-                  },
-                  "conversation_id": {
-                      "type": "string",
-                      "title": "Conversation Id"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "message",
-                  "conversation_id"
-              ],
-              "title": "CreateConversationResponse"
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
-          "CreateSecretRequest": {
-              "properties": {
-                  "api_key": {
-                      "type": "string",
-                      "title": "Api Key"
-                  },
-                  "provider": {
-                      "type": "string",
-                      "enum": [
-                          "openai",
-                          "anthropic"
-                      ],
-                      "title": "Provider"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "api_key",
-                  "provider"
-              ],
-              "title": "CreateSecretRequest"
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
-          "HTTPValidationError": {
-              "properties": {
-                  "detail": {
-                      "items": {
-                          "$ref": "#/components/schemas/ValidationError"
-                      },
-                      "type": "array",
-                      "title": "Detail"
-                  }
-              },
-              "type": "object",
-              "title": "HTTPValidationError"
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          }
+        }
+      }
+    },
+    "/api/v2/conversations/{conversation_id}/message/": {
+      "post": {
+        "operationId": "postMessage",
+        "summary": "Post Message",
+        "description": "Send a message to an existing conversation. The AI agent will respond based on the conversation context and your codebase knowledge graph.",
+        "tags": ["Conversations"],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "description": "The conversation ID to send the message to",
+            "schema": {
+              "type": "string"
+            },
+            "example": "conv_xyz789abc123"
           },
-          "MessageRequest": {
-              "properties": {
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "description": "Whether to stream the response",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
                   "content": {
-                      "type": "string",
-                      "title": "Content"
+                    "type": "string",
+                    "description": "Your message or question. Cannot be empty or whitespace-only.",
+                    "minLength": 1
                   },
                   "node_ids": {
-                      "anyOf": [
-                          {
-                              "items": {
-                                  "$ref": "#/components/schemas/NodeContext"
-                              },
-                              "type": "array"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Node Ids"
+                    "type": "string",
+                    "description": "JSON-encoded array of NodeContext objects to reference specific code nodes. Example: [{\"node_id\":\"node_123\",\"name\":\"AuthService\"}]"
+                  },
+                  "tunnel_url": {
+                    "type": "string",
+                    "description": "VS Code extension tunnel URL for local server routing"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Image attachments to include with your message"
                   }
+                }
               },
-              "type": "object",
-              "required": [
-                  "content"
-              ],
-              "title": "MessageRequest"
-          },
-          "MessageResponse": {
-              "properties": {
-                  "id": {
-                      "type": "string",
-                      "title": "Id"
-                  },
-                  "conversation_id": {
-                      "type": "string",
-                      "title": "Conversation Id"
-                  },
-                  "content": {
-                      "type": "string",
-                      "title": "Content"
-                  },
-                  "sender_id": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Sender Id"
-                  },
-                  "type": {
-                      "$ref": "#/components/schemas/MessageType"
-                  },
-                  "reason": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Reason"
-                  },
-                  "created_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "Created At"
-                  },
-                  "status": {
-                      "$ref": "#/components/schemas/MessageStatus"
-                  },
-                  "citations": {
-                      "anyOf": [
-                          {
-                              "items": {
-                                  "type": "string"
-                              },
-                              "type": "array"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Citations"
+              "examples": {
+                "simple": {
+                  "summary": "Simple message",
+                  "value": {
+                    "content": "How does the authentication system work?"
                   }
-              },
-              "type": "object",
-              "required": [
-                  "id",
-                  "conversation_id",
-                  "content",
-                  "type",
-                  "created_at",
-                  "status"
-              ],
-              "title": "MessageResponse"
-          },
-          "MessageStatus": {
-              "type": "string",
-              "enum": [
-                  "ACTIVE",
-                  "ARCHIVED",
-                  "DELETED"
-              ],
-              "title": "MessageStatus"
-          },
-          "MessageType": {
-              "type": "string",
-              "enum": [
-                  "AI_GENERATED",
-                  "HUMAN",
-                  "SYSTEM_GENERATED"
-              ],
-              "title": "MessageType"
-          },
-          "NodeContext": {
-              "properties": {
-                  "node_id": {
-                      "type": "string",
-                      "title": "Node Id"
-                  },
-                  "name": {
-                      "type": "string",
-                      "title": "Name"
+                },
+                "with_context": {
+                  "summary": "Message with node context",
+                  "value": {
+                    "content": "Explain this function",
+                    "node_ids": "[{\"node_id\":\"func_authenticate_user_123\",\"name\":\"authenticate_user\"}]"
                   }
-              },
-              "type": "object",
-              "required": [
-                  "node_id",
-                  "name"
-              ],
-              "title": "NodeContext"
-          },
-          "ParsingRequest": {
-              "properties": {
-                  "repo_name": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Repo Name"
-                  },
-                  "repo_path": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Repo Path"
-                  },
-                  "branch_name": {
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message sent successfully and response received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
                       "type": "string",
-                      "title": "Branch Name"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "branch_name"
-              ],
-              "title": "ParsingRequest"
-          },
-          "PromptCreate": {
-              "properties": {
-                  "text": {
-                      "type": "string",
-                      "minLength": 1,
-                      "title": "Text",
-                      "description": "The text content of the prompt"
-                  },
-                  "type": {
-                      "$ref": "#/components/schemas/PromptType",
-                      "description": "Type of the prompt (System or Human)"
-                  },
-                  "status": {
-                      "anyOf": [
-                          {
-                              "$ref": "#/components/schemas/PromptStatusType"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "description": "Status of the prompt (active or inactive)",
-                      "default": "ACTIVE"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "text",
-                  "type"
-              ],
-              "title": "PromptCreate"
-          },
-          "PromptListResponse": {
-              "properties": {
-                  "prompts": {
-                      "items": {
-                          "$ref": "#/components/schemas/PromptResponse"
-                      },
+                      "description": "AI agent's response content"
+                    },
+                    "citations": {
                       "type": "array",
-                      "title": "Prompts"
-                  },
-                  "total": {
-                      "type": "integer",
-                      "title": "Total"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "prompts",
-                  "total"
-              ],
-              "title": "PromptListResponse"
-          },
-          "PromptResponse": {
-              "properties": {
-                  "id": {
-                      "type": "string",
-                      "title": "Id",
-                      "description": "Unique identifier of the prompt"
-                  },
-                  "text": {
-                      "type": "string",
-                      "title": "Text",
-                      "description": "The text content of the prompt"
-                  },
-                  "type": {
-                      "$ref": "#/components/schemas/PromptType",
-                      "description": "Type of the prompt (System or Human)"
-                  },
-                  "version": {
-                      "type": "integer",
-                      "title": "Version",
-                      "description": "Version number of the prompt"
-                  },
-                  "status": {
-                      "$ref": "#/components/schemas/PromptStatusType",
-                      "description": "Status of the prompt (active or inactive)"
-                  },
-                  "created_by": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Created By",
-                      "description": "ID of the user who created the prompt"
-                  },
-                  "created_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "Created At",
-                      "description": "Timestamp of when the prompt was created"
-                  },
-                  "updated_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "Updated At",
-                      "description": "Timestamp of when the prompt was last updated"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "id",
-                  "text",
-                  "type",
-                  "version",
-                  "status",
-                  "created_at",
-                  "updated_at"
-              ],
-              "title": "PromptResponse"
-          },
-          "PromptStatusType": {
-              "type": "string",
-              "enum": [
-                  "ACTIVE",
-                  "INACTIVE"
-              ],
-              "title": "PromptStatusType"
-          },
-          "PromptType": {
-              "type": "string",
-              "enum": [
-                  "SYSTEM",
-                  "HUMAN"
-              ],
-              "title": "PromptType"
-          },
-          "PromptUpdate": {
-              "properties": {
-                  "text": {
-                      "anyOf": [
-                          {
-                              "type": "string",
-                              "minLength": 1
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Text",
-                      "description": "The text content of the prompt"
-                  },
-                  "type": {
-                      "anyOf": [
-                          {
-                              "$ref": "#/components/schemas/PromptType"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "description": "Type of the prompt (System or Human)"
-                  },
-                  "status": {
-                      "anyOf": [
-                          {
-                              "$ref": "#/components/schemas/PromptStatusType"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "description": "Status of the prompt (active or inactive)"
-                  }
-              },
-              "type": "object",
-              "title": "PromptUpdate"
-          },
-          "ProviderInfo": {
-              "properties": {
-                  "id": {
-                      "type": "string",
-                      "title": "Id"
-                  },
-                  "name": {
-                      "type": "string",
-                      "title": "Name"
-                  },
-                  "description": {
-                      "type": "string",
-                      "title": "Description"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "id",
-                  "name",
-                  "description"
-              ],
-              "title": "ProviderInfo"
-          },
-          "RegenerateRequest": {
-              "properties": {
-                  "node_ids": {
-                      "anyOf": [
-                          {
-                              "items": {
-                                  "$ref": "#/components/schemas/NodeContext"
-                              },
-                              "type": "array"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Node Ids"
-                  }
-              },
-              "type": "object",
-              "title": "RegenerateRequest"
-          },
-          "RenameConversationRequest": {
-              "properties": {
-                  "title": {
-                      "type": "string",
-                      "title": "Title"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "title"
-              ],
-              "title": "RenameConversationRequest"
-          },
-          "SearchRequest": {
-              "properties": {
-                  "project_id": {
-                      "type": "string",
-                      "title": "Project Id"
-                  },
-                  "query": {
-                      "type": "string",
-                      "title": "Query"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "project_id",
-                  "query"
-              ],
-              "title": "SearchRequest"
-          },
-          "SearchResponse": {
-              "properties": {
-                  "results": {
                       "items": {
-                          "$ref": "#/components/schemas/SearchResult"
+                        "type": "string"
                       },
+                      "description": "Source code references used in the response"
+                    },
+                    "tool_calls": {
                       "type": "array",
-                      "title": "Results"
+                      "items": {},
+                      "description": "Tool invocations made by the agent during response generation"
+                    }
                   }
-              },
-              "type": "object",
-              "required": [
-                  "results"
-              ],
-              "title": "SearchResponse"
+                },
+                "example": {
+                  "message": "The authentication system uses JWT tokens...",
+                  "citations": ["src/auth/jwt.ts", "src/middleware/auth.ts"],
+                  "tool_calls": []
+                }
+              }
+            }
           },
-          "SearchResult": {
-              "properties": {
-                  "node_id": {
-                      "type": "string",
-                      "title": "Node Id"
-                  },
-                  "name": {
-                      "type": "string",
-                      "title": "Name"
-                  },
-                  "file_path": {
-                      "type": "string",
-                      "title": "File Path"
-                  },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v2/project/{project_id}/message/": {
+      "post": {
+        "operationId": "createConversationAndMessage",
+        "summary": "Create Conversation And Message",
+        "description": "Create a new conversation and send a message in a single API call. Perfect for quick, one-off queries without managing conversation state. The conversation is automatically hidden from the UI by default.",
+        "tags": ["Conversations"],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "description": "The project ID to query about",
+            "schema": {
+              "type": "string"
+            },
+            "example": "proj_abc123def456"
+          },
+          {
+            "name": "hidden",
+            "in": "query",
+            "required": false,
+            "description": "Whether to hide this conversation from the web UI",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
                   "content": {
-                      "type": "string",
-                      "title": "Content"
-                  },
-                  "match_type": {
-                      "type": "string",
-                      "title": "Match Type"
-                  },
-                  "relevance": {
-                      "type": "number",
-                      "title": "Relevance"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "node_id",
-                  "name",
-                  "file_path",
-                  "content",
-                  "match_type",
-                  "relevance"
-              ],
-              "title": "SearchResult"
-          },
-          "SetProviderRequest": {
-              "properties": {
-                  "provider": {
-                      "type": "string",
-                      "title": "Provider"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "provider"
-              ],
-              "title": "SetProviderRequest"
-          },
-          "UpdateSecretRequest": {
-              "properties": {
-                  "api_key": {
-                      "type": "string",
-                      "title": "Api Key"
-                  },
-                  "provider": {
-                      "type": "string",
-                      "enum": [
-                          "openai",
-                          "anthropic"
-                      ],
-                      "title": "Provider"
-                  }
-              },
-              "type": "object",
-              "required": [
-                  "api_key",
-                  "provider"
-              ],
-              "title": "UpdateSecretRequest"
-          },
-          "UserConversationListResponse": {
-              "properties": {
-                  "id": {
-                      "type": "string",
-                      "title": "Id"
-                  },
-                  "title": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Title"
-                  },
-                  "status": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Status"
-                  },
-                  "project_ids": {
-                      "anyOf": [
-                          {
-                              "items": {
-                                  "type": "string"
-                              },
-                              "type": "array"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Project Ids"
+                    "type": "string",
+                    "description": "Your question about the codebase"
                   },
                   "agent_id": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Agent Id"
+                    "type": "string",
+                    "description": "Agent to use (defaults to codebase_qna_agent)",
+                    "default": "codebase_qna_agent"
                   },
-                  "repository": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Repository"
-                  },
-                  "branch": {
-                      "anyOf": [
-                          {
-                              "type": "string"
-                          },
-                          {
-                              "type": "null"
-                          }
-                      ],
-                      "title": "Branch"
-                  },
-                  "created_at": {
-                      "type": "string",
-                      "title": "Created At"
-                  },
-                  "updated_at": {
-                      "type": "string",
-                      "title": "Updated At"
+                  "node_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/NodeContext"
+                    },
+                    "description": "Optional node context"
                   }
+                }
               },
-              "type": "object",
-              "required": [
-                  "id",
-                  "title",
-                  "status",
-                  "project_ids",
-                  "agent_id",
-                  "repository",
-                  "branch",
-                  "created_at",
-                  "updated_at"
-              ],
-              "title": "UserConversationListResponse"
-          },
-          "ValidationError": {
-              "properties": {
-                  "loc": {
-                      "items": {
-                          "anyOf": [
-                              {
-                                  "type": "string"
-                              },
-                              {
-                                  "type": "integer"
-                              }
-                          ]
-                      },
+              "examples": {
+                "quick_query": {
+                  "summary": "Quick query",
+                  "value": {
+                    "content": "What are the main API endpoints?"
+                  }
+                },
+                "with_agent": {
+                  "summary": "With specific agent",
+                  "value": {
+                    "content": "What changed in the auth module?",
+                    "agent_id": "debugging_agent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message sent and response received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "AI agent's response content"
+                    },
+                    "citations": {
                       "type": "array",
-                      "title": "Location"
-                  },
-                  "msg": {
-                      "type": "string",
-                      "title": "Message"
-                  },
-                  "type": {
-                      "type": "string",
-                      "title": "Error Type"
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Source code references used in the response"
+                    },
+                    "tool_calls": {
+                      "type": "array",
+                      "items": {},
+                      "description": "Tool invocations made by the agent during response generation"
+                    }
                   }
-              },
-              "type": "object",
-              "required": [
-                  "loc",
-                  "msg",
-                  "type"
-              ],
-              "title": "ValidationError"
+                },
+                "example": {
+                  "message": "The main API endpoints are...",
+                  "citations": ["src/api/router.py"],
+                  "tool_calls": []
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
-      },
-      "securitySchemes": {
-          "HTTPBearer": {
-              "type": "http",
-              "scheme": "bearer"
-          }
+        }
       }
+    },
+    "/api/v2/projects/list": {
+      "get": {
+        "operationId": "listProjects",
+        "summary": "List Projects",
+        "description": "Retrieve a list of all projects associated with your account. Each project represents a parsed repository or codebase.",
+        "tags": ["Projects"],
+        "responses": {
+          "200": {
+            "description": "Projects retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Project identifier"
+                      },
+                      "repo_name": {
+                        "type": "string",
+                        "description": "Repository name"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": ["submitted", "cloned", "parsed", "processing", "inferring", "ready", "error"],
+                        "description": "Project status"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": "proj_abc123def456",
+                    "repo_name": "my-awesome-app",
+                    "status": "ready"
+                  },
+                  {
+                    "id": "proj_xyz789ghi012",
+                    "repo_name": "backend-api",
+                    "status": "processing"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v2/list-available-agents": {
+      "get": {
+        "operationId": "listAgents",
+        "summary": "List Agents",
+        "description": "Get a list of all available AI agents. Each agent is specialized for different tasks like Q&A, debugging, and code generation.",
+        "tags": ["Agents"],
+        "responses": {
+          "200": {
+            "description": "Agents retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentInfo"
+                  }
+                },
+                "example": [
+                  {
+                    "id": "codebase_qna_agent",
+                    "name": "Codebase Q&A Agent",
+                    "description": "An agent specialized in answering questions about the codebase using the knowledge graph and code analysis tools",
+                    "status": "active",
+                    "visibility": "public"
+                  },
+                  {
+                    "id": "debugging_agent",
+                    "name": "Debugging Agent",
+                    "description": "An agent specialized in debugging using knowledge graphs",
+                    "status": "active",
+                    "visibility": "public"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v2/search": {
+      "post": {
+        "operationId": "searchCodebase",
+        "summary": "Search Codebase",
+        "description": "Perform semantic search across your codebase. Returns relevant code elements based on natural language queries, using the knowledge graph for intelligent matching.",
+        "tags": ["Search"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": {
+                "project_id": "proj_abc123def456",
+                "query": "authentication functions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                },
+                "example": {
+                  "results": [
+                    {
+                      "node_id": "func_authenticate_user_123",
+                      "name": "authenticate_user",
+                      "file_path": "src/auth/authenticate.py",
+                      "content": "def authenticate_user(username: str, password: str) -> bool:",
+                      "match_type": "function",
+                      "relevance": 0.95
+                    },
+                    {
+                      "node_id": "func_verify_token_456",
+                      "name": "verify_token",
+                      "file_path": "src/auth/jwt.py",
+                      "content": "def verify_token(token: str) -> Optional[Dict]:",
+                      "match_type": "function",
+                      "relevance": 0.87
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v2/integrations/save": {
+      "post": {
+        "operationId": "saveIntegration",
+        "summary": "Save Integration",
+        "description": "Save or update an integration with external services like Sentry, Jira, Linear, or Confluence. Integrations enable Potpie to pull additional context from these platforms.",
+        "tags": ["Integrations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationSaveRequest"
+              },
+              "examples": {
+                "sentry": {
+                  "summary": "Sentry integration",
+                  "value": {
+                    "name": "Production Sentry",
+                    "integration_type": "sentry",
+                    "status": "active",
+                    "auth_data": {
+                      "access_token": "sentry_token_here",
+                      "token_type": "Bearer"
+                    },
+                    "scope_data": {
+                      "org_slug": "my-company"
+                    },
+                    "metadata": {
+                      "instance_name": "Production Sentry",
+                      "created_via": "api",
+                      "tags": ["production", "monitoring"]
+                    }
+                  }
+                },
+                "jira": {
+                  "summary": "Jira integration",
+                  "value": {
+                    "name": "Main Jira Board",
+                    "integration_type": "jira",
+                    "status": "active",
+                    "auth_data": {
+                      "access_token": "jira_token",
+                      "refresh_token": "jira_refresh"
+                    },
+                    "scope_data": {
+                      "org_slug": "mycompany",
+                      "project_id": "PROJ"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Integration saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSaveResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "integration_id": "int_abc123",
+                    "name": "Production Sentry",
+                    "integration_type": "sentry",
+                    "status": "active"
+                  },
+                  "error": null
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key authentication. Get your key from https://app.potpie.ai/settings"
+      }
+    },
+    "schemas": {
+      "ParsingRequest": {
+        "type": "object",
+        "properties": {
+          "repo_name": {
+            "type": "string",
+            "description": "Repository name in owner/repo format (optional if repo_path is provided)",
+            "example": "facebook/react"
+          },
+          "repo_path": {
+            "type": "string",
+            "description": "Local filesystem path to repository (development mode only, optional if repo_name is provided)",
+            "example": "/path/to/local/repo"
+          },
+          "branch_name": {
+            "type": "string",
+            "description": "Branch to parse (optional)",
+            "example": "main"
+          },
+          "commit_id": {
+            "type": "string",
+            "description": "Specific commit SHA to parse (optional)",
+            "example": "2c3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e"
+          }
+        }
+      },
+      "ParsingResponse": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "description": "Unique project identifier"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["submitted", "inferring", "ready"],
+            "description": "Current parsing state"
+          }
+        }
+      },
+      "ParsingStatusRequest": {
+        "type": "object",
+        "required": ["repo_name"],
+        "properties": {
+          "repo_name": {
+            "type": "string",
+            "description": "Repository name to check status for"
+          },
+          "commit_id": {
+            "type": "string",
+            "description": "Commit ID to check (optional)"
+          },
+          "branch_name": {
+            "type": "string",
+            "description": "Branch name to check (used if commit_id not provided)"
+          }
+        }
+      },
+      "CreateConversationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageRequest": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Message content. Cannot be empty or whitespace-only.",
+            "minLength": 1
+          },
+          "node_ids": {
+            "type": "string",
+            "description": "JSON-encoded array of NodeContext objects. Passed as a form field string."
+          },
+          "tunnel_url": {
+            "type": "string",
+            "description": "VS Code extension tunnel URL for local server routing"
+          }
+        }
+      },
+      "NodeContext": {
+        "type": "object",
+        "required": ["node_id", "name"],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "description": "Node identifier from the knowledge graph"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the code element"
+          }
+        }
+      },
+      "AgentInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Agent identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Agent display name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Agent capabilities and use cases"
+          },
+          "status": {
+            "type": "string",
+            "description": "Agent availability status"
+          },
+          "visibility": {
+            "type": "string",
+            "description": "Agent visibility (public/private)"
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": ["project_id", "query"],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "description": "Project to search in"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Search query (natural language)"
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchResult"
+            }
+          }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "description": "Node identifier in knowledge graph"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the code element"
+          },
+          "file_path": {
+            "type": "string",
+            "description": "File path relative to project root"
+          },
+          "content": {
+            "type": "string",
+            "description": "Code snippet or content"
+          },
+          "match_type": {
+            "type": "string",
+            "description": "Type of match (function, class, etc.)"
+          },
+          "relevance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Relevance score (0-1)"
+          }
+        }
+      },
+      "IntegrationSaveRequest": {
+        "type": "object",
+        "required": ["name", "integration_type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "User-friendly integration name"
+          },
+          "integration_type": {
+            "type": "string",
+            "enum": ["sentry", "jira", "linear", "confluence", "slack", "github"],
+            "description": "Type of integration"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "pending", "error"],
+            "default": "active",
+            "description": "Integration status"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether integration is active"
+          },
+          "auth_data": {
+            "type": "object",
+            "properties": {
+              "access_token": {
+                "type": "string"
+              },
+              "refresh_token": {
+                "type": "string"
+              },
+              "token_type": {
+                "type": "string",
+                "default": "Bearer"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "scope": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "scope_data": {
+            "type": "object",
+            "properties": {
+              "org_slug": {
+                "type": "string"
+              },
+              "installation_id": {
+                "type": "string"
+              },
+              "workspace_id": {
+                "type": "string"
+              },
+              "project_id": {
+                "type": "string"
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "instance_name": {
+                "type": "string"
+              },
+              "created_via": {
+                "type": "string",
+                "default": "manual"
+              },
+              "description": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "unique_identifier": {
+            "type": "string",
+            "description": "Custom identifier (auto-generated if not provided)"
+          }
+        }
+      },
+      "IntegrationSaveResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Operation success status"
+          },
+          "data": {
+            "type": "object",
+            "description": "Integration data if successful"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if failed"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Forbidden": {
+        "description": "Forbidden - Development mode required for this operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Development mode is not enabled, cannot parse local repository."
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Bad request - Invalid parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Either repo_name or repo_path must be provided"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Invalid or missing API key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Invalid API key"
+            }
+          }
+        }
+      },
+      "PaymentRequired": {
+        "description": "Payment required - Subscription or usage limit issue",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Subscription required to create a conversation"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "detail": "Project not found"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error - Invalid request body",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "detail": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "loc": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "msg": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "detail": [
+                {
+                  "loc": ["body", "project_id"],
+                  "msg": "field required",
+                  "type": "value_error.missing"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
   }
 }
