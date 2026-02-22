@@ -54,7 +54,8 @@
             "pages": [
               "build-flow/forge",
               "build-flow/specialists",
-              "build-flow/recipe"
+              "build-flow/recipe",
+              "build-flow/trace"
             ]
           },
           {
