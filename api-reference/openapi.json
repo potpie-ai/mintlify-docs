@@ -843,7 +843,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key authentication. Get your key from https://app.potpie.ai/settings"
+        "description": "API key authentication. Get your key from <a href=\"https://app.potpie.ai/settings\" style=\"color: #60a5fa; font-weight: bold; text-decoration: none !important;\">potpie settings page</a>"
       }
     },
     "schemas": {

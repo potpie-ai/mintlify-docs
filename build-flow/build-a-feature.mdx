@@ -27,23 +27,29 @@ Potpie reads existing patterns, conventions, and dependencies from the <a href="
   </Step>
 
   <Step title="Plan">
-    Once the spec is confirmed, Potpie generates a plan across three tabs:
+    Once the spec is confirmed, Potpie generates a plan.
 
-    | Tab | Contents |
-    |---|---|
-    | Summary | Written description of what will be built and how it fits the existing system |
-    | Architecture | Visual map of component relationships across client, API, and data layers |
-    | Plan items | Each task with the files to create or modify and verification criteria |
+    <Tabs>
+      <Tab title="Summary">
+        An explanation of what changes, which parts of the codebase are in scope, and how the new code fits the existing system.
 
-    <img src="/images/code-agent-plan-summary.png" alt="Plan summary tab" />
+        <img src="/images/code-agent-plan-summary.png" alt="Plan summary tab" />
+      </Tab>
+      <Tab title="Architecture">
+        A dependency graph showing how new components wire into existing services, data models, and API boundaries as they exist in the repository.
 
-    <img src="/images/code-agent-plan-architecture.png" alt="Architecture tab" />
+        <img src="/images/build-architecture1.png" alt="Architecture tab" />
+      </Tab>
+      <Tab title="Plan items">
+        Each task lists the target file, implementation intent, dependency order, and the verification criteria checked after each diff is generated.
 
-    <img src="/images/code-agent-plan-items.png" alt="Plan items tab" />
+        <img src="/images/code-agent-plan-items.png" alt="Plan items tab" />
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="Code generation">
-    Potpie generates the code and presents every change as a **diff**. Every modification appears at the file and line level before anything reaches the codebase. Changes match the existing code style and conventions identified during **specification**.
+    Potpie generates the code and presents every change as a **diff**. Changes match the existing code style and conventions identified during **specification**.
 
     <img src="/images/code-agent-codegen.png" alt="Code generation diff view" />
   </Step>

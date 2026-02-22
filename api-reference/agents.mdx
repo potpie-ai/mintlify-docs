@@ -264,40 +264,6 @@ Potpie provides the following pre-built system agents:
   - "Add a new database model for comments"
 </Card>
 
-### Blast Radius Agent
-
-<Card title="blast_radius_agent" icon="circle-radiation">
-  **Best for:** Analyzing the impact of code changes
-
-  **Capabilities:**
-  - Identify affected code
-  - Find dependent modules
-  - Assess change risk
-  - Suggest testing scope
-
-  **Example Questions:**
-  - "What will be affected if I change this function?"
-  - "Which modules depend on the UserService?"
-  - "What tests should I run after this change?"
-</Card>
-
-### Low-Level Design Agent
-
-<Card title="low_level_design_agent" icon="diagram-project">
-  **Best for:** Creating detailed technical designs
-
-  **Capabilities:**
-  - Create class diagrams
-  - Design database schemas
-  - Plan API structures
-  - Document architecture
-
-  **Example Questions:**
-  - "Design a database schema for a blog system"
-  - "Create a class structure for the payment module"
-  - "Design the API for a notification service"
-</Card>
-
 ## Agent Selection Guide
 
 Choose the right agent for your task:
@@ -308,8 +274,6 @@ Choose the right agent for your task:
 | Fixing bugs | `debugging_agent` | `codebase_qna_agent` |
 | Writing tests | `code_generation_agent` | - |
 | Adding features | `code_generation_agent` | `codebase_qna_agent` |
-| Analyzing changes | `blast_radius_agent` | `debugging_agent` |
-| Architecture design | `low_level_design_agent` | `codebase_qna_agent` |
 
 ## Examples
 
@@ -400,47 +364,11 @@ conv = create_conversation_with_agent(
 
 ## Agent Recommendations
 
-### For Beginners
+### Getting Started
 
-Start with these agents:
-
-1. **codebase_qna_agent** - Understanding code
-2. **debugging_agent** - Fixing bugs
-
-### For Advanced Users
-
-Leverage specialized agents:
-
-1. **blast_radius_agent** - Before making changes
-2. **low_level_design_agent** - Planning new features
-3. **debugging_agent** - Complex issues
-
-### Team Workflows
-
-Recommended agent combinations:
-
-```python
-# Feature development workflow
-FEATURE_WORKFLOW = [
-    "low_level_design_agent",   # Design
-    "code_generation_agent",    # Implementation
-    "code_generation_agent"     # Testing
-]
-
-# Bug fixing workflow
-DEBUG_WORKFLOW = [
-    "debugging_agent",          # Identify issue
-    "blast_radius_agent",       # Check impact
-    "code_generation_agent"     # Prevent regression
-]
-
-# Code review workflow
-REVIEW_WORKFLOW = [
-    "codebase_qna_agent",       # Understand changes
-    "blast_radius_agent",       # Assess impact
-    "code_generation_agent"     # Verify coverage
-]
-```
+1. **codebase_qna_agent** - Understanding code structure and functionality
+2. **debugging_agent** - Identifying and fixing bugs
+3. **code_generation_agent** - Generating new features and boilerplate code
 
 ## Custom Agents
 

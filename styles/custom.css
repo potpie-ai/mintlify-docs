@@ -1,4 +1,19 @@
 
+/* Potpie settings link in OpenAPI description */
+a[href="https://app.potpie.ai/settings"],
+a[href="https://app.potpie.ai/settings"]:link,
+a[href="https://app.potpie.ai/settings"]:visited,
+a[href="https://app.potpie.ai/settings"]:hover,
+a[href="https://app.potpie.ai/settings"]:active {
+  color: #60a5fa !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
 /* Mode link styling - light blue, bold, no underline */
 .mode-link,
 .mode-link:link,
