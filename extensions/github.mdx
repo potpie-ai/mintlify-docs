@@ -3,6 +3,14 @@ title: 'GitHub Integration'
 description: 'Connect Potpie with GitHub to manage code, PRs, and issues directly from AI agents'
 ---
 
+## Prerequisites
+
+Before using the GitHub integration, you need:
+
+- A <a href="https://app.potpie.ai" className="mode-link">Potpie account</a>
+- A GitHub account with access to the repositories you want to connect
+- Admin permissions on the repository or organization to install the GitHub App
+
 ## Overview
 
 The **GitHub integration** enables Potpie agents to interact with GitHub repositories through a **GitHub App** installation. The app provides secure, fine-grained access to code, pull requests, branches, and issues.
@@ -51,12 +59,12 @@ The GitHub integration provides 6 tools. See <a href="/agents/tools-reference#gi
 
 | Tool | Description |
 |------|-------------|
-| `github_tool` | Fetch issues and pull requests |
-| `code_provider_tool` | Read file contents |
-| `code_provider_create_branch` | Create branches |
-| `code_provider_update_file` | Modify and commit files |
-| `code_provider_create_pr` | Create pull requests |
-| `code_provider_add_pr_comment` | Add PR comments |
+| <a href="/agents/tools-reference#github-issue-fetcher" className="mode-link">Issue Fetcher</a> | Fetch issues and pull requests |
+| <a href="/agents/tools-reference#github-file-reader" className="mode-link">File Reader</a> | Read file contents |
+| <a href="/agents/tools-reference#github-branch-creator" className="mode-link">Branch Creator</a> | Create branches |
+| <a href="/agents/tools-reference#github-file-committer" className="mode-link">File Committer</a> | Modify and commit files |
+| <a href="/agents/tools-reference#github-pr-creator" className="mode-link">PR Creator</a> | Create pull requests |
+| <a href="/agents/tools-reference#github-pr-commenter" className="mode-link">PR Commenter</a> | Add PR comments |
 
 ---
 

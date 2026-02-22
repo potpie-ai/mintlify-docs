@@ -625,12 +625,12 @@
                 },
                 "example": [
                   {
-                    "id": "proj_abc123def456",
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
                     "repo_name": "my-awesome-app",
                     "status": "ready"
                   },
                   {
-                    "id": "proj_xyz789ghi012",
+                    "id": "123e4567-e89b-12d3-a456-426614174001",
                     "repo_name": "backend-api",
                     "status": "processing"
                   }
@@ -811,15 +811,59 @@
                 "schema": {
                   "$ref": "#/components/schemas/IntegrationSaveResponse"
                 },
-                "example": {
-                  "success": true,
-                  "data": {
-                    "integration_id": "int_abc123",
-                    "name": "Production Sentry",
-                    "integration_type": "sentry",
-                    "status": "active"
+                "examples": {
+                  "sentry": {
+                    "summary": "Sentry integration",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "integration_id": "123e4567-e89b-12d3-a456-426614174000",
+                        "name": "Production Sentry",
+                        "integration_type": "sentry",
+                        "status": "active",
+                        "active": true,
+                        "unique_identifier": "sentry-123e4567-e89b-12d3-a456-426614174000",
+                        "created_by": "user_abc123",
+                        "created_at": "2024-01-15T10:30:00.000000",
+                        "has_auth_data": true,
+                        "has_scope_data": true,
+                        "metadata": {
+                          "instance_name": "Production Sentry",
+                          "created_via": "manual",
+                          "version": null,
+                          "description": null,
+                          "tags": []
+                        }
+                      },
+                      "error": null
+                    }
                   },
-                  "error": null
+                  "jira": {
+                    "summary": "Jira integration",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "integration_id": "123e4567-e89b-12d3-a456-426614174001",
+                        "name": "Main Jira Board",
+                        "integration_type": "jira",
+                        "status": "active",
+                        "active": true,
+                        "unique_identifier": "jira-123e4567-e89b-12d3-a456-426614174001",
+                        "created_by": "user_abc123",
+                        "created_at": "2024-01-15T10:31:00.000000",
+                        "has_auth_data": true,
+                        "has_scope_data": true,
+                        "metadata": {
+                          "instance_name": "Main Jira Board",
+                          "created_via": "manual",
+                          "version": null,
+                          "description": null,
+                          "tags": []
+                        }
+                      },
+                      "error": null
+                    }
+                  }
                 }
               }
             }
