@@ -314,7 +314,7 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
     Generate a patch file or changeset for applying all session modifications.
 
     **Parameters:**
-    - `format` (string, default: `patch`): Export format: `patch`, `json`, or `git`
+    - `format` (string, default: `dict`): Export format: `dict`, `list`, `json`, or `diff`
 
     **Returns:** Formatted changeset ready for application
   </Accordion>
@@ -466,6 +466,303 @@ Store and retrieve session-level requirements and constraints that guide agent b
     - `project_id` (string, required): Project to analyze
 
     **Returns:** Changed files with diff information and impact analysis
+  </Accordion>
+</AccordionGroup>
+
+## GitHub Tools
+
+<AccordionGroup>
+  <Accordion title="GitHub Tool">
+    `github_tool`
+
+    Fetch GitHub issues and pull requests with full details including diffs.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `issue_or_pr_number` (integer, required): Issue or PR number to fetch
+
+    **Returns:** Title, description, status, assignee, labels, and diff (for PRs)
+  </Accordion>
+  <Accordion title="Code Provider Tool">
+    `code_provider_tool`
+
+    Read file contents from a repository.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `file_path` (string, required): Path to the file
+
+    **Returns:** File contents
+  </Accordion>
+  <Accordion title="Create Branch">
+    `code_provider_create_branch`
+
+    Create a new branch from an existing branch or commit.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `branch_name` (string, required): Name for the new branch
+    - `source_branch` (string, required): Branch or commit to create from
+
+    **Returns:** Branch creation confirmation
+  </Accordion>
+  <Accordion title="Update File">
+    `code_provider_update_file`
+
+    Modify file contents and commit the change.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `file_path` (string, required): Path to the file
+    - `content` (string, required): New file content
+    - `commit_message` (string, required): Commit message
+
+    **Returns:** Commit SHA and update confirmation
+  </Accordion>
+  <Accordion title="Create Pull Request">
+    `code_provider_create_pr`
+
+    Create a pull request with a title, description, and reviewers.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `title` (string, required): PR title
+    - `head` (string, required): Source branch
+    - `base` (string, required): Target branch
+    - `body` (string, optional): PR description
+
+    **Returns:** PR URL and number
+  </Accordion>
+  <Accordion title="Add PR Comment">
+    `code_provider_add_pr_comment`
+
+    Add a comment to a pull request or a specific line within it.
+
+    **Parameters:**
+    - `repo` (string, required): Repository in `owner/repo` format
+    - `pr_number` (integer, required): PR number
+    - `body` (string, required): Comment content
+    - `file_path` (string, optional): File path for inline comment
+    - `line` (integer, optional): Line number for inline comment
+
+    **Returns:** Comment URL and ID
+  </Accordion>
+</AccordionGroup>
+
+## Linear Tools
+
+<AccordionGroup>
+  <Accordion title="Get Issue">
+    `get_linear_issue`
+
+    Fetch detailed information about a Linear issue.
+
+    **Parameters:**
+    - `issue_id` (string, required): Issue ID or key (e.g. `ABC-123`)
+
+    **Returns:** Title, description, status, assignee, team, priority, URL, and timestamps
+  </Accordion>
+  <Accordion title="Update Issue">
+    `update_linear_issue`
+
+    Update properties of a Linear issue.
+
+    **Parameters:**
+    - `issue_id` (string, required): Issue ID or key
+    - `input` (object, required): Fields to update — title, description, status, priority, assignee, team, or labels
+
+    **Returns:** Updated issue confirmation
+  </Accordion>
+</AccordionGroup>
+
+## Jira Tools
+
+<AccordionGroup>
+  <Accordion title="Create Issue">
+    `create_jira_issue_tool`
+
+    Create a new Jira issue in a project.
+
+    **Parameters:**
+    - `project_key` (string, required): Project key (e.g. `ENG`)
+    - `summary` (string, required): Issue title
+    - `description` (string, optional): Issue description
+    - `issue_type` (string, optional): Issue type (Bug, Task, Story)
+    - `priority` (string, optional): Priority level
+
+    **Returns:** Issue key and URL
+  </Accordion>
+  <Accordion title="Get Issue">
+    `get_jira_issue_tool`
+
+    Fetch details for a Jira issue.
+
+    **Parameters:**
+    - `issue_key` (string, required): Issue key (e.g. `ENG-123`)
+
+    **Returns:** Title, description, status, assignee, priority, comments, and attachments
+  </Accordion>
+  <Accordion title="Update Issue">
+    `update_jira_issue_tool`
+
+    Update fields on a Jira issue.
+
+    **Parameters:**
+    - `issue_key` (string, required): Issue key
+    - `fields` (object, required): Fields to update — description, assignee, priority, etc.
+
+    **Returns:** Update confirmation
+  </Accordion>
+  <Accordion title="Search Issues">
+    `search_jira_issues_tool`
+
+    Search Jira issues using JQL.
+
+    **Parameters:**
+    - `jql` (string, required): JQL query string
+    - `max_results` (integer, optional): Maximum results to return
+
+    **Returns:** Matching issues with key, title, status, and assignee
+  </Accordion>
+  <Accordion title="Add Comment">
+    `add_jira_comment_tool`
+
+    Add a comment to a Jira issue.
+
+    **Parameters:**
+    - `issue_key` (string, required): Issue key
+    - `body` (string, required): Comment content
+
+    **Returns:** Comment ID and URL
+  </Accordion>
+  <Accordion title="Transition Issue">
+    `transition_jira_issue_tool`
+
+    Move a Jira issue to a new status.
+
+    **Parameters:**
+    - `issue_key` (string, required): Issue key
+    - `transition` (string, required): Target status name (e.g. `In Progress`, `Done`)
+
+    **Returns:** Transition confirmation
+  </Accordion>
+  <Accordion title="Link Issues">
+    `link_jira_issues_tool`
+
+    Create a link between two Jira issues.
+
+    **Parameters:**
+    - `inward_issue` (string, required): Source issue key
+    - `outward_issue` (string, required): Target issue key
+    - `link_type` (string, required): Link type — blocks, relates to, duplicates, clones
+
+    **Returns:** Link creation confirmation
+  </Accordion>
+  <Accordion title="List Projects">
+    `get_jira_projects_tool`
+
+    List all accessible Jira projects.
+
+    **Returns:** Project keys, names, and types
+  </Accordion>
+  <Accordion title="Project Details">
+    `get_jira_project_details_tool`
+
+    Get metadata for a specific Jira project.
+
+    **Parameters:**
+    - `project_key` (string, required): Project key
+
+    **Returns:** Project name, description, lead, issue types, and statuses
+  </Accordion>
+  <Accordion title="Project Users">
+    `get_jira_project_users_tool`
+
+    List members of a Jira project.
+
+    **Parameters:**
+    - `project_key` (string, required): Project key
+
+    **Returns:** User list with names and account IDs
+  </Accordion>
+</AccordionGroup>
+
+## Confluence Tools
+
+<AccordionGroup>
+  <Accordion title="Get Spaces">
+    `get_confluence_spaces_tool`
+
+    List all accessible Confluence spaces.
+
+    **Returns:** Space keys, names, and types (global/personal)
+  </Accordion>
+  <Accordion title="Get Page">
+    `get_confluence_page_tool`
+
+    Retrieve a Confluence page by ID.
+
+    **Parameters:**
+    - `page_id` (string, required): Confluence page ID
+
+    **Returns:** Title, body content, version, space, and creator
+  </Accordion>
+  <Accordion title="Get Space Pages">
+    `get_confluence_space_pages_tool`
+
+    List all pages in a Confluence space.
+
+    **Parameters:**
+    - `space_key` (string, required): Space key (e.g. `DOCS`)
+
+    **Returns:** Page list with titles, IDs, and creation dates
+  </Accordion>
+  <Accordion title="Search Pages">
+    `search_confluence_pages_tool`
+
+    Search Confluence content using CQL.
+
+    **Parameters:**
+    - `cql` (string, required): CQL query string
+    - `limit` (integer, optional): Maximum results to return
+
+    **Returns:** Matching pages with title, space, and excerpt
+  </Accordion>
+  <Accordion title="Create Page">
+    `create_confluence_page_tool`
+
+    Create a new Confluence page.
+
+    **Parameters:**
+    - `space_key` (string, required): Space to create the page in
+    - `title` (string, required): Page title
+    - `content` (string, required): Page content (Markdown auto-converted to storage format)
+    - `parent_id` (string, optional): Parent page ID
+
+    **Returns:** Page ID and URL
+  </Accordion>
+  <Accordion title="Update Page">
+    `update_confluence_page_tool`
+
+    Update an existing Confluence page. Automatically increments version number.
+
+    **Parameters:**
+    - `page_id` (string, required): Page ID to update
+    - `title` (string, optional): New title
+    - `content` (string, optional): New content
+
+    **Returns:** Update confirmation with new version number
+  </Accordion>
+  <Accordion title="Add Comment">
+    `add_confluence_comment_tool`
+
+    Add a comment to a Confluence page.
+
+    **Parameters:**
+    - `page_id` (string, required): Page ID
+    - `body` (string, required): Comment content
+
+    **Returns:** Comment ID and confirmation
   </Accordion>
 </AccordionGroup>
 

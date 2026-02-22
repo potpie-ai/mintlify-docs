@@ -3,7 +3,7 @@ title: 'Knowledge Graph'
 description: 'How Potpie builds a semantic map of your codebase.'
 ---
 
-Potpie parses every source file in a connected repository and builds a **knowledge graph**, a structured representation of what every component does and how it relates to everything else. **Ask**, **Build**, and **Debug** all run against this graph.
+Potpie parses every source file in a connected repository and runs <a href="/concepts/inference" className="mode-link">inference</a> on each node to build a **knowledge graph**, a structured representation of what every component does and how it relates to everything else. **Ask**, **Build**, and **Debug** all run against this graph.
 
 ## What gets parsed
 
@@ -14,6 +14,10 @@ Every source file breaks down into typed nodes.
 | `Function` / `Method` | Signature, parameters, return type, call sites, and the file it lives in |
 | `Class` | Fields, methods, inheritance chain, and every file that instantiates or extends it |
 | `Module` / `File` | Exports, imports, and the dependency relationships between files |
+
+<Info>
+Potpie indexes each branch independently, so queries always reflect the exact state of code on the selected branch.
+</Info>
 
 ## How relationships are mapped
 
@@ -46,6 +50,3 @@ Every edge carries directionality. The graph records which component depends on 
 
 Every answer is grounded in the graph. File paths and line numbers come directly from the indexed nodes.
 
-## One graph per branch
-
-Potpie indexes each branch independently. Queries always run against the graph for the selected branch, so answers reflect the exact state of code on that branch.

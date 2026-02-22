@@ -7,22 +7,6 @@ description: 'Connect Potpie with GitHub to manage code, PRs, and issues directl
 
 The **GitHub integration** enables Potpie agents to interact with GitHub repositories through a **GitHub App** installation. The app provides secure, fine-grained access to code, pull requests, branches, and issues.
 
-<CardGroup cols={2}>
-  <Card title="GitHub App" icon="github">
-    Secure app-based authentication with fine-grained permissions
-  </Card>
-  <Card title="Code Operations" icon="code">
-    Read files, create branches, update code, and manage PRs
-  </Card>
-  <Card title="PR Management" icon="code-pull-request">
-    Create, review, and comment on pull requests
-  </Card>
-  <Card title="Issue Tracking" icon="circle-dot">
-    Fetch and analyze GitHub issues and discussions
-  </Card>
-</CardGroup>
-
----
 
 ## Quick Start
 
@@ -36,19 +20,9 @@ The **GitHub integration** enables Potpie agents to interact with GitHub reposit
 
 <Steps>
   <Step title="Install Potpie GitHub App">
-    Open [Potpie GitHub App](https://github.com/apps/potpie-ai) and click **Install**. Select repositories:
+    Open <a href="https://github.com/apps/potpie-ai" className="mode-link">Potpie GitHub App</a> and click **Install**. Select repositories:
     - All repositories, or
     - Specific repositories only
-  </Step>
-
-  <Step title="Configure Backend">
-    Add **GitHub App** credentials to the environment:
-
-    ```bash
-    GITHUB_APP_ID=your_app_id
-    GITHUB_PRIVATE_KEY_PATH=/path/to/private-key.pem
-    GITHUB_PAT=fallback_personal_access_token
-    ```
   </Step>
 
   <Step title="Verify Installation">
@@ -71,12 +45,46 @@ The **GitHub integration** enables Potpie agents to interact with GitHub reposit
 
 ---
 
-## GitHub App Setup
+## Available Tools
 
-### Installation Process
+The GitHub integration provides 6 tools. See <a href="/agents/tools-reference#github-tools" className="mode-link">GitHub Tools</a> in the Tools Reference for full documentation.
+
+| Tool | Description |
+|------|-------------|
+| `github_tool` | Fetch issues and pull requests |
+| `code_provider_tool` | Read file contents |
+| `code_provider_create_branch` | Create branches |
+| `code_provider_update_file` | Modify and commit files |
+| `code_provider_create_pr` | Create pull requests |
+| `code_provider_add_pr_comment` | Add PR comments |
+
+---
+
+## Self-Hosted Setup
+
+For self-hosted Potpie instances, configure GitHub App credentials and authentication in addition to the cloud installation steps above.
+
+### Backend Configuration
+
+Add these environment variables to your deployment:
+
+```bash
+GITHUB_APP_ID=your_app_id
+GITHUB_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
+CODE_PROVIDER_TOKEN=fallback_personal_access_token
+CODE_PROVIDER_TOKEN_POOL=token1,token2,token3
+```
+
+- `GITHUB_PRIVATE_KEY` — the raw PEM content of the private key generated in your GitHub App settings
+- `CODE_PROVIDER_TOKEN` — a personal access token used as a fallback for unauthenticated operations
+- `CODE_PROVIDER_TOKEN_POOL` — optional comma-separated list of tokens for distributing API rate limits
+
+### GitHub App Setup
+
+#### Installation Process
 
 1. **Navigate to App Installation**
-   - Go to https://github.com/apps/potpie-ai
+   - Go to <a href="https://github.com/apps/potpie-ai" className="mode-link">github.com/apps/potpie-ai</a>
    - Or in repository: Settings → GitHub Apps
 
 2. **Grant Permissions**
@@ -144,89 +152,7 @@ payload = {
 jwt_token = jwt.encode(payload, private_key, algorithm='RS256')
 ```
 
----
-
-## Available Tools
-
-### 1. GitHub Tool
-
-Fetch GitHub issues and pull requests with full details.
-
-**Tool:** `github_tool`
-
-**Usage:**
-```
-"Show me issue #123 from owner/repo"
-"Get PR #456 with diff from owner/repo"
-"What's in pull request #789 for owner/repo?"
-```
-
-### 2. Code Provider Tool
-
-Read file contents from repositories.
-
-**Tool:** `code_provider_tool`
-
-**Usage:**
-```
-"Read src/index.js from owner/repo"
-"Show me the contents of package.json"
-"Get README.md file"
-```
-
-### 3. Create Branch
-
-Create new branches from existing branches or commits.
-
-**Tool:** `code_provider_create_branch`
-
-**Usage:**
-```
-"Create a branch called feature/oauth from main"
-"Make a new branch hotfix/auth-bug from develop"
-```
-
-### 4. Update File
-
-Modify file contents and commit changes.
-
-**Tool:** `code_provider_update_file`
-
-**Usage:**
-```
-"Update src/config.js to add new API endpoint"
-"Change line 45 in auth.py to fix the bug"
-```
-
-### 5. Create Pull Request
-
-Create PRs with title, description, and reviewers.
-
-**Tool:** `code_provider_create_pr`
-
-**Usage:**
-```
-"Create a PR from feature/oauth to main"
-"Open pull request for branch feature/new-auth"
-```
-
-### 6. Add PR Comment
-
-Add comments to pull requests or specific lines.
-
-**Tool:** `code_provider_add_pr_comment`
-
-**Usage:**
-```
-"Add comment to PR #123: 'Looks good!'"
-"Comment on line 45 of src/auth.js in PR #456"
-```
-
----
-
-## API Integration Details
-
-### GitHub App Authentication
+### API Integration Details
 
 **JWT Generation:**
 ```python
@@ -258,22 +184,3 @@ response = requests.get(
     headers=headers
 )
 ```
-
----
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Linear Integration" icon="link" href="/extensions/linear">
-    Link GitHub PRs to Linear issues
-  </Card>
-  <Card title="Jira Integration" icon="puzzle-piece" href="/extensions/jira">
-    Connect GitHub with Jira workflow
-  </Card>
-  <Card title="Build a Feature" icon="robot" href="/build-flow/build-a-feature">
-    Use AI to generate code changes
-  </Card>
-  <Card title="Custom Agents" icon="screwdriver-wrench" href="/custom-agents/introduction">
-    Build agents with GitHub tools
-  </Card>
-</CardGroup>

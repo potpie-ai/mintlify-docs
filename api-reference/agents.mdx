@@ -178,13 +178,6 @@ func main() {
     "visibility": "public"
   },
   {
-    "id": "unit_test_agent",
-    "name": "Unit Test Agent",
-    "description": "An agent specialized in generating unit tests for code snippets for given function names",
-    "status": "active",
-    "visibility": "public"
-  },
-  {
     "id": "custom_agent_01",
     "name": "My Custom Agent",
     "description": "Custom agent for API documentation",
@@ -254,40 +247,6 @@ Potpie provides the following pre-built system agents:
   - "Trace the data flow for this API call"
 </Card>
 
-### Unit Test Agent
-
-<Card title="unit_test_agent" icon="flask">
-  **Best for:** Generating unit tests for functions and methods
-
-  **Capabilities:**
-  - Generate test cases
-  - Create mocks and fixtures
-  - Test edge cases
-  - Follow testing best practices
-
-  **Example Questions:**
-  - "Generate unit tests for the `authenticate_user` function"
-  - "Create tests for the PaymentService class"
-  - "What edge cases should I test for this function?"
-</Card>
-
-### Integration Test Agent
-
-<Card title="integration_test_agent" icon="plug">
-  **Best for:** Generating integration tests (Python, JavaScript, TypeScript)
-
-  **Capabilities:**
-  - Generate end-to-end tests
-  - Test API endpoints
-  - Create integration test suites
-  - Mock external services
-
-  **Example Questions:**
-  - "Generate integration tests for the user registration flow"
-  - "Create tests for the payment API endpoints"
-  - "Write integration tests for the auth middleware"
-</Card>
-
 ### Code Generation Agent
 
 <Card title="code_generation_agent" icon="code">
@@ -347,7 +306,7 @@ Choose the right agent for your task:
 |------|------------------|-------------|
 | Understanding code | `codebase_qna_agent` | - |
 | Fixing bugs | `debugging_agent` | `codebase_qna_agent` |
-| Writing tests | `unit_test_agent` or `integration_test_agent` | `code_generation_agent` |
+| Writing tests | `code_generation_agent` | - |
 | Adding features | `code_generation_agent` | `codebase_qna_agent` |
 | Analyzing changes | `blast_radius_agent` | `debugging_agent` |
 | Architecture design | `low_level_design_agent` | `codebase_qna_agent` |
@@ -439,41 +398,6 @@ conv = create_conversation_with_agent(
 )
 ```
 
-### Multi-Agent Conversation
-
-```python
-def create_multi_agent_conversation(
-    project_id: str,
-    agent_ids: list,
-    title: str,
-    token: str
-):
-    """Create conversation with multiple agents"""
-    url = "https://api.potpie.ai/api/v1/conversations/"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "user_id": "user_01HQXYZ789",
-        "title": title,
-        "status": "active",
-        "project_ids": [project_id],
-        "agent_ids": agent_ids
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
-
-# Usage - Combine QnA and debugging agents
-conv = create_multi_agent_conversation(
-    "proj_01HQXYZ789ABCDEF",
-    ["codebase_qna_agent", "debugging_agent"],
-    "Comprehensive code analysis",
-    "YOUR_TOKEN"
-)
-```
-
 ## Agent Recommendations
 
 ### For Beginners
@@ -481,7 +405,7 @@ conv = create_multi_agent_conversation(
 Start with these agents:
 
 1. **codebase_qna_agent** - Understanding code
-2. **unit_test_agent** - Writing tests
+2. **debugging_agent** - Fixing bugs
 
 ### For Advanced Users
 
@@ -498,23 +422,23 @@ Recommended agent combinations:
 ```python
 # Feature development workflow
 FEATURE_WORKFLOW = [
-    "low_level_design_agent",  # Design
-    "code_generation_agent",           # Implementation
-    "unit_test_agent"           # Testing
+    "low_level_design_agent",   # Design
+    "code_generation_agent",    # Implementation
+    "code_generation_agent"     # Testing
 ]
 
 # Bug fixing workflow
 DEBUG_WORKFLOW = [
     "debugging_agent",          # Identify issue
     "blast_radius_agent",       # Check impact
-    "unit_test_agent"           # Prevent regression
+    "code_generation_agent"     # Prevent regression
 ]
 
 # Code review workflow
 REVIEW_WORKFLOW = [
     "codebase_qna_agent",       # Understand changes
     "blast_radius_agent",       # Assess impact
-    "unit_test_agent"           # Verify coverage
+    "code_generation_agent"     # Verify coverage
 ]
 ```
 

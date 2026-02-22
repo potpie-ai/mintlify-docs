@@ -7,28 +7,12 @@ description: 'Connect Potpie with Confluence to manage documentation and knowled
 
 The Confluence integration enables Potpie agents to interact with Confluence workspaces using Atlassian OAuth 2.0 (3LO), providing access to spaces, pages, and content management.
 
-<CardGroup cols={2}>
-  <Card title="7 Tools" icon="toolbox">
-    Read, search, create, and update Confluence pages
-  </Card>
-  <Card title="Atlassian 3LO" icon="shield-check">
-    Secure OAuth 2.0 with cloud ID support
-  </Card>
-  <Card title="CQL Search" icon="magnifying-glass">
-    Powerful Confluence Query Language search
-  </Card>
-  <Card title="Multi-Space" icon="folders">
-    Access multiple spaces and pages
-  </Card>
-</CardGroup>
-
----
 
 ## Quick Start
 
 <Steps>
   <Step title="Create Atlassian OAuth App">
-    Go to [Atlassian Developer Console](https://developer.atlassian.com/console/myapps/)
+    Go to <a href="https://developer.atlassian.com/console/myapps/" className="mode-link">Atlassian Developer Console</a>
 
     Create OAuth 2.0 integration:
     - **App name**: Potpie AI
@@ -106,91 +90,17 @@ Authorization: Bearer {access_token}
 
 ## Available Tools
 
-### 1. Get Confluence Spaces
+The Confluence integration provides 7 tools. See <a href="/agents/tools-reference#confluence-tools" className="mode-link">Confluence Tools</a> in the Tools Reference for full documentation.
 
-**Tool**: `get_confluence_spaces_tool`
-
-**Usage**:
-```
-"List all Confluence spaces"
-"Show me available Confluence workspaces"
-```
-
-**Returns**: Space keys, names, types (global/personal)
-
-### 2. Get Confluence Page
-
-**Tool**: `get_confluence_page_tool`
-
-**Usage**:
-```
-"Get Confluence page with ID 123456"
-"Show me page content for page ID 789"
-```
-
-**Returns**: Title, body content, version, space, creator
-
-### 3. Get Space Pages
-
-**Tool**: `get_confluence_space_pages_tool`
-
-**Usage**:
-```
-"List all pages in Confluence space DOCS"
-"Show pages in ENG space"
-```
-
-**Returns**: Page list with titles, IDs, creation dates
-
-### 4. Search Confluence Pages
-
-**Tool**: `search_confluence_pages_tool`
-
-**Usage**:
-```
-"Search Confluence for 'API documentation'"
-"Find pages about authentication in Confluence"
-```
-
-**CQL Examples**:
-```cql
-text ~ "authentication"
-space = DOCS AND type = page
-title ~ "API" AND lastModified >= now("-7d")
-creator = currentUser() AND space in (DOCS, ENG)
-```
-
-### 5. Create Confluence Page
-
-**Tool**: `create_confluence_page_tool`
-
-**Usage**:
-```
-"Create Confluence page in DOCS space: 'API Guidelines'"
-"Add new page to ENG space with title 'Setup Guide'"
-```
-
-### 6. Update Confluence Page
-
-**Tool**: `update_confluence_page_tool`
-
-**Usage**:
-```
-"Update Confluence page 123456 with new content"
-"Change title of page ID 789 to 'Updated Guide'"
-```
-
-**Version Management**: Automatically increments version number
-
-### 7. Add Comment
-
-**Tool**: `add_confluence_comment_tool`
-
-**Usage**:
-```
-"Add comment to Confluence page 123456: 'Needs review'"
-"Comment on page ID 789: 'Updated with latest info'"
-```
+| Tool | Description |
+|------|-------------|
+| `get_confluence_spaces_tool` | List all spaces |
+| `get_confluence_page_tool` | Fetch a page by ID |
+| `get_confluence_space_pages_tool` | List pages in a space |
+| `search_confluence_pages_tool` | Search using CQL |
+| `create_confluence_page_tool` | Create a new page |
+| `update_confluence_page_tool` | Update an existing page |
+| `add_confluence_comment_tool` | Add a comment to a page |
 
 ---
 
@@ -216,11 +126,13 @@ Confluence uses its own storage format for content:
 </ac:structured-macro>
 ```
 
-### Potpie Auto-Conversion
-Potpie automatically converts:
-- Markdown → Confluence storage format
-- Plain text → Formatted content
-- Code blocks → Code macros
+### Input Format
+The `create_confluence_page_tool` accepts **HTML or plain text**.
+
+- **HTML**: Passed through directly as Confluence storage format.
+- **Plain text**: Automatically wrapped in `<p>` tags.
+
+For code blocks, wrap content manually using HTML tags (`<pre>`, `<code>`) or the Confluence macro XML shown above.
 
 ---
 
@@ -281,32 +193,7 @@ space = DOCS AND type = page ORDER BY lastModified desc
 
 ---
 
-## API Reference
-
-### Endpoints
-
-**Base**: `/api/v2/integrations/confluence`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/oauth/authorize` | Start OAuth |
-| GET | `/oauth/callback` | Handle callback |
-| POST | `/save` | Save integration |
-| GET | `/status/{user_id}` | Check status |
-
-### Save Integration
-
-```json
-POST /api/v2/integrations/confluence/save
-{
-  "code": "oauth_code",
-  "redirect_uri": "https://app.potpie.ai/integrations/confluence/callback",
-  "instance_name": "My Confluence",
-  "user_id": "user_123",
-  "integration_type": "confluence",
-  "timestamp": "2024-02-17T10:00:00Z"
-}
-```
+For endpoint details and request schemas, see the <a href="/api-reference/endpoint/save-integration" className="mode-link">API reference</a>.
 
 ---
 

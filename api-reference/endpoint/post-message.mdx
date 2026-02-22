@@ -9,7 +9,6 @@ openapi: 'POST /api/v2/conversations/{conversation_id}/message/'
 - Request debugging assistance
 - Get explanations of code functionality
 - Ask for code improvements or refactoring suggestions
-- Request test generation
 - Inquire about code relationships and dependencies
 
 ## Authentication
@@ -65,7 +64,7 @@ node_ids=[{"node_id":"node_123","name":"AuthService.authenticate"},{"node_id":"n
 ```
 
 <Tip>
-  You can find node IDs by using the [Search Codebase](/api-reference/endpoint/search-codebase) endpoint or through the Potpie UI.
+  You can find node IDs by using the <a href="/api-reference/endpoint/search-codebase" className="mode-link">Search Codebase</a> endpoint or through the Potpie UI.
 </Tip>
 
 ## Error Responses
@@ -250,14 +249,6 @@ Different message patterns for different tasks:
 "Review the error handling in the payment service"
 "Is the API endpoint properly secured?"
 "Suggest improvements for the authentication middleware"
-```
-
-### Test Generation
-
-```
-"Generate unit tests for the UserService class"
-"What edge cases should I test for the payment flow?"
-"Create integration tests for the authentication endpoints"
 ```
 
 ## Response Streaming

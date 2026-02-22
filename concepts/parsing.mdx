@@ -32,12 +32,9 @@ Each node receives a fully qualified name such as `auth/service.py:AuthService.v
     | `REFERENCES` | One definition referencing another |
   </Step>
   <Step title="Scoring">
-    **PageRank** scores each node by how frequently other nodes reference it.
+    **PageRank** scores each node by how frequently other nodes reference it. These scored nodes then pass to <a href="/concepts/inference" className="mode-link">inference</a>, which gives each one a semantic meaning.
   </Step>
 </Steps>
 
 Supported languages: Python, Java, JavaScript, TypeScript, C#, C++, Go, Ruby, Rust, and PHP.
 
-## One parse per branch
-
-Potpie parses each branch independently. Nodes and edges reflect the exact state of code on the selected branch.

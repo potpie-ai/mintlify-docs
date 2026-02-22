@@ -8,7 +8,7 @@ The **Potpie API** follows **REST** conventions. Authenticate with an **API key*
 
 <Steps>
   <Step title="Sign in to the dashboard">
-    Open [app.potpie.ai](https://app.potpie.ai) and sign in.
+    Open <a href="https://app.potpie.ai" className="mode-link">Potpie</a> and sign in.
 
     <img src="/images/new-chat-interface.png" alt="Potpie Dashboard" />
   </Step>
@@ -37,7 +37,7 @@ The **Potpie API** follows **REST** conventions. Authenticate with an **API key*
 All API interactions follow a four-stage sequence. Each stage requires the previous to succeed.
 
 <Info>
-  The `/api/v2` endpoints use **API key** authentication. For **Firebase Bearer token** authentication with `/api/v1` endpoints, see the agent-specific documentation.
+  The `/api/v2` endpoints use **API key** authentication.
 </Info>
 
 <Steps>
@@ -121,7 +121,7 @@ All API interactions follow a four-stage sequence. Each stage requires the previ
     **Response:**
     ```json
     {
-      "response": "Markdown-formatted answer with citations",
+      "message": "Markdown-formatted answer with citations",
       "tool_calls": [],
       "citations": ["app/auth/service.py", "app/middleware/auth.py"]
     }

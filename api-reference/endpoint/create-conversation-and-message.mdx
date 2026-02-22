@@ -185,21 +185,6 @@ const response = await fetch(url, {
 });
 ```
 
-### With Different Agent
-
-Use a specialized agent for specific tasks:
-
-```python
-response = requests.post(
-    url,
-    headers=headers,
-    json={
-        'content': 'Generate unit tests for the authentication module',
-        'agent_id': 'unit_test_agent'
-    }
-)
-```
-
 ### Make Visible in UI
 
 Create a conversation that appears in the web interface:

@@ -17,11 +17,17 @@ description: 'Run Potpie locally by configuring Firebase, GitHub, and Google Clo
   </Step>
 </Steps>
 
-## Portkey
+## Logfire
 
-Portkey provides observability and monitoring for AI calls made by Potpie.
+Logfire provides observability and tracing for AI calls made by Potpie.
 
-Create a free account at [Portkey](https://app.portkey.ai/signup) and add your API key to `.env` as `PORTKEY_API_KEY`.
+Create a free account at [Logfire](https://logfire.pydantic.dev/) and add the following to `.env`:
+
+```bash
+LOGFIRE_ENABLED=true
+LOGFIRE_TOKEN=your_token
+LOGFIRE_PROJECT_NAME=your_project_name
+```
 
 ## GitHub App
 
@@ -89,7 +95,7 @@ Potpie uses Google Secret Manager to store API keys. Creating a Firebase project
   </Step>
   <Step title="Start the server">
     ```bash
-    chmod +x start.sh && ./start.sh
+    chmod +x scripts/start.sh && ./scripts/start.sh
     ```
   </Step>
 </Steps>

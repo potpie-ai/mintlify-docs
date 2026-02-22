@@ -4,6 +4,8 @@ title: 'Configuration'
 
 Create a **custom agent** by defining agent attributes, configuring tasks, and assigning tools. Execute agents through the **Conversations API** using an **API key**.
 
+Custom agents are invoked through the <a href="/api-reference/conversations" className="mode-link">Conversations API</a> using their agent ID.
+
 ## Creating an Agent
 
 <Steps>
@@ -11,12 +13,6 @@ Create a **custom agent** by defining agent attributes, configuring tasks, and a
     Specify the agent's **role**, **goal**, **backstory**, and **system prompt**. These four attributes establish the agent's identity and govern how it approaches every task.
 
     <img src="/images/custom-agent-identity.png" alt="Agent Identity Configuration" />
-  </Step>
-
-  <Step title="Configure the system prompt">
-    Write high-level instructions that control task execution behavior: output format requirements, edge case handling, and quality standards.
-
-    <img src="/images/custom-agent-system-prompt.png" alt="System Prompt Configuration" />
   </Step>
 
   <Step title="Add tasks and assign tools">
@@ -107,18 +103,3 @@ Add **Model Context Protocol** server configurations per task. The schema accept
   {"name": "postgres", "link": "https://github.com/mcp-servers/postgres"}
 ]
 ```
-
-## Validation Rules
-
-All agents must satisfy the following constraints before creation succeeds.
-
-| Constraint | Requirement |
-|---|---|
-| Minimum tasks | 1 |
-| Maximum tasks | 5 |
-| Tools per task | At least 1 |
-| Tool IDs | Must match available tools exactly |
-
-<Warning>
-  Invalid tool IDs cause agent creation to fail. Verify all tool names against the <a href="/agents/tools-reference" className="mode-link">Tools Reference</a> before creating the agent.
-</Warning>

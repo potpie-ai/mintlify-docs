@@ -540,8 +540,8 @@
                 "with_agent": {
                   "summary": "With specific agent",
                   "value": {
-                    "content": "Generate unit tests for the auth module",
-                    "agent_id": "unit_test_agent"
+                    "content": "What changed in the auth module?",
+                    "agent_id": "debugging_agent"
                   }
                 }
               }
@@ -648,7 +648,7 @@
       "get": {
         "operationId": "listAgents",
         "summary": "List Agents",
-        "description": "Get a list of all available AI agents. Each agent is specialized for different tasks like Q&A, debugging, unit testing, or integration testing.",
+        "description": "Get a list of all available AI agents. Each agent is specialized for different tasks like Q&A, debugging, and code generation.",
         "tags": ["Agents"],
         "responses": {
           "200": {
@@ -673,13 +673,6 @@
                     "id": "debugging_agent",
                     "name": "Debugging Agent",
                     "description": "An agent specialized in debugging using knowledge graphs",
-                    "status": "active",
-                    "visibility": "public"
-                  },
-                  {
-                    "id": "unit_test_agent",
-                    "name": "Unit Test Agent",
-                    "description": "An agent specialized in generating unit tests for code snippets",
                     "status": "active",
                     "visibility": "public"
                   }

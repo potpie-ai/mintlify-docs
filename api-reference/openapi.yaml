@@ -6,22 +6,11 @@ info:
 
     ## Authentication
 
-    Potpie API uses two authentication methods:
-
-    1. **Bearer Token Authentication** (Firebase JWT) - Used for web UI and authenticated user operations
-    2. **API Key Authentication** - Used for programmatic access via `/api/v2` endpoints
-
-    ### Bearer Token Authentication
-
-    For endpoints under `/api/v1`, include a Firebase JWT token in the Authorization header:
-
-    ```
-    Authorization: Bearer <firebase_jwt_token>
-    ```
+    Potpie API uses API key authentication for programmatic access.
 
     ### API Key Authentication
 
-    For endpoints under `/api/v2`, include your API key in the `x-api-key` header:
+    Include your API key in the `x-api-key` header:
 
     ```
     x-api-key: <your_api_key>
@@ -69,150 +58,10 @@ tags:
     description: Third-party integration management
 
 security:
-  - BearerAuth: []
   - ApiKeyAuth: []
 
 paths:
-  /api/v1/parse:
-    post:
-      tags:
-        - Parsing
-      summary: Parse Directory
-      description: |
-        Parse a code repository and create a knowledge graph. This endpoint supports both GitHub repositories and local filesystem paths.
-
-        **Parsing Process:**
-        1. Repository is cloned/accessed
-        2. Code structure is analyzed
-        3. Knowledge graph is constructed
-        4. Embeddings are generated for semantic search
-
-        **Estimated Processing Time:**
-        - Small repos (<1000 files): 2-5 minutes
-        - Medium repos (1000-5000 files): 5-15 minutes
-        - Large repos (>5000 files): 15+ minutes
-
-        Use the `/api/v1/parsing-status/{project_id}` endpoint to check parsing progress.
-      operationId: parseDirectory
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ParsingRequest'
-            examples:
-              github_repo:
-                summary: GitHub Repository
-                value:
-                  repo_name: "facebook/react"
-                  branch_name: "main"
-              local_path:
-                summary: Local Filesystem Path
-                value:
-                  repo_path: "/path/to/local/repo"
-                  branch_name: "main"
-              specific_commit:
-                summary: Specific Commit
-                value:
-                  repo_name: "facebook/react"
-                  branch_name: "main"
-                  commit_id: "abc123def456"
-      responses:
-        '200':
-          description: Parsing initiated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParsingResponse'
-              example:
-                message: "Parsing initiated successfully"
-                status: "processing"
-                project_id: "proj_01HQXYZ789ABCDEF"
-        '400':
-          description: Invalid request parameters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                detail: "Either repo_name or repo_path must be provided"
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '402':
-          description: Subscription required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                detail: "Subscription required to parse a repository"
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /api/v1/parsing-status/{project_id}:
-    get:
-      tags:
-        - Parsing
-      summary: Get Parsing Status
-      description: |
-        Get the current parsing status for a project by project ID.
-
-        **Status Values:**
-        - `submitted`: Parsing request received
-        - `cloned`: Repository cloned successfully
-        - `parsed`: Code parsing ready
-        - `processing`: Embeddings and knowledge graph being generated
-        - `ready`: Project fully indexed and ready to use
-        - `error`: Parsing failed (check error message)
-      operationId: getParsingStatus
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          description: Unique identifier of the project
-          schema:
-            type: string
-          example: "proj_01HQXYZ789ABCDEF"
-      responses:
-        '200':
-          description: Parsing status retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParsingStatusResponse'
-              examples:
-                processing:
-                  summary: Parsing in progress
-                  value:
-                    project_id: "proj_01HQXYZ789ABCDEF"
-                    status: "processing"
-                    progress: 45
-                    message: "Generating embeddings for code nodes"
-                ready:
-                  summary: Parsing complete
-                  value:
-                    project_id: "proj_01HQXYZ789ABCDEF"
-                    status: "ready"
-                    progress: 100
-                    message: "Project is ready to use"
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Project not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                detail: "Project not found"
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /api/v1/parsing-status:
+  /api/v2/parsing-status:
     post:
       tags:
         - Parsing
@@ -220,7 +69,7 @@ paths:
       description: Get parsing status by repository name and optional commit/branch information
       operationId: getParsingStatusByRepo
       security:
-        - BearerAuth: []
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -253,253 +102,6 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /api/v1/conversations/:
-    post:
-      tags:
-        - Conversations
-      summary: Create Conversation
-      description: |
-        Create a new conversation for interacting with your codebase using AI agents.
-
-        **Conversation Setup:**
-        - Select one or more projects (codebases)
-        - Choose AI agents to handle different types of queries
-        - Optionally hide the conversation from web UI
-
-        **Available Agents:**
-        - `codebase_qna_agent`: General questions about code
-        - `debugging_agent`: Debug issues using knowledge graph
-        - `unit_test_agent`: Generate unit tests
-        - `integration_test_agent`: Generate integration tests
-        - `code_generation_agent`: Generate new code
-        - `blast_radius_agent`: Analyze impact of changes
-      operationId: createConversation
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: hidden
-          in: query
-          description: Whether to hide this conversation from the web UI
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateConversationRequest'
-            examples:
-              single_agent:
-                summary: QnA conversation
-                value:
-                  user_id: "user_01HQXYZ789"
-                  title: "Understanding React hooks"
-                  status: "active"
-                  project_ids: ["proj_01HQXYZ789"]
-                  agent_ids: ["codebase_qna_agent"]
-              multi_agent:
-                summary: Multi-agent conversation
-                value:
-                  user_id: "user_01HQXYZ789"
-                  title: "Debugging authentication flow"
-                  status: "active"
-                  project_ids: ["proj_01HQXYZ789"]
-                  agent_ids: ["codebase_qna_agent", "debugging_agent"]
-      responses:
-        '200':
-          description: Conversation created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateConversationResponse'
-              example:
-                message: "Conversation created successfully"
-                conversation_id: "conv_01HQXYZ789ABCDEF"
-        '400':
-          description: Invalid request parameters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '402':
-          description: Subscription required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                detail: "Subscription required to create a conversation"
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-    get:
-      tags:
-        - Conversations
-      summary: List Conversations
-      description: Get a paginated list of conversations for the authenticated user with sorting options
-      operationId: listConversations
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: start
-          in: query
-          description: Offset for pagination (0-indexed)
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: limit
-          in: query
-          description: Maximum number of conversations to return
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-        - name: sort
-          in: query
-          description: Field to sort by
-          schema:
-            type: string
-            enum: [updated_at, created_at]
-            default: updated_at
-        - name: order
-          in: query
-          description: Sort direction
-          schema:
-            type: string
-            enum: [asc, desc]
-            default: desc
-      responses:
-        '200':
-          description: List of conversations retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ConversationListItem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /api/v1/conversations/{conversation_id}/message/:
-    post:
-      tags:
-        - Conversations
-      summary: Post Message
-      description: |
-        Send a message to an AI agent in a conversation. Supports both streaming and non-streaming responses.
-
-        **Features:**
-        - Stream responses in real-time using Server-Sent Events (SSE)
-        - Attach images for visual context
-        - Reference specific code nodes
-        - Session management for reconnection
-
-        **Streaming:**
-        When `stream=true`, the response is streamed using SSE format:
-        ```
-        data: {"type": "token", "content": "Hello"}
-        data: {"type": "token", "content": " world"}
-        data: {"type": "done", "message_id": "msg_123"}
-        ```
-      operationId: postMessage
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: conversation_id
-          in: path
-          required: true
-          description: Unique identifier of the conversation
-          schema:
-            type: string
-          example: "conv_01HQXYZ789ABCDEF"
-        - name: stream
-          in: query
-          description: Whether to stream the response using SSE
-          schema:
-            type: boolean
-            default: true
-        - name: session_id
-          in: query
-          description: Session ID for reconnection (optional)
-          schema:
-            type: string
-        - name: prev_human_message_id
-          in: query
-          description: Previous human message ID for deterministic session ID
-          schema:
-            type: string
-        - name: cursor
-          in: query
-          description: Stream cursor for replay from specific position
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - content
-              properties:
-                content:
-                  type: string
-                  description: Message content to send to the agent
-                  minLength: 1
-                  example: "How does the authentication system work?"
-                node_ids:
-                  type: string
-                  description: JSON string array of node contexts to reference
-                  example: '[{"node_id": "node_123", "name": "AuthService"}]'
-                images:
-                  type: array
-                  items:
-                    type: string
-                    format: binary
-                  description: Optional images to attach (max 10MB per image)
-      responses:
-        '200':
-          description: Message processed successfully
-          content:
-            text/event-stream:
-              schema:
-                $ref: '#/components/schemas/StreamingMessageResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '400':
-          description: Invalid request parameters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                empty_message:
-                  summary: Empty message content
-                  value:
-                    detail: "Message content cannot be empty"
-                invalid_node_ids:
-                  summary: Invalid node_ids format
-                  value:
-                    detail: "Invalid node_ids format"
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '402':
-          description: Subscription required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -576,45 +178,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/projects/list:
-    get:
-      tags:
-        - Projects
-      summary: List Projects
-      description: |
-        Get a list of all projects (parsed repositories) for the authenticated user.
-
-        Projects represent parsed codebases that are ready for AI-powered analysis.
-      operationId: listProjects
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: List of projects retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Project'
-              example:
-                - id: "proj_01HQXYZ789ABCDEF"
-                  repo_name: "facebook/react"
-                  branch_name: "main"
-                  status: "ready"
-                  created_at: "2024-01-15T10:30:00Z"
-                  updated_at: "2024-01-15T10:45:00Z"
-                - id: "proj_02HQXYZ123GHIJKL"
-                  repo_name: "vuejs/vue"
-                  branch_name: "main"
-                  status: "processing"
-                  created_at: "2024-01-16T14:20:00Z"
-                  updated_at: "2024-01-16T14:25:00Z"
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /api/v2/projects/list:
     get:
       tags:
@@ -638,66 +201,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/list-available-agents/:
-    get:
-      tags:
-        - Agents
-      summary: List Available Agents
-      description: |
-        Get a list of all available AI agents including system agents and custom user-created agents.
-
-        **Agent Types:**
-        - **System Agents**: Pre-built agents optimized for specific tasks
-        - **Custom Agents**: User-created agents with custom prompts and tools
-
-        **System Agents:**
-        - `codebase_qna_agent`: Answer questions about codebase
-        - `debugging_agent`: Debug using knowledge graphs
-        - `unit_test_agent`: Generate unit tests
-        - `integration_test_agent`: Generate integration tests
-        - `code_generation_agent`: Generate new code
-        - `blast_radius_agent`: Analyze change impact
-        - `low_level_design_agent`: Create detailed designs
-      operationId: listAvailableAgents
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: list_system_agents
-          in: query
-          description: Include system agents in the response
-          schema:
-            type: boolean
-            default: true
-      responses:
-        '200':
-          description: List of agents retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AgentInfo'
-              example:
-                - id: "codebase_qna_agent"
-                  name: "Codebase Q&A Agent"
-                  description: "An agent specialized in answering questions about the codebase using the knowledge graph and code analysis tools"
-                  status: "active"
-                  visibility: "public"
-                - id: "debugging_agent"
-                  name: "Debugging with Knowledge Graph Agent"
-                  description: "An agent specialized in debugging using knowledge graphs"
-                  status: "active"
-                  visibility: "public"
-                - id: "custom_agent_01"
-                  name: "My Custom Agent"
-                  description: "Custom agent for API documentation"
-                  status: "active"
-                  visibility: "private"
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /api/v2/list-available-agents:
     get:
       tags:
@@ -716,80 +219,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AgentInfo'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /api/v1/search:
-    post:
-      tags:
-        - Search
-      summary: Search Codebase
-      description: |
-        Perform semantic search across your codebase using natural language queries.
-
-        **Search Features:**
-        - Semantic search using embeddings
-        - Multi-file search
-        - Relevance scoring
-        - Context-aware results
-
-        **Search Types:**
-        - Function/method definitions
-        - Class definitions
-        - Variable usage
-        - Comments and documentation
-        - File paths
-      operationId: searchCodebase
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SearchRequest'
-            examples:
-              semantic_search:
-                summary: Semantic search
-                value:
-                  project_id: "proj_01HQXYZ789ABCDEF"
-                  query: "authentication middleware"
-              specific_function:
-                summary: Find specific function
-                value:
-                  project_id: "proj_01HQXYZ789ABCDEF"
-                  query: "password hashing function"
-      responses:
-        '200':
-          description: Search results retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SearchResponse'
-              example:
-                results:
-                  - node_id: "node_auth_123"
-                    name: "authenticate_user"
-                    file_path: "src/auth/middleware.py"
-                    content: "def authenticate_user(token: str) -> User:\n    # Verify JWT token\n    payload = jwt.decode(token, SECRET_KEY)"
-                    match_type: "semantic"
-                    relevance: 0.95
-                  - node_id: "node_auth_456"
-                    name: "AuthMiddleware"
-                    file_path: "src/auth/middleware.py"
-                    content: "class AuthMiddleware:\n    def __init__(self, app):\n        self.app = app"
-                    match_type: "semantic"
-                    relevance: 0.87
-        '400':
-          description: Invalid request parameters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                detail: "Search query cannot be empty or contain only whitespace"
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
@@ -927,12 +356,6 @@ paths:
 
 components:
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Firebase JWT token for authenticated users
-
     ApiKeyAuth:
       type: apiKey
       in: header
@@ -1541,19 +964,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          examples:
-            missing_token:
-              summary: Missing authentication
-              value:
-                detail: "Bearer authentication is needed"
-            invalid_token:
-              summary: Invalid token
-              value:
-                detail: "Invalid authentication from Firebase"
-            missing_api_key:
-              summary: Missing API key
-              value:
-                detail: "API key is required"
+          example:
+            detail: "API key is required"
 
     InternalServerError:
       description: Internal server error

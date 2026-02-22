@@ -9,6 +9,7 @@
   },
   "favicon": "/favicon.png",
   "customCSS": ["/styles/custom.css"],
+  "openapi": "/api-reference/openapi.json",
   "api": {
     "baseUrl": "https://production-api.potpie.ai",
     "auth": {
@@ -51,7 +52,6 @@
           {
             "group": "Platform",
             "pages": [
-              "build-flow/trace",
               "build-flow/forge",
               "build-flow/specialists",
               "build-flow/recipe"
@@ -65,8 +65,7 @@
                 "group": "Custom Agents",
                 "pages": [
                   "custom-agents/introduction",
-                  "custom-agents/configuration",
-                  "agents/tools-reference"
+                  "custom-agents/configuration"
                 ]
               },
               {
@@ -88,7 +87,8 @@
                   "self-hosting/setup",
                   "self-hosting/getting-started"
                 ]
-              }
+              },
+              "agents/tools-reference"
             ]
           },
           {
