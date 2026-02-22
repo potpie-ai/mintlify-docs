@@ -1,0 +1,31 @@
+---
+title: 'Trace'
+---
+
+**Trace** is Potpie's **continuous monitoring** layer for distributed systems. It compares live behavior against the service contracts and dependency relationships encoded in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, and activates an analysis when a deviation is detected.
+
+## Impact scoping
+
+Trace uses the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> as an operational specification:
+
+- Traverses the service call graph to assess upstream and downstream impact
+- Validates live requests against API and schema contracts defined in code
+- Compares current deployment state against historical baselines
+- Maps configuration changes to the services they affect
+- Estimates **blast radius** before applying a fix
+
+Because component relationships are already encoded in the graph, Trace constrains the scope immediately. When a latency spike appears, Trace evaluates contract compliance, dependency health, scaling policies, and recent configuration diffs in a single pass.
+
+## Root cause analysis
+
+When telemetry falls short of establishing causality, **Trace** builds a **branching analysis tree**. Each branch represents a concrete, testable cause: a configuration regression, contract mismatch, scaling miscalibration, or downstream latency shift.
+
+Trace prioritizes branches by confidence using historical baselines and eliminates weak paths early. Trace validates each cause in an isolated sandbox that reproduces production conditions without affecting live systems.
+
+## Feedback loop
+
+Validated findings feed back into the development workflow. Recurring failure patterns surface earlier. The same class of failures reaches production less often.
+
+## Get access
+
+Trace is part of Potpie's enterprise offering. <a href="https://potpie.ai/enterprise" className="mode-link">Reach out</a> to learn more.

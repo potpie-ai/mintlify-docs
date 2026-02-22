@@ -1,21 +1,119 @@
 ---
 title: 'Introduction'
-description: 'An overview of the specialized agents available in Potpie'
+mode: 'wide'
 ---
 
-# Introduction to Potpie Agents
+Potpie provides three specialized AI agents that understand your codebase through knowledge graph analysis and systematic code exploration.
 
-Potpie offers a suite of specialized AI agents designed to assist developers with various aspects of software development. These agents leverage a knowledge graph and advanced code analysis tools to provide intelligent assistance tailored to your codebase.
+<CardGroup cols={3}>
+  <Card title="Ask a Question" icon="book-open" href="/build-flow/ask-a-question">
+    Use the Ask Agent for exploration and comprehension
+  </Card>
+  <Card title="Build a Feature" icon="pen-to-square" href="/build-flow/build-a-feature">
+    Use the Code Agent for changes and features
+  </Card>
+  <Card title="Debug an Issue" icon="wrench" href="/build-flow/debug-an-issue">
+    Use the Debug Agent for issues and errors
+  </Card>
+</CardGroup>
 
-## Available Agents
+## How to Use Agents
 
-Potpie currently offers five specialized agents:
+All agents follow the same usage pattern: create a conversation, send messages, get responses. They differ in what they do with your messages.
 
-1. [Codebase Q&A Agent](/agents/qna-agent)
-2. [Unit Test Agent](/agents/unit-test-agent)
-3. [Integration Test Agent](/agents/integration-test-agent)
-4. [Debugging with Knowledge Graph Agent](/agents/debugging-agent)
-5. [Code Changes Agent](/agents/code-changes-agent)
+<Steps>
+  <Step title="Create Conversation">
+    ```python Choose your agent and create a conversation
+    response = requests.post(
+        "https://production-api.potpie.ai/api/v1/conversations/",
+        headers={"Authorization": "Bearer <firebase_token>"},
+        json={
+            "user_id": "user_123",
+            "title": "Your task description",
+            "status": "active",
+            "project_ids": ["proj_abc123"],
+            "agent_ids": ["codebase_qna_agent"]  # or "code_generation_agent" or "debugging_agent"
+        }
+    )
+    conversation_id = response.json()["conversation_id"]
+    ```
+  </Step>
 
-Each agent is designed to excel in specific tasks, from answering questions about your codebase to generating test plans and assisting with debugging. In the following sections, we'll explore each agent in detail, including their capabilities and how to use them effectively.
+  <Step title="Send Message">
+    ```python All agents use Form data (not JSON) for messages
+    message_response = requests.post(
+        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        headers={"Authorization": "Bearer <firebase_token>"},
+        data={
+            "content": "Your question, request, or bug report"
+        },
+        params={"stream": False}
+    )
+
+    answer = message_response.json()["response"]
+    ```
+
+    <Warning>
+      Message endpoint uses **Form data** (`data=`), not JSON (`json=`). Use `multipart/form-data` content type.
+    </Warning>
+  </Step>
+
+  <Step title="Get Response">
+    ```typescript All agents return the same response format
+    {
+      response: string           // Markdown-formatted answer
+      tool_calls: ToolCall[]     // Tools the agent used
+      citations: string[]        // Files referenced
+    }
+    ```
+  </Step>
+</Steps>
+
+
+<AccordionGroup>
+  <Accordion title="When to Use Each Agent" icon="question">
+    <Tabs>
+      <Tab title="Ask Agent">
+        **Perfect for:**
+        - "How does this feature work?"
+        - "Where is X implemented?"
+        - "What files handle Y?"
+        - "Show me the authentication flow"
+
+        **Not ideal for:**
+        - Making code changes (use Code Agent)
+        - Debugging specific bugs (use Debug Agent)
+      </Tab>
+
+      <Tab title="Code Agent">
+        **Perfect for:**
+        - "Add rate limiting to API"
+        - "Refactor the auth middleware"
+        - "Create a new user service"
+        - "Update error handling across controllers"
+
+        **Not ideal for:**
+        - Just understanding code (use Ask Agent)
+        - Diagnosing bugs without implementing (use Debug Agent)
+      </Tab>
+
+      <Tab title="Debug Agent">
+        **Perfect for:**
+        - "Users get null pointer during checkout"
+        - "Login fails with special characters"
+        - "Race condition in payment processing"
+        - "Memory leak in background worker"
+
+        **Not ideal for:**
+        - General code questions (use Ask Agent)
+        - Implementing new features (use Code Agent)
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+
+</AccordionGroup>
+
+
+
 

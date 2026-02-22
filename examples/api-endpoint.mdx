@@ -1,0 +1,25 @@
+---
+title: 'API Endpoint'
+description: 'Add a new endpoint with full dependency awareness and matching code style.'
+---
+
+Adding an endpoint with unmapped routing conventions, middleware requirements, and error handling patterns produces code that works in isolation but breaks consistency across the API. Surfacing these gaps before writing a line prevents them from reaching review.
+
+**Build** analyzes the full codebase through the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before generating anything, producing a **specification**, architecture plan, and **diff** that matches existing patterns exactly.
+
+**Request:**
+```
+Add a user profile endpoint to the API
+```
+
+**Build produces:**
+- A specification listing every file to create or modify
+- An architecture tab showing where the new endpoint fits in the existing layer structure
+- Plan items with exact file paths and verification criteria for each change
+
+**Code generation includes:**
+- Route definition matching existing routing conventions
+- Controller with error handling consistent with other endpoints
+- Any middleware or validation required by the existing pattern
+
+The **diff** appears at the file and line level before PR creation. <a href="/build-flow/build-a-feature#pull-request" className="mode-link">Create the PR</a> directly from the **diff** view.

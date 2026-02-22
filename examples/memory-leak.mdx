@@ -1,0 +1,28 @@
+---
+title: 'Memory Leak'
+description: 'Trace a memory leak in a long running service to its source across object lifecycle and dependency chains.'
+---
+
+A long running service degrading over time rarely points to the leak in its stack trace. Heap growth across requests can originate in a cache, an event listener, a retained reference, or a closure hiding across multiple files and layers.
+
+**Debug** traces **object lifecycle** and retention patterns across the codebase through the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, identifies exactly what holds in memory and why, and returns a targeted fix at the source.
+
+**Issue:**
+```
+The background worker service crashes after several hours due to out-of-memory errors.
+```
+
+**Potpie traces:**
+1. The background worker and its request handling loop
+2. Objects allocated per request and whether they release properly
+3. Any caches, listeners, or references that accumulate across requests
+
+**Root cause citation:**
+- Exact file and line where objects persist beyond their lifecycle
+- The reference chain preventing garbage collection
+
+**Fix includes:**
+- Corrected object lifecycle management at the source
+- Assessment of whether the same retention pattern exists elsewhere in the service
+
+<a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> generates the corrected code as a reviewable **diff**.

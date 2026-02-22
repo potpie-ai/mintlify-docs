@@ -1,0 +1,25 @@
+---
+title: 'Auth Flow'
+description: 'Understand how authentication works before building a protected endpoint.'
+---
+
+Adding a protected endpoint on top of an unmapped auth implementation risks mismatched token validation, broken access rules, or bypassed middleware. Reading through the codebase manually to map the full flow leaves gaps.
+
+**Ask** traces the full **authentication flow** through the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, from incoming request to token validation to access enforcement, and returns every file involved with exact line ranges.
+
+**Question:**
+```
+How is authentication handled across the API? What middleware validates tokens and how do protected routes enforce access?
+```
+
+**Ask traces:**
+1. The middleware that intercepts and validates incoming tokens
+2. The auth service and its dependencies
+3. How protected routes enforce access rules
+
+**Response includes:**
+- Token validation middleware with exact file paths and line ranges
+- Auth service implementation and every file it depends on
+- Every protected route and the access rules applied to each
+
+The same auth pattern applies directly to the new endpoint. <a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> generates the implementation matching the existing pattern exactly.

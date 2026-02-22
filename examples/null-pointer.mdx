@@ -1,0 +1,28 @@
+---
+title: 'Null Pointer'
+description: 'Trace a null pointer exception to its origin across service and data layers.'
+---
+
+A null pointer exception surfacing in a generic service layer shows where the crash happens, while the null value originates elsewhere. Tracing it backwards through multiple service and data layers manually leaves the true origin uncertain.
+
+**Debug** traces the full execution path through the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> from the point of failure back to the source, identifies exactly where the null value enters without a guard, and returns a targeted fix.
+
+**Issue:**
+```
+Users are getting null pointer errors during checkout with empty carts.
+```
+
+**Potpie traces:**
+1. The checkout controller that receives the request
+2. The cart service and how it handles empty state
+3. The downstream order service that fails on null cart data
+
+**Root cause citation:**
+- Exact file path and line where the null value passes through without a null check
+- The dependent call site that throws the exception
+
+**Fix includes:**
+- Null guard at the correct layer with the minimal change required
+- Verification across all call sites for the same missing check
+
+<a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> generates the corrected code as a reviewable **diff**.

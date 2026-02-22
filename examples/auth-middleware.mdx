@@ -1,0 +1,25 @@
+---
+title: 'Auth Middleware'
+description: 'Update authentication middleware consistently across every protected route.'
+---
+
+Updating authentication middleware with unmapped route dependencies leaves some routes on the old implementation. In a large API, manually auditing every route for middleware usage is error-prone.
+
+**Build** maps every route that depends on the middleware through the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, generates the updated implementation, and surfaces every affected file as a **diff** before applying anything.
+
+**Request:**
+```
+Update the authentication middleware to support OAuth
+```
+
+**Build traces:**
+- Every route that applies the current middleware
+- Every file that imports or configures it
+- Any tests that cover the existing behavior
+
+**Code generation includes:**
+- Updated middleware implementation with OAuth support
+- Adjustments to every dependent route where the interface changes
+- Modified test coverage reflecting the new behavior
+
+The complete change set appears as a **diff** before PR creation. <a href="/build-flow/build-a-feature#pull-request" className="mode-link">Create the PR</a> directly from the **diff** view.

@@ -1,0 +1,265 @@
+---
+title: 'Post Message'
+openapi: 'POST /api/v2/conversations/{conversation_id}/message/'
+---
+
+## Use Cases
+
+- Ask questions about your codebase
+- Request debugging assistance
+- Get explanations of code functionality
+- Ask for code improvements or refactoring suggestions
+- Inquire about code relationships and dependencies
+
+## Authentication
+
+This endpoint requires API key authentication via the `x-api-key` header.
+
+```bash
+x-api-key: YOUR_API_KEY
+```
+
+<AccordionGroup>
+  <Accordion title="Request & Response">
+
+| Location | Field | Type | Required | Default | Description |
+|----------|-------|------|----------|---------|-------------|
+| Path | `conversation_id` | string | required | - | The unique identifier of the conversation (obtained from Create Conversation endpoint) |
+| Query | `stream` | boolean | optional | `true` | Stream response in real-time. Set to `false` for complete response. |
+| Query | `session_id` | string | optional | null | Session ID for reconnection to existing streaming session |
+| Query | `prev_human_message_id` | string | optional | null | Previous message ID for deterministic session handling |
+| Query | `cursor` | string | optional | null | Stream cursor position for replay functionality |
+| Form | `content` | string | required | - | Your message or question. Cannot be empty or whitespace-only. |
+| Form | `node_ids` | string | optional | - | JSON-encoded array of `NodeContext` objects to reference specific code nodes |
+| Form | `tunnel_url` | string | optional | - | VS Code extension tunnel URL for local server routing |
+| File | `images` | file[] | optional | - | Image attachments to include with your message |
+| Response | `message` | string | - | - | AI agent's response content |
+| Response | `citations` | array[string] | - | - | Source code references used in the response |
+| Response | `tool_calls` | array | - | - | Tool invocations made by the agent during response generation |
+
+**NodeContext Object Structure:**
+```json
+{
+  "node_id": "string",
+  "name": "string"
+}
+```
+
+**Request Form Data Example:**
+```
+content=How does the authentication system work?
+node_ids=[{"node_id":"node_123","name":"auth.ts"}]
+```
+
+  </Accordion>
+</AccordionGroup>
+
+## Node Context
+
+Providing `node_ids` helps the agent focus on specific parts of your codebase. Because the endpoint uses `multipart/form-data`, pass `node_ids` as a JSON-encoded string in the form field:
+
+```
+content=How does this authentication function work?
+node_ids=[{"node_id":"node_123","name":"AuthService.authenticate"},{"node_id":"node_456","name":"TokenValidator"}]
+```
+
+<Tip>
+  You can find node IDs by using the <a href="/api-reference/endpoint/search-codebase" className="mode-link">Search Codebase</a> endpoint or through the Potpie UI.
+</Tip>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="400 Bad Request">
+
+The endpoint validates that message content is not empty.
+
+```json
+{
+  "detail": "Message content cannot be empty"
+}
+```
+
+**Causes:**
+- Empty string provided in `content` field
+- Whitespace-only content
+- Missing `content` field entirely
+
+**Solution:** Provide non-empty message content:
+```json
+{
+  "content": "How does authentication work?"
+}
+```
+  </Accordion>
+
+  <Accordion title="401 Unauthorized">
+
+The endpoint requires a valid API key for authentication.
+
+```json
+{
+  "detail": "API key is required"
+}
+```
+
+**Causes:**
+- Missing `x-api-key` header
+- Invalid or expired API key
+
+**Solution:** Include a valid API key in the request header.
+  </Accordion>
+
+  <Accordion title="402 Payment Required">
+
+The endpoint returns this error when you have exceeded your plan's usage limits.
+
+```json
+{
+  "detail": "Subscription required to create a conversation."
+}
+```
+
+**Causes:**
+- Message limit exceeded for your current plan
+- Subscription has expired
+
+**Solution:** Upgrade your subscription plan or wait for limits to reset.
+  </Accordion>
+
+  <Accordion title="404 Not Found">
+
+The endpoint returns this error when the conversation doesn't exist or you lack access.
+
+```json
+{
+  "detail": "Conversation not found"
+}
+```
+
+**Causes:**
+- Invalid `conversation_id` in URL path
+- Conversation was deleted
+- You don't have access to this conversation
+
+**Solution:** Verify the conversation ID and ensure you have proper access permissions.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+
+The endpoint returns this error when unexpected exceptions occur during message processing.
+
+```json
+{
+  "detail": "Internal server error"
+}
+```
+
+**Causes:**
+- Celery worker unavailable for message processing
+- Database connection failures
+- Invalid node IDs or attachment IDs
+
+**Solution:** Retry the request after a brief delay. Verify all node IDs and attachment IDs are valid.
+  </Accordion>
+</AccordionGroup>
+
+## Complete Workflow
+
+<CodeGroup>
+
+```typescript TypeScript
+const formData = new FormData();
+formData.append('content', 'How does the authentication flow work in this codebase?');
+// Optionally attach node context as a JSON string:
+// formData.append('node_ids', JSON.stringify([{ node_id: 'node_123', name: 'AuthService' }]));
+
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v2/conversations/conv_789/message/?stream=false',
+  {
+    method: 'POST',
+    headers: {
+      'x-api-key': 'YOUR_API_KEY'
+      // Do not set Content-Type — the browser sets it automatically with the multipart boundary
+    },
+    body: formData
+  }
+);
+
+const data = await response.json();
+console.log('Response:', data.message);
+```
+
+```python Python
+import json
+import requests
+
+# Send message referencing specific code nodes
+response = requests.post(
+    'https://production-api.potpie.ai/api/v2/conversations/conv_789/message/',
+    params={'stream': False},
+    headers={
+        'x-api-key': 'YOUR_API_KEY'
+    },
+    data={
+        'content': 'Can you explain how these components interact?',
+        'node_ids': json.dumps([
+            {'node_id': 'node_123', 'name': 'AuthService'},
+            {'node_id': 'node_456', 'name': 'UserController'}
+        ])
+    }
+)
+
+result = response.json()
+print(f"Response: {result['message']}")
+```
+
+```bash cURL
+curl -X POST \
+  'https://production-api.potpie.ai/api/v2/conversations/conv_789/message/?stream=false' \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -F 'content=How does authentication work?'
+```
+
+</CodeGroup>
+
+## Message Types
+
+Different message patterns for different tasks:
+
+### Question & Answer
+
+```
+"What does the parseUserData function do?"
+"Where is the JWT token validated?"
+"How are database migrations handled?"
+```
+
+### Debugging
+
+```
+"I'm getting 'TypeError: Cannot read property...' in UserService"
+"Why is the authentication failing for OAuth users?"
+"The cache is not invalidating properly, can you investigate?"
+```
+
+### Code Review
+
+```
+"Review the error handling in the payment service"
+"Is the API endpoint properly secured?"
+"Suggest improvements for the authentication middleware"
+```
+
+## Response Streaming
+
+When `stream=true` (the default), the endpoint returns a streaming response via Server-Sent Events. Each event chunk contains a partial or complete agent response. When `stream=false`, the endpoint returns a single JSON object with the complete response:
+
+```json
+{
+  "message": "The authentication system uses JWT tokens...",
+  "citations": ["src/auth/jwt.ts", "src/middleware/auth.ts"],
+  "tool_calls": []
+}
+```
+

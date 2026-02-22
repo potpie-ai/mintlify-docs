@@ -1,0 +1,268 @@
+---
+title: 'Parse Directory'
+openapi: 'POST /api/v2/parse'
+---
+
+## Use Cases
+
+- Initiate repository parsing to build knowledge graph
+- Parse specific branches for version-specific analysis
+- Index local repositories during development
+- Parse remote public or private GitHub repositories
+- Build semantic understanding of codebase structure
+
+#### Request
+
+<ParamField body="repo_name" type="string">
+  Repository name in `owner/repo` format (e.g., `"facebook/react"`)
+</ParamField>
+
+<ParamField body="repo_path" type="string">
+  Local filesystem path to repository (development mode only)
+</ParamField>
+
+<ParamField body="branch_name" type="string">
+  Branch to parse (e.g., `"main"`)
+</ParamField>
+
+<ParamField body="commit_id" type="string">
+  Specific commit SHA to parse
+</ParamField>
+
+<Note>
+  Either `repo_name` or `repo_path` must be provided. In development mode, when both are provided, `repo_path` takes precedence. In production, `repo_path` is not accepted.
+</Note>
+
+#### Response
+
+<ResponseField name="project_id" type="string">
+  Unique identifier to check parsing status
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current parsing state: `submitted` (queued for parsing), `ready` (already fully parsed), or `inferring` (knowledge graph inference in progress)
+</ResponseField>
+
+## Complete Workflow
+
+<CodeGroup>
+
+```python Python
+import requests
+import time
+
+# 1. Start parsing
+response = requests.post(
+    'https://production-api.potpie.ai/api/v2/parse',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    json={
+        'repo_name': 'facebook/react',
+        'branch_name': 'main'
+    }
+)
+
+# Response: {"project_id": "proj_123", "status": "submitted"}
+project_id = response.json()['project_id']
+
+# 2. Monitor status until complete
+while True:
+    status = requests.get(
+        f'https://production-api.potpie.ai/api/v2/parsing-status/{project_id}',
+        headers={'x-api-key': 'YOUR_API_KEY'}
+    ).json()
+
+    print(f"{status['status']}")
+
+    if status['status'] in ['ready', 'error']:
+        break
+
+    time.sleep(10)
+
+# 3. Use the parsed project
+if status['status'] == 'ready':
+    print(f"Project {project_id} is ready!")
+```
+
+```typescript TypeScript
+// 1. Start parsing
+const response = await fetch(
+  'https://production-api.potpie.ai/api/v2/parse',
+  {
+    method: 'POST',
+    headers: {
+      'x-api-key': 'YOUR_API_KEY',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      repo_name: 'facebook/react',
+      branch_name: 'main'
+    })
+  }
+);
+
+// Response: {"project_id": "proj_123", "status": "submitted"}
+const { project_id } = await response.json();
+
+// 2. Monitor status until complete
+while (true) {
+  const statusRes = await fetch(
+    `https://production-api.potpie.ai/api/v2/parsing-status/${project_id}`,
+    {
+      headers: { 'x-api-key': 'YOUR_API_KEY' }
+    }
+  );
+
+  const status = await statusRes.json();
+  console.log(`${status.status}`);
+
+  if (['ready', 'error'].includes(status.status)) {
+    break;
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 10000));
+}
+
+// 3. Use the parsed project
+console.log(`Project ${project_id} is ready!`);
+```
+
+```bash cURL
+# 1. Start parsing
+curl -X POST \
+  'https://production-api.potpie.ai/api/v2/parse' \
+  -H 'x-api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "repo_name": "facebook/react",
+    "branch_name": "main"
+  }'
+
+# Response: {"project_id": "proj_123", "status": "submitted"}
+
+# 2. Monitor status
+curl -X GET \
+  'https://production-api.potpie.ai/api/v2/parsing-status/proj_123' \
+  -H 'x-api-key: YOUR_API_KEY'
+
+# Response: {"status": "ready", "latest": true}
+```
+
+</CodeGroup>
+
+## Error Responses
+
+<AccordionGroup>
+  <Accordion title="400 Bad Request">
+    **Local Repository in Production**
+
+    The endpoint rejects local repository paths when the application runs in production mode. Local parsing is restricted to development environments for security.
+
+    ```json
+    {
+      "detail": "Parsing local repositories is only supported in development mode"
+    }
+    ```
+
+    **How to fix:** Use `repo_name` to parse remote repositories in production. For local development, enable development mode in your environment configuration.
+  </Accordion>
+
+  <Accordion title="401 Unauthorized">
+    **Missing API Key**
+
+    The endpoint requires API key authentication for all requests. The request fails when no `x-api-key` header is provided.
+
+    ```json
+    {
+      "detail": "API key is required"
+    }
+    ```
+
+    **How to fix:** Include a valid API key in the request header:
+
+    ```bash
+    x-api-key: YOUR_API_KEY
+    ```
+
+    ---
+
+    **Invalid API Key**
+
+    The endpoint validates all API keys. The request fails when the API key is invalid or has expired.
+
+    ```json
+    {
+      "detail": "Invalid API key"
+    }
+    ```
+
+    **Common causes:**
+    - API key has expired
+    - API key is malformed or corrupted
+    - API key has been revoked
+    - API key does not belong to your account
+
+    **How to fix:** Generate a new API key from your account settings and update your application configuration.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+    The endpoint returns this error when unexpected exceptions occur during parsing operations.
+
+    ```json
+    {
+      "detail": "Internal server error"
+    }
+    ```
+
+    **Common causes:**
+    - Database connection failures
+    - File system errors during parsing
+    - Memory errors with very large repositories
+    - Network failures when cloning remote repositories
+    - Third-party service unavailability
+
+    **How to fix:** Retry the request with exponential backoff. If the issue persists, contact support with your `project_id` for debugging assistance.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Repository not accessible">
+    **Problem:** Parser cannot access the repository.
+
+    **Solution:**
+    - Verify the repository name uses `owner/repo` format (e.g., `"facebook/react"`)
+    - Ensure the repository is public or you have access
+    - Check if the repository exists and hasn't been deleted or moved
+    - For private repositories, ensure proper authentication
+  </Accordion>
+
+  <Accordion title="Branch doesn't exist">
+    **Problem:** The specified branch cannot be found.
+
+    **Solution:**
+    - Verify the branch name is correct (case-sensitive)
+    - Check that the branch exists in the repository
+    - Use the default branch name (usually "main" or "master") if unsure
+    - List available branches in your repository to confirm the name
+  </Accordion>
+
+  <Accordion title="Parsing takes too long">
+    **Problem:** Parsing doesn't complete within expected time.
+
+    **Solution:**
+    - Large repositories naturally take longer (10-30 minutes)
+    - Check parsing status regularly to monitor progress
+    - Very large monorepos may timeout — consider parsing specific directories
+    - Contact support if parsing exceeds 1 hour
+  </Accordion>
+
+  <Accordion title="Local path not working">
+    **Problem:** Using `repo_path` for local repositories fails.
+
+    **Solution:**
+    - Local repository parsing only works in development mode
+    - Production environments must use `repo_name` for remote repositories
+    - Use `repo_name` with `owner/repo` format for production deployments
+  </Accordion>
+</AccordionGroup>

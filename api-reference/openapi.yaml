@@ -1,0 +1,977 @@
+openapi: 3.1.0
+info:
+  title: Potpie API
+  description: |
+    Potpie is an AI-powered code intelligence platform that helps developers understand and interact with their codebase.
+
+    ## Authentication
+
+    Potpie API uses API key authentication for programmatic access.
+
+    ### API Key Authentication
+
+    Include your API key in the `x-api-key` header:
+
+    ```
+    x-api-key: <your_api_key>
+    x-user-id: <your_user_id>
+    ```
+
+    ## Rate Limiting
+
+    API requests are subject to rate limiting based on your subscription plan. When rate limited, you'll receive a `429 Too Many Requests` response.
+
+    ## Base URL
+
+    ```
+    Production: https://production-api.potpie.ai
+    Development: http://localhost:8000
+    ```
+
+  version: 1.0.0
+  contact:
+    name: Potpie Support
+    email: support@potpie.ai
+    url: https://potpie.ai
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://production-api.potpie.ai
+    description: Production server
+  - url: http://localhost:8000
+    description: Development server
+
+tags:
+  - name: Parsing
+    description: Code repository parsing and analysis endpoints
+  - name: Conversations
+    description: AI conversation management endpoints
+  - name: Projects
+    description: Project management endpoints
+  - name: Agents
+    description: AI agent configuration endpoints
+  - name: Search
+    description: Codebase search endpoints
+  - name: Integrations
+    description: Third-party integration management
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /api/v2/parsing-status:
+    post:
+      tags:
+        - Parsing
+      summary: Get Parsing Status By Repo
+      description: Get parsing status by repository name and optional commit/branch information
+      operationId: getParsingStatusByRepo
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingStatusRequest'
+            examples:
+              by_branch:
+                summary: Check by branch
+                value:
+                  repo_name: "facebook/react"
+                  branch_name: "main"
+              by_commit:
+                summary: Check by commit
+                value:
+                  repo_name: "facebook/react"
+                  commit_id: "abc123def456"
+      responses:
+        '200':
+          description: Parsing status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsingStatusResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/project/{project_id}/message/:
+    post:
+      tags:
+        - Conversations
+      summary: Create Conversation And Message
+      description: |
+        Convenience endpoint that creates a new conversation and sends a message in a single request.
+        Perfect for one-off queries or integrating Potpie into external tools.
+
+        **Use Cases:**
+        - Quick code questions without managing conversations
+        - Integration with CI/CD pipelines
+        - Chatbot integrations
+        - API-first workflows
+      operationId: createConversationAndMessage
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: ID of the project to query
+          schema:
+            type: string
+          example: "proj_01HQXYZ789ABCDEF"
+        - name: hidden
+          in: query
+          description: Whether to hide this conversation from the web UI
+          schema:
+            type: boolean
+            default: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectMessageRequest'
+            examples:
+              default_agent:
+                summary: Using default QnA agent
+                value:
+                  content: "Explain the database schema"
+                  node_ids: []
+              specific_agent:
+                summary: Using debugging agent
+                value:
+                  content: "Why is the login endpoint failing?"
+                  agent_id: "debugging_agent"
+                  node_ids: [{"node_id": "node_auth_123", "name": "AuthController"}]
+      responses:
+        '200':
+          description: Message processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/projects/list:
+    get:
+      tags:
+        - Projects
+      summary: List Projects (API Key)
+      description: Get a list of all projects using API key authentication
+      operationId: listProjectsV2
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/list-available-agents:
+    get:
+      tags:
+        - Agents
+      summary: List Available Agents (API Key)
+      description: Get a list of all available AI agents using API key authentication
+      operationId: listAvailableAgentsV2
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of agents retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentInfo'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/search:
+    post:
+      tags:
+        - Search
+      summary: Search Codebase (API Key)
+      description: Perform semantic search across your codebase using API key authentication
+      operationId: searchCodebaseV2
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v2/integrations/save:
+    post:
+      tags:
+        - Integrations
+      summary: Save Integration
+      description: |
+        Save a new integration configuration for third-party services like Sentry, Jira, Linear, etc.
+
+        **Supported Integrations:**
+        - Sentry: Error tracking and monitoring
+        - GitHub: Source code management
+        - Slack: Team communication
+        - Jira: Issue tracking
+        - Linear: Project management
+        - Confluence: Documentation
+
+        **Integration Flow:**
+        1. Create integration with minimal required fields
+        2. Optionally add OAuth tokens via `auth_data`
+        3. Configure scope-specific data (org, workspace, etc.)
+        4. Integration is activated automatically
+      operationId: saveIntegration
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationSaveRequest'
+            examples:
+              sentry_basic:
+                summary: Basic Sentry integration
+                value:
+                  name: "Production Sentry"
+                  integration_type: "sentry"
+                  status: "active"
+                  active: true
+                  metadata:
+                    instance_name: "Production Sentry"
+                    created_via: "api"
+              github_with_auth:
+                summary: GitHub with OAuth
+                value:
+                  name: "GitHub Enterprise"
+                  integration_type: "github"
+                  status: "active"
+                  active: true
+                  auth_data:
+                    access_token: "ghp_xxxxxxxxxxxx"
+                    token_type: "Bearer"
+                    scope: "repo,read:org"
+                  scope_data:
+                    org_slug: "my-company"
+                  metadata:
+                    instance_name: "GitHub Enterprise"
+                    created_via: "oauth_callback"
+      responses:
+        '200':
+          description: Integration saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationSaveResponse'
+              example:
+                success: true
+                data:
+                  integration_id: "int_01HQXYZ789ABCDEF"
+                  name: "Production Sentry"
+                  integration_type: "sentry"
+                  status: "active"
+                  active: true
+                  created_at: "2024-01-15T10:30:00Z"
+                error: null
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationSaveResponse'
+              example:
+                success: false
+                data: null
+                error: "Integration name is required"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationSaveResponse'
+              example:
+                success: false
+                data: null
+                error: "Failed to save integration: Database connection error"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: |
+        API key for programmatic access. Requires both `x-api-key` and `x-user-id` headers.
+
+        Example:
+        ```
+        x-api-key: your_api_key_here
+        x-user-id: your_user_id_here
+        ```
+
+  schemas:
+    ParsingRequest:
+      type: object
+      description: Request to parse a code repository
+      properties:
+        repo_name:
+          type: string
+          description: Repository name (e.g., "facebook/react" for GitHub)
+          example: "facebook/react"
+        repo_path:
+          type: string
+          description: Local filesystem path (alternative to repo_name)
+          example: "/Users/dev/projects/my-app"
+        branch_name:
+          type: string
+          description: Git branch name
+          example: "main"
+        commit_id:
+          type: string
+          description: Specific commit SHA to parse
+          example: "abc123def456789"
+      oneOf:
+        - required: [repo_name]
+        - required: [repo_path]
+
+    ParsingResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Parsing initiated successfully"
+        status:
+          type: string
+          enum: [submitted, processing]
+          example: "processing"
+        project_id:
+          type: string
+          description: Unique identifier for the created project
+          example: "proj_01HQXYZ789ABCDEF"
+      required:
+        - message
+        - status
+        - project_id
+
+    ParsingStatusRequest:
+      type: object
+      required:
+        - repo_name
+      properties:
+        repo_name:
+          type: string
+          description: Repository name to check status for
+          example: "facebook/react"
+        commit_id:
+          type: string
+          description: Commit ID to check status for
+          example: "abc123def456789"
+        branch_name:
+          type: string
+          description: Branch name (used if commit_id is not provided)
+          example: "main"
+
+    ParsingStatusResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+          example: "proj_01HQXYZ789ABCDEF"
+        status:
+          type: string
+          enum: [submitted, cloned, parsed, processing, ready, error]
+          example: "processing"
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Parsing progress percentage
+          example: 45
+        message:
+          type: string
+          description: Current parsing stage description
+          example: "Generating embeddings for code nodes"
+        error:
+          type: string
+          nullable: true
+          description: Error message if status is 'error'
+          example: null
+
+    CreateConversationRequest:
+      type: object
+      required:
+        - user_id
+        - title
+        - status
+        - project_ids
+        - agent_ids
+      properties:
+        user_id:
+          type: string
+          description: ID of the user creating the conversation
+          example: "user_01HQXYZ789"
+        title:
+          type: string
+          description: Conversation title
+          example: "Understanding React hooks"
+        status:
+          type: string
+          enum: [active, archived]
+          description: Conversation status
+          example: "active"
+        project_ids:
+          type: array
+          items:
+            type: string
+          description: List of project IDs to include in conversation
+          minItems: 1
+          example: ["proj_01HQXYZ789ABCDEF"]
+        agent_ids:
+          type: array
+          items:
+            type: string
+          description: List of agent IDs to use in conversation
+          minItems: 1
+          example: ["codebase_qna_agent"]
+
+    CreateConversationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Conversation created successfully"
+        conversation_id:
+          type: string
+          description: Unique identifier for the created conversation
+          example: "conv_01HQXYZ789ABCDEF"
+      required:
+        - message
+        - conversation_id
+
+    ConversationListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "conv_01HQXYZ789ABCDEF"
+        title:
+          type: string
+          example: "Understanding React hooks"
+        status:
+          type: string
+          enum: [active, archived]
+          example: "active"
+        project_ids:
+          type: array
+          items:
+            type: string
+          example: ["proj_01HQXYZ789ABCDEF"]
+        agent_ids:
+          type: array
+          items:
+            type: string
+          example: ["codebase_qna_agent"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T14:25:00Z"
+        total_messages:
+          type: integer
+          example: 12
+
+    MessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: Message content to send to the agent
+          minLength: 1
+          example: "How does the authentication system work?"
+        node_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeContext'
+          description: Optional list of code nodes to reference
+          nullable: true
+        attachment_ids:
+          type: array
+          items:
+            type: string
+          description: Optional list of attachment IDs
+          nullable: true
+
+    DirectMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: Message content
+          minLength: 1
+          example: "Explain the database schema"
+        node_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeContext'
+          nullable: true
+        agent_id:
+          type: string
+          nullable: true
+          description: Specific agent to use (defaults to codebase_qna_agent)
+          example: "debugging_agent"
+        attachment_ids:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    NodeContext:
+      type: object
+      required:
+        - node_id
+        - name
+      properties:
+        node_id:
+          type: string
+          description: Unique identifier of the code node
+          example: "node_auth_123"
+        name:
+          type: string
+          description: Name of the code element (function, class, etc.)
+          example: "AuthService"
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "msg_01HQXYZ789ABCDEF"
+        conversation_id:
+          type: string
+          example: "conv_01HQXYZ789ABCDEF"
+        content:
+          type: string
+          example: "The authentication system uses JWT tokens..."
+        sender_id:
+          type: string
+          nullable: true
+          description: User ID if human message, null for AI messages
+        type:
+          type: string
+          enum: [human, ai, system]
+          example: "ai"
+        reason:
+          type: string
+          nullable: true
+          description: Reasoning or explanation for the response
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:35:00Z"
+        status:
+          type: string
+          enum: [pending, ready, error]
+          example: "ready"
+        citations:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Source code citations
+        has_attachments:
+          type: boolean
+          example: false
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentInfo'
+          nullable: true
+
+    StreamingMessageResponse:
+      type: object
+      description: Server-Sent Event stream format
+      properties:
+        type:
+          type: string
+          enum: [token, citation, tool_call, done, error]
+          description: Type of streaming event
+        content:
+          type: string
+          description: Content for token events
+        data:
+          type: object
+          description: Additional data for specific event types
+        message_id:
+          type: string
+          description: Final message ID in done event
+
+    AttachmentInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "att_01HQXYZ789ABCDEF"
+        file_name:
+          type: string
+          example: "screenshot.png"
+        mime_type:
+          type: string
+          example: "image/png"
+        file_size:
+          type: integer
+          example: 245678
+        download_url:
+          type: string
+          nullable: true
+          example: "https://storage.potpie.ai/attachments/..."
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique project identifier
+          example: "proj_01HQXYZ789ABCDEF"
+        repo_name:
+          type: string
+          description: Repository name
+          example: "facebook/react"
+        repo_path:
+          type: string
+          nullable: true
+          description: Local filesystem path if applicable
+        branch_name:
+          type: string
+          description: Git branch name
+          example: "main"
+        commit_id:
+          type: string
+          nullable: true
+          description: Specific commit SHA
+        status:
+          type: string
+          enum: [submitted, cloned, parsed, ready, error]
+          description: Current project status
+          example: "ready"
+        user_id:
+          type: string
+          description: Owner user ID
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:45:00Z"
+        is_deleted:
+          type: boolean
+          example: false
+
+    AgentInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique agent identifier
+          example: "codebase_qna_agent"
+        name:
+          type: string
+          description: Human-readable agent name
+          example: "Codebase Q&A Agent"
+        description:
+          type: string
+          description: Agent capabilities and use cases
+          example: "An agent specialized in answering questions about the codebase using the knowledge graph and code analysis tools"
+        status:
+          type: string
+          enum: [active, inactive]
+          example: "active"
+        visibility:
+          type: string
+          enum: [public, private]
+          nullable: true
+          description: Public for system agents, private for custom agents
+          example: "public"
+
+    SearchRequest:
+      type: object
+      required:
+        - project_id
+        - query
+      properties:
+        project_id:
+          type: string
+          description: Project ID to search within
+          example: "proj_01HQXYZ789ABCDEF"
+        query:
+          type: string
+          description: Natural language search query
+          minLength: 1
+          example: "authentication middleware"
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+
+    SearchResult:
+      type: object
+      properties:
+        node_id:
+          type: string
+          description: Unique identifier of the code node
+          example: "node_auth_123"
+        name:
+          type: string
+          description: Name of the code element
+          example: "authenticate_user"
+        file_path:
+          type: string
+          description: Relative path to the file
+          example: "src/auth/middleware.py"
+        content:
+          type: string
+          description: Code snippet or content
+          example: "def authenticate_user(token: str) -> User:\\n    ..."
+        match_type:
+          type: string
+          description: Type of match (semantic, exact, fuzzy)
+          example: "semantic"
+        relevance:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Relevance score (0-1)
+          example: 0.95
+
+    IntegrationSaveRequest:
+      type: object
+      required:
+        - name
+        - integration_type
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Integration name
+          example: "Production Sentry"
+        integration_type:
+          type: string
+          enum: [sentry, github, slack, jira, linear, confluence]
+          description: Type of integration
+          example: "sentry"
+        status:
+          type: string
+          enum: [active, inactive, pending, error]
+          default: active
+          description: Integration status
+        active:
+          type: boolean
+          default: true
+          description: Whether integration is active
+        auth_data:
+          $ref: '#/components/schemas/AuthData'
+        scope_data:
+          $ref: '#/components/schemas/ScopeData'
+        metadata:
+          $ref: '#/components/schemas/IntegrationMetadata'
+        unique_identifier:
+          type: string
+          nullable: true
+          description: Unique identifier (auto-generated if not provided)
+
+    AuthData:
+      type: object
+      properties:
+        access_token:
+          type: string
+          nullable: true
+          description: OAuth access token
+        refresh_token:
+          type: string
+          nullable: true
+          description: OAuth refresh token
+        token_type:
+          type: string
+          default: "Bearer"
+          description: Token type
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Token expiration time
+        scope:
+          type: string
+          nullable: true
+          description: OAuth scope
+        code:
+          type: string
+          nullable: true
+          description: OAuth authorization code
+
+    ScopeData:
+      type: object
+      properties:
+        org_slug:
+          type: string
+          nullable: true
+          description: Organization slug
+        installation_id:
+          type: string
+          nullable: true
+          description: Installation ID
+        workspace_id:
+          type: string
+          nullable: true
+          description: Workspace ID
+        project_id:
+          type: string
+          nullable: true
+          description: Project ID
+
+    IntegrationMetadata:
+      type: object
+      required:
+        - instance_name
+      properties:
+        instance_name:
+          type: string
+          description: User-defined name for this integration
+          example: "Production Sentry"
+        created_via:
+          type: string
+          default: "manual"
+          description: How the integration was created
+          example: "oauth_callback"
+        version:
+          type: string
+          nullable: true
+          description: Integration version
+        description:
+          type: string
+          nullable: true
+          description: Integration description
+        tags:
+          type: array
+          items:
+            type: string
+          default: []
+          description: Integration tags
+
+    IntegrationSaveResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation was successful
+          example: true
+        data:
+          type: object
+          nullable: true
+          description: Integration data if successful
+        error:
+          type: string
+          nullable: true
+          description: Error message if operation failed
+      required:
+        - success
+
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Invalid request parameters"
+
+  responses:
+    UnauthorizedError:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            detail: "API key is required"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            detail: "An unexpected error occurred"

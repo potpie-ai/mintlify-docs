@@ -1,37 +1,40 @@
 ---
-title: 'Introduction'
-description: 'What are Potpie custom agents?'
+title: 'Custom Agents'
 ---
 
-## Introduction
+**Custom agents** are purpose-built with a defined **role**, **goal**, and **task** set. Each agent runs against the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> and tool library as the built-in agents, scoped to a specific, repeatable workflow.
 
-### What are agents?
+## Agent types
 
-In the realm of LLMs, agents are autonomous entities designed to execute tasks, retrieve pertinent information, and make informed decisions based on the data at hand. These agents are capable of undertaking operations that necessitate advanced reasoning and decision-making capabilities.
-They perform tasks by "reasoning" using LLMs and leveraging "tools" that are provided to them.
+| Type | Access |
+|---|---|
+| Private | Accessible only to the creator. Use for personal workflows and agents under active development. |
+| Shared | Accessible to specific team members granted access by email. Collaborators can execute the agent but cannot modify its configuration. |
+| Public | Accessible to all members of the organization. Discoverable in the agent library for standardized, reusable workflows. |
 
-### What are custom agents?
+## Agent definition
 
-Potpie custom agents are a powerful way to perform repeatable tasks on your codebase which require precise context, reasoning and decision making. They are used to perform tasks and retrieve information that are not supported by the default Potpie agents. 
-Potpie's custom agents are powered by [CrewAI](https://github.com/crewaiinc/crewai). 
+Every custom agent specifies four attributes:
 
-Sample use cases include:
-- Analyzing code to suggest optimizations and improvements
-- Automatically generating boilerplate code for new features
-- Conducting code reviews and providing feedback on best practices
-- Extracting and summarizing documentation from code comments
-- Identifying and reporting security vulnerabilities in the codebase
-- Refactoring code to enhance readability and maintainability
-- Creating unit tests based on existing code logic
-- Assisting in migration of code to newer frameworks or libraries
+- **Role:** The professional function the agent adopts, such as `"Senior Python Developer"` or `"Security Auditor"`. This shapes how the agent frames its analysis.
+- **Goal:** The primary objective, defined with specific, measurable outcomes, such as `"Identify SQL injection vulnerabilities across all database query constructions"`.
+- **Backstory:** Professional context that informs decision-making. Include relevant methodology, standards, or principles the agent applies.
+- **System Prompt:** High-level instructions that control execution behavior: output format, edge case handling, and quality standards.
 
+## Task configuration
 
-## Building Blocks of Custom Agents:
+Each agent contains between one and five tasks. A task defines a discrete action and consists of three components:
 
+1. **Description:** A clear statement of what the task accomplishes, focused on outcomes. The system automatically enhances descriptions with step-by-step reasoning to improve execution quality.
+2. **Tools:** An array of tool IDs the agent can use. Each task requires at least one tool, selected from the <a href="/agents/tools-reference" className="mode-link">library of 70+ options</a>.
+3. **Expected Output:** A JSON object specifying the format and structure of the result.
 
-| **Attribute**        | **Description**                                                                 |
-|---------------------------|---------------------------------------------------------------------------------|
-| **System Instructions**   | This is the set of instructions that the agent will follow to perform a task. It includes details like the goal of the task, the output format, and other relevant guidelines to be provided to the agent. |
-| **Agent Info**            | This is the information about the agent that is used to perform the task. It includes details like the name of the agent, the role of the agent, and backstory for the agent. |
-| **Tasks**                 | Tasks outline the steps that the agent will take to perform the task. An agent can have multiple tasks associated with it. |
-| **Tools**                 | Tools are mapped to tasks and are used to perform actions that are necessary to complete the task. They are functions with specific purposes.|
+## Execution
+
+<img src="/images/custom-agent-list.png" alt="Custom Agents List" />
+
+Potpie runs each task in sequence using the configured tools and streams the result with file and line citations. Complex queries requiring synthesis across multiple files trigger **multiagent mode** automatically. A **supervisor agent** coordinates the work and delegates to specialized subagents.
+
+## Agent generation
+
+Generate a custom agent from a natural language description. The system infers an appropriate **role**, **goal**, **backstory**, and task breakdown, and recommends tools matched to the described workflow. The agent executes immediately and accepts refinements through subsequent attribute updates.

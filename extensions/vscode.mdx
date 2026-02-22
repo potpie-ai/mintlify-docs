@@ -1,0 +1,113 @@
+---
+title: "VS Code Integration"
+---
+
+Potpie AI brings intelligent codebase understanding and AI agents directly into Visual Studio Code. Chat with AI agents that understand your code, execute code changes, and get instant answers without leaving your editor.
+
+
+## Installation
+
+### From VS Code Marketplace
+
+1. Open Visual Studio Code
+2. Navigate to the Extensions view (`Ctrl+Shift+X` on Windows/Linux, `Cmd+Shift+X` on Mac)
+3. Search for "Potpie AI"
+4. Click **Install**
+
+### From VSIX File
+
+If you have a `.vsix` file:
+
+1. Open VS Code
+2. Go to Extensions view
+3. Click the `...` menu → **Install from VSIX...**
+4. Select the `potpie-vscode-extension.vsix` file
+
+**Command Line Installation:**
+```bash
+code --install-extension potpie-vscode-extension.vsix
+```
+
+## Requirements
+
+- **VS Code Version:** 1.80.0 or higher
+- **Potpie Account:** Active account with API access
+
+## Commands
+
+The extension provides the following commands accessible via the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
+
+| Command | Description | Keybinding |
+|---------|-------------|------------|
+| **Potpie: Focus Potpie Chat** | Open and focus the Potpie chat panel | `Ctrl+Shift+L` / `Cmd+Shift+L` |
+| **Potpie: New Chat** | Start a new conversation | - |
+| **Potpie: Open Potpie Chat Panel** | Open the chat in a separate panel | - |
+| **Potpie: Open Sign-In in External Browser** | Launch authentication in your default browser | - |
+| **Potpie: Logout** | Sign out of your Potpie account | - |
+| **Potpie: Retry Tunnel Setup** | Restart the tunnel connection | - |
+| **Potpie: Clear Terminal Command Allowlist** | Reset approved terminal commands | - |
+| **Potpie: Clear Potpie Cache** | Clear local extension cache | - |
+| **Potpie: Fix in Potpie Chat** | Send code context to chat for fixing | - |
+
+
+## Getting Started
+
+### 1. Sign In
+
+After installing the extension:
+
+1. Click the Potpie icon in the Activity Bar (sidebar)
+2. Click **Sign In** in the chat panel
+3. Your default browser opens to the Potpie authentication page
+4. Complete the sign-in process
+5. Return to VS Code. You're now authenticated
+
+The extension maintains your session across VS Code restarts.
+
+### 2. Select a Project
+
+1. Open a workspace that corresponds to a parsed Potpie project
+2. The extension automatically detects the repository
+3. If you have multiple projects, select one from the chat interface
+
+### 3. Start Chatting
+
+1. Use the keyboard shortcut `Ctrl+Shift+L` / `Cmd+Shift+L` to focus the chat
+2. Type your question or request in the input box
+3. The AI agent analyzes your codebase and responds
+4. Continue the conversation naturally
+
+**Example Questions:**
+- "Where is user authentication implemented?"
+- "Explain how the database connection works"
+- "Add error handling to the login function"
+- "Show me all API endpoints in this project"
+
+## Tunnel Connection
+
+The extension establishes a secure tunnel between your local VS Code and Potpie's cloud infrastructure.
+
+### How It Works
+
+1. **Local Server:** Runs on port 8010 (configurable) to handle file operations
+2. **Tunnel Process:** Creates a secure connection to Potpie's cloud
+3. **Registration:** Registers your workspace (repository + branch) with the backend
+4. **Execution:** Cloud agents can request local operations through the tunnel
+
+### Connection Status
+
+The status bar shows your tunnel connection state:
+
+- 🔴 **Blinking Red Dot + "Connecting..."**: Tunnel is establishing
+- 🟢 **Solid Green Dot + "Online"**: Tunnel is active and registered
+- ⚪ **Gray/Hidden**: Not applicable (not signed in or tunnel disabled)
+
+### Manual Restart
+
+If the tunnel disconnects:
+
+1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Run **Potpie: Retry Tunnel Setup**
+3. Wait for the green "Online" indicator
+
+

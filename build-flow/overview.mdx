@@ -1,0 +1,140 @@
+---
+title: 'Overview'
+---
+
+**Ask**, **Build**, and **Debug** each operate on the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, a structured map of every component, dependency, and relationship across the codebase.
+
+| Mode | Use when |
+|---|---|
+| <a href="/build-flow/ask-a-question" className="mode-link">Ask</a> | Use when a question about the codebase needs an answer, whether that is how a flow operates, where something is implemented, or what depends on a given component |
+| <a href="/build-flow/build-a-feature" className="mode-link">Build</a> | A feature, endpoint, or modification needs to be implemented with full awareness of existing patterns and dependencies |
+| <a href="/build-flow/debug-an-issue" className="mode-link">Debug</a> | A reported issue, exception, or unexpected behavior needs to be traced from where it surfaces to where it originates |
+
+## How they fit together
+
+**Ask**, **Build**, and **Debug** operate on the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>. Using **Ask** first surfaces the relevant components and their relationships, narrowing what **Build** needs to generate or what **Debug** needs to trace.
+
+## Agent tool mapping
+
+<div style={{border: '1px solid #374151', borderRadius: '8px', padding: '24px'}}>
+<Tabs>
+  <Tab title="Ask Agent">
+    **21 Tools Total**
+
+    <AccordionGroup>
+      <Accordion title="Knowledge Graph Tools (10)" icon="sitemap">
+        - <a href="/agents/tools-reference#semantic-search" className="mode-link">Semantic Search</a>
+        - <a href="/agents/tools-reference#fuzzy-lookup" className="mode-link">Fuzzy Lookup</a>
+        - <a href="/agents/tools-reference#exact-lookup" className="mode-link">Exact Lookup</a>
+        - <a href="/agents/tools-reference#node-fetch" className="mode-link">Node Fetch</a>
+        - <a href="/agents/tools-reference#bulk-fetch" className="mode-link">Bulk Fetch</a>
+        - <a href="/agents/tools-reference#tag-filter" className="mode-link">Tag Filter</a>
+        - <a href="/agents/tools-reference#graph-by-id" className="mode-link">Graph by ID</a>
+        - <a href="/agents/tools-reference#graph-by-name" className="mode-link">Graph by Name</a>
+        - <a href="/agents/tools-reference#node-neighbors" className="mode-link">Node Neighbors</a>
+        - <a href="/agents/tools-reference#smart-graph" className="mode-link">Smart Graph</a>
+      </Accordion>
+      <Accordion title="Code Query Tools (3)" icon="file-code">
+        - <a href="/agents/tools-reference#file-structure" className="mode-link">File Structure</a>
+        - <a href="/agents/tools-reference#fetch-file" className="mode-link">Fetch File</a>
+        - <a href="/agents/tools-reference#code-analysis" className="mode-link">Code Analysis</a>
+      </Accordion>
+      <Accordion title="Web Tools (2)" icon="globe">
+        - <a href="/agents/tools-reference#web-search" className="mode-link">Web Search</a>
+        - <a href="/agents/tools-reference#page-extractor" className="mode-link">Page Extractor</a>
+      </Accordion>
+      <Accordion title="Task Management Tools (6)" icon="list-check">
+        - <a href="/agents/tools-reference#create-todo" className="mode-link">Create Todo</a>
+        - <a href="/agents/tools-reference#update-status" className="mode-link">Update Status</a>
+        - <a href="/agents/tools-reference#get-todo" className="mode-link">Get Todo</a>
+        - <a href="/agents/tools-reference#list-todos" className="mode-link">List Todos</a>
+        - <a href="/agents/tools-reference#add-note" className="mode-link">Add Note</a>
+        - <a href="/agents/tools-reference#todo-summary" className="mode-link">Todo Summary</a>
+      </Accordion>
+      <Accordion title="Requirement Tools (2)" icon="clipboard-list">
+        - <a href="/agents/tools-reference#add-requirements" className="mode-link">Add Requirements</a>
+        - <a href="/agents/tools-reference#get-requirements" className="mode-link">Get Requirements</a>
+      </Accordion>
+      <Accordion title="Execution Tools (1)" icon="terminal">
+        - <a href="/agents/tools-reference#shell-command" className="mode-link">Shell Command</a> *(available when repo manager is enabled)*
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+
+  <Tab title="Code Agent">
+    **40 Tools Total**
+
+    <AccordionGroup>
+      <Accordion title="All Ask Agent Tools (21)" icon="sitemap">
+        The Code Agent includes all 21 tools from the Ask Agent, plus the 18 exclusive Code Changes Management tools and 1 additional requirement tool listed below. <a href="/build-flow/overview#ask-agent" className="mode-link">View Ask Agent tools →</a>
+      </Accordion>
+      <Accordion title="Code Changes Management (18)" icon="code-compare">
+        - <a href="/agents/tools-reference#add-file" className="mode-link">Add File</a>
+        - <a href="/agents/tools-reference#update-file" className="mode-link">Update File</a>
+        - <a href="/agents/tools-reference#delete-file" className="mode-link">Delete File</a>
+        - <a href="/agents/tools-reference#update-lines" className="mode-link">Update Lines</a>
+        - <a href="/agents/tools-reference#find-replace" className="mode-link">Find Replace</a>
+        - <a href="/agents/tools-reference#insert-lines" className="mode-link">Insert Lines</a>
+        - <a href="/agents/tools-reference#delete-lines" className="mode-link">Delete Lines</a>
+        - <a href="/agents/tools-reference#get-file" className="mode-link">Get File</a>
+        - <a href="/agents/tools-reference#list-files" className="mode-link">List Files</a>
+        - <a href="/agents/tools-reference#search-changes" className="mode-link">Search Changes</a>
+        - <a href="/agents/tools-reference#revert-file" className="mode-link">Revert File</a>
+        - <a href="/agents/tools-reference#clear-session" className="mode-link">Clear Session</a>
+        - <a href="/agents/tools-reference#changes-summary" className="mode-link">Changes Summary</a>
+        - <a href="/agents/tools-reference#export-changes" className="mode-link">Export Changes</a>
+        - <a href="/agents/tools-reference#preview-file" className="mode-link">Preview File</a>
+        - <a href="/agents/tools-reference#show-diff" className="mode-link">Show Diff</a>
+        - <a href="/agents/tools-reference#file-diff" className="mode-link">File Diff</a>
+        - <a href="/agents/tools-reference#session-info" className="mode-link">Session Info</a>
+      </Accordion>
+      <Accordion title="Additional Requirement Tool (1)" icon="list">
+        - <a href="/agents/tools-reference#delete-requirements" className="mode-link">Delete Requirements</a>, available exclusively to the Code Agent.
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+
+  <Tab title="Debug Agent">
+    **21 Tools Total**
+
+    <AccordionGroup>
+      <Accordion title="Knowledge Graph Tools (10)" icon="sitemap">
+        - <a href="/agents/tools-reference#semantic-search" className="mode-link">Semantic Search</a>
+        - <a href="/agents/tools-reference#fuzzy-lookup" className="mode-link">Fuzzy Lookup</a>
+        - <a href="/agents/tools-reference#exact-lookup" className="mode-link">Exact Lookup</a>
+        - <a href="/agents/tools-reference#node-fetch" className="mode-link">Node Fetch</a>
+        - <a href="/agents/tools-reference#bulk-fetch" className="mode-link">Bulk Fetch</a>
+        - <a href="/agents/tools-reference#tag-filter" className="mode-link">Tag Filter</a>
+        - <a href="/agents/tools-reference#graph-by-id" className="mode-link">Graph by ID</a>
+        - <a href="/agents/tools-reference#graph-by-name" className="mode-link">Graph by Name</a>
+        - <a href="/agents/tools-reference#node-neighbors" className="mode-link">Node Neighbors</a>
+        - <a href="/agents/tools-reference#smart-graph" className="mode-link">Smart Graph</a>
+      </Accordion>
+      <Accordion title="Code Query Tools (3)" icon="file-code">
+        - <a href="/agents/tools-reference#file-structure" className="mode-link">File Structure</a>
+        - <a href="/agents/tools-reference#fetch-file" className="mode-link">Fetch File</a>
+        - <a href="/agents/tools-reference#code-analysis" className="mode-link">Code Analysis</a>
+      </Accordion>
+      <Accordion title="Web Tools (2)" icon="globe">
+        - <a href="/agents/tools-reference#web-search" className="mode-link">Web Search</a>
+        - <a href="/agents/tools-reference#page-extractor" className="mode-link">Page Extractor</a>
+      </Accordion>
+      <Accordion title="Task Management Tools (6)" icon="list-check">
+        - <a href="/agents/tools-reference#create-todo" className="mode-link">Create Todo</a>
+        - <a href="/agents/tools-reference#update-status" className="mode-link">Update Status</a>
+        - <a href="/agents/tools-reference#get-todo" className="mode-link">Get Todo</a>
+        - <a href="/agents/tools-reference#list-todos" className="mode-link">List Todos</a>
+        - <a href="/agents/tools-reference#add-note" className="mode-link">Add Note</a>
+        - <a href="/agents/tools-reference#todo-summary" className="mode-link">Todo Summary</a>
+      </Accordion>
+      <Accordion title="Requirement Tools (2)" icon="clipboard-list">
+        - <a href="/agents/tools-reference#add-requirements" className="mode-link">Add Requirements</a>
+        - <a href="/agents/tools-reference#get-requirements" className="mode-link">Get Requirements</a>
+      </Accordion>
+      <Accordion title="Execution Tools (1)" icon="terminal">
+        - <a href="/agents/tools-reference#shell-command" className="mode-link">Shell Command</a> *(available when repo manager is enabled)*
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+</Tabs>
+</div>

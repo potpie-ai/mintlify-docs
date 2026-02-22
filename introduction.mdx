@@ -1,84 +1,44 @@
 ---
-title: Introduction
-description: 'Welcome to Potpie!'
+title: Potpie
+sidebarTitle: Overview
+description: 'AI agents that understand your codebase'
+mode: 'wide'
 ---
+
+Potpie allows you to perform **Spec Driven Development**, on large messy codebases. Our proprietary <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> allows our agents to understand the users context in much great detail required to perform complex **multi-hop reasoning** required for debugging, refactoring, etc
+
+<Card
+  title="Get started"
+  icon="rocket"
+  href="https://app.potpie.ai/sign-in"
+>
+  Set up your account and connect your first repository in minutes.
+</Card>
 
 <img
   className="block dark:hidden"
-  src="/images/homepage.png"
-  alt="Homepage"
+  src="/images/website.png"
+  alt="Potpie"
 />
 <img
   className="hidden dark:block"
-  src="/images/homepage.png"
-  alt="Homepage"
+  src="/images/website.png"
+  alt="Potpie"
 />
 
-## What is Potpie?
-
-Build AI agents for your codebase in minuites. 
-
-Potpie deeply understands your codebase by breaking down your code into its constituting parts and building a knowledge graph out of your code's components. 
-We generate inferences at every level of your codebase so that we can comprehensively answer questions about your codebase. 
-
-Potpie provides purpose built agents that are expert on your codebase to perform engineering tasks for you, and also provides the platform for you to build your own custom agents using tools that interface with the knowledge graph.
 
 
-<CardGroup cols={2}>
-  <Card
-    title="Expert agents for your codebase"
-    icon="comment-dots"
-    href="https://app.potpie.ai"
-  >
-    Use our pre-built agents to answer questions, generate test plans, and more
+
+## Example Uses
+
+<CardGroup cols={3}>
+  <Card title="Impact Analysis" href="/examples/impact-analysis">
+    Understand what breaks before modifying a core service.
   </Card>
-  <Card
-    title="Custom Agents"
-    icon="screwdriver-wrench"
-    href="https://app.potpie.ai"
-  >
-    Build your own agents to automate your workflows
+  <Card title="Code Migration" href="/examples/code-migration">
+    Migrate a module to a new pattern without breaking dependent services.
   </Card>
-</CardGroup>
-
-## Purpose built agents
-
-We provide purpose built agents that are expert on your codebase to perform engineering tasks for you.
-
-<CardGroup cols={2}>
-  <Card
-    title="QnA Agent"
-    icon="question"
-    href="/agents/qna-agent"
-  >
-    Answer questions about your codebase
-  </Card>
-    <Card
-    title="Debugging Agent"
-    icon="bug"
-    href="/agents/debugging-agent"
-  >
-    Debug errors in your codebase iteratively
-  </Card>
-  <Card
-    title="Integration Test Agent"
-    icon="magnifying-glass"
-    href="/agents/integration-test-agent"
-  >
-    Automatically generate integration test plans for your codebase
-  </Card>
-  <Card
-    title="Unit Test Agent"
-    icon="square-check"
-    href="/agents/unit-test-agent"
-  >
-    Automatically generate unit test plans for your codebase
-  </Card>
-  <Card
-    title="Code Changes Agent"
-    icon="code-compare"
-    href="/agents/code-changes-agent"
-  >
-    Automatically generate code changes for your codebase
+  <Card title="Race Conditions" href="/examples/race-conditions">
+    Trace and fix race conditions causing unexpected behaviour in production.
   </Card>
 </CardGroup>

@@ -1,0 +1,20 @@
+/* Custom navigation highlight style */
+nav a[aria-current="page"],
+nav a.active,
+.navigation-link[aria-current="page"],
+.nav-link-active {
+  background-color: rgba(182, 227, 67, 0.15) !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin: 2px 0 !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure the highlight box shows on the current page */
+[data-active="true"] {
+  background-color: rgba(182, 227, 67, 0.15) !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin: 2px 0 !important;
+  font-weight: 600 !important;
+}

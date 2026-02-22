@@ -1,0 +1,28 @@
+---
+title: 'Race Conditions'
+description: 'Trace and fix race conditions causing intermittent failures in production.'
+---
+
+Race conditions leave intermittent, hard to reproduce failures in production. The stack trace shows where the failure surfaces, while the unsafe shared state originates elsewhere.
+
+**Debug** walks the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> through every concurrent code path involved in the failure, identifies the exact timing window where state is shared unsafely, and returns a targeted fix pinpointing the precise file and line that needs a guard.
+
+**Issue:**
+```
+Orders occasionally duplicate during checkout. Only happens under load.
+```
+
+**Potpie traces:**
+1. The checkout controller and how it handles concurrent requests
+2. The order creation service and how it manages shared state
+3. The point where two concurrent requests write to the same record without a lock
+
+**Root cause citation:**
+- Exact file and line where the missing lock allows concurrent writes
+- The shared resource receiving unsynchronized concurrent writes
+
+**Fix includes:**
+- Lock or atomic operation at the correct layer with the minimal change required
+- Verification across all shared resources for the same exposure pattern
+
+<a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> generates the corrected code as a reviewable **diff**.

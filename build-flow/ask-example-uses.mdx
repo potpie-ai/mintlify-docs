@@ -1,0 +1,25 @@
+---
+title: 'Example Uses'
+---
+
+Two questions every engineer asks when joining or extending a codebase.
+
+## Pattern Check
+
+Ask how a pattern is applied across the repository to find where it holds and where it breaks.
+
+```text
+How is error handling implemented across all API routes?
+Where is the repository pattern used and where is it bypassed?
+Which services follow the event-driven pattern and which call each other directly?
+```
+
+## Duplication Scan
+
+Ask before building to find existing implementations and avoid writing logic that already exists.
+
+```text
+Is there existing logic for rate limiting before I write my own?
+Where else is email validation implemented in this codebase?
+Find all places that parse JWT tokens.
+```
