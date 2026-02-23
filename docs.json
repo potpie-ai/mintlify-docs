@@ -8,7 +8,9 @@
     "dark": "#B6E343"
   },
   "favicon": "/favicon.png",
-  "customCSS": ["/styles/custom.css"],
+  "customCSS": [
+    "/styles/custom.css"
+  ],
   "openapi": "/api-reference/openapi.json",
   "api": {
     "baseUrl": "https://production-api.potpie.ai",
@@ -54,7 +56,8 @@
             "pages": [
               "build-flow/forge",
               "build-flow/specialists",
-              "build-flow/recipe"
+              "build-flow/recipe",
+              "build-flow/trace"
             ]
           },
           {
@@ -128,7 +131,6 @@
       }
     ],
     "global": {}
-
   },
   "feedback": {
     "thumbsRating": true
