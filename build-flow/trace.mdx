@@ -1,0 +1,30 @@
+---
+title: 'Trace'
+---
+
+**Trace** is Potpie's incident investigation agent. It uses your <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> as the structural model of **expected system behavior** and investigates failures against that model.
+
+When a failure surfaces, Trace uses the encoded structure of your codebase to **define the investigative scope** immediately, rather than reconstructing it through manual exploration.
+
+## What Trace does
+
+| | |
+|---|---|
+| **Call graph traversal** | The **call graph** is traversed from the affected service outward. Every upstream caller and downstream dependency is mapped before a single log is read. |
+| **Contract validation** | Live requests are validated against `API` and `schema` contracts defined in code. A changed response shape or a silently diverged API surfaces as a `contract violation` with the affected path. |
+| **Historical baseline** | Current deployment state is compared against baselines derived from the codebase. Structural drift and dependency regressions surface as deviations from a last stable state. |
+| **Configuration mapping** | Configuration changes are mapped to every service they affect and traced through the dependency graph. A routing rule, a timeout, an autoscaling policy. The scope is defined before you open a dashboard. |
+| **Log analysis** | Provide a log snippet or file. Trace cross-references it against the knowledge graph and constrains the relevant entries to the `call paths` and services already in scope. |
+
+Together, these steps estimate **blast radius** before a fix is applied. This eliminates what teams call the **grep tax**, the cumulative time spent searching across repositories, log stores, and dashboards to rebuild context during an incident.
+
+When a latency spike appears in a service, Trace evaluates `contract compliance`, `dependency health`, scaling policies, and recent diffs in a single view. Deviations surface as `contract violations`, `dependency regressions`, or `invalid execution paths`, expressed in terms of impact and causality. Teams move directly from detection to remediation.
+
+
+## Hypothesis tree
+
+When logs do not establish causality, Trace shifts to structured hypothesis exploration. Instead of following one theory, it builds a **branching investigation tree** where each node is a concrete, testable hypothesis. A `configuration regression`, a `contract mismatch`, a `scaling miscalibration`, a `downstream latency shift`. Using historical baselines, Trace prioritizes promising branches, allocates effort accordingly, and eliminates weak paths early.
+
+## Get Access
+
+Trace is part of Potpie's enterprise offering. <a href="https://potpie.ai/enterprise" className="mode-link">Reach out</a> to learn more or explore the full set of <a href="/build-flow/specialists" className="mode-link">specialist agents</a>.
