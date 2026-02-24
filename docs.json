@@ -65,6 +65,14 @@
             "pages": [
               "agents/api-access",
               {
+                "group": "Pre-built Agents",
+                "pages": [
+                  "pre-built-agents/codebase-qna-agent",
+                  "pre-built-agents/codegen-agent",
+                  "pre-built-agents/debugging-agent"
+                ]
+              },
+              {
                 "group": "Custom Agents",
                 "pages": [
                   "custom-agents/introduction",

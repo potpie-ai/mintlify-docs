@@ -1,0 +1,176 @@
+---
+title: 'CodeGen Agent'
+description: 'Generate production-ready code modifications with diff views and comprehensive dependency analysis.'
+---
+
+The CodeGen Agent generates production-ready code modifications through systematic codebase analysis. It tracks changes using a session-based system, provides diff views for review, and can push changes directly to your repository via pull request.
+
+<CardGroup cols={2}>
+  <Card title="Session-Based Changes" icon="layer-group" href="#api-overview">
+    Redis-backed tracking across multiple files
+  </Card>
+  <Card title="Diff Views" icon="code-compare" href="#reviewing-changes">
+    Review exact changes before applying
+  </Card>
+  <Card title="Multi-Agent Mode" icon="users" href="#how-it-works">
+    Code Implementation sub-agent (20 iterations)
+  </Card>
+  <Card title="PR Creation" icon="code-branch" href="#reviewing-changes">
+    Push changes directly to your repository
+  </Card>
+</CardGroup>
+
+## Overview
+
+The CodeGen Agent takes your natural language request and generates the necessary code across all relevant files. It analyzes your existing patterns, matches your project's style, and tracks all changes in a reviewable session before anything is applied.
+
+Use it to:
+- Add new features and endpoints
+- Modify existing code with style-matched changes
+- Fix bugs with root cause explanations
+- Refactor code while preserving functionality
+
+## API Overview
+
+**Authentication:** Bearer token required
+
+### Create a Conversation
+
+```bash cURL
+curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_123",
+    "title": "Add user profile endpoint",
+    "status": "active",
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["code_generation_agent"]
+  }'
+```
+
+### Send a Code Request
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Add a GET /api/users/:id endpoint that returns user details"
+```
+
+### Request Format
+
+```typescript
+// Conversation creation
+{
+  user_id: string
+  title: string
+  status: "active"
+  project_ids: string[]
+  agent_ids: ["code_generation_agent"]
+}
+
+// Message (Form data — multipart/form-data)
+{
+  content: string            // Your code modification request
+  node_ids?: string          // Optional: JSON string of NodeContext[]
+}
+```
+
+### Response Format
+
+```typescript
+{
+  response: string           // Markdown explanation of changes made
+  tool_calls: ToolCall[]     // Tools used during generation
+  citations: string[]        // Files referenced during generation
+}
+```
+
+## How It Works
+
+1. **Context Enrichment** — Fetches code from referenced node IDs to understand existing patterns
+2. **Systematic Analysis** — Identifies all files impacted by the requested change
+3. **Pattern Examination** — Examines existing code conventions and style
+4. **Style-Matched Generation** — Generates changes that match your project exactly
+
+All modifications are tracked in a session. You can review diffs before applying any changes to your repository.
+
+### Multi-Agent Mode
+
+For complex code generation tasks, the agent delegates to a **Code Implementation sub-agent** with up to **20 iterations** — the highest among all agents. Integration agents handle framework-specific code generation.
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="Adding new features" icon="plus" defaultOpen={true}>
+    ```
+    "Add user profile endpoint to the API"
+    "Implement email notifications for password resets"
+    "Create a dashboard component with charts"
+    ```
+    The agent generates all required new and modified files, tracks them in the session, and shows you diffs before anything is applied.
+  </Accordion>
+  <Accordion title="Modifying existing code" icon="pen-to-square">
+    ```
+    "Update the login function to support OAuth"
+    "Add error handling to the payment processor"
+    "Refactor the user service to use async/await"
+    ```
+    The agent locates relevant files, makes precise changes, and shows diffs for each modification.
+  </Accordion>
+  <Accordion title="Fixing bugs" icon="bug">
+    ```
+    "Fix the null pointer error in checkout"
+    "Resolve the race condition in data sync"
+    "Correct the SQL injection vulnerability in search"
+    ```
+    The agent provides both the fix and an explanation of the root cause, and may suggest additional improvements.
+  </Accordion>
+</AccordionGroup>
+
+## Reviewing Changes
+
+Before applying changes, you can inspect everything in the session.
+
+### View All Changes
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Show me all changes in the current session"
+```
+
+### View Specific File Diff
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Show me the diff for app/routes/users.py"
+```
+
+### Export Changes
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Export all changes"
+```
+
+## Available Tools
+
+| Category | Tools |
+|----------|-------|
+| **Knowledge Graph** | `ask_knowledge_graph_queries`, `get_code_from_multiple_node_ids`, `get_node_neighbours_from_node_id`, `get_code_from_probable_node_name`, `get_nodes_from_tags` |
+| **Code Navigation** | `get_code_file_structure`, `fetch_file`, `fetch_files_batch`, `analyze_code_structure`, `bash_command` |
+| **Code Changes** | `create_file`, `update_file`, `delete_file`, `get_code_changes`, `get_file_diff` |
+| **Research** | `web_search_tool`, `webpage_extractor` |
+| **Task Tracking** | `read_todos`, `write_todos`, `add_todo`, `update_todo_status`, `remove_todo`, `add_subtask`, `set_dependency`, `get_available_tasks`, `add_requirements`, `get_requirements` |
+
+<Note>
+  During project indexing (`INFERRING` status), embedding-dependent tools are temporarily excluded.
+</Note>
+
+## Related Agents
+
+- [Codebase Q&A Agent](/pre-built-agents/codebase-qna-agent) — answers questions about your codebase before making changes
+- [Debugging Agent](/pre-built-agents/debugging-agent) — systematic bug diagnosis and root cause analysis
