@@ -164,6 +164,40 @@
       }
     ]
   },
+  "contextual": {
+    "options": [
+      {
+        "title": "Ask ChatGPT",
+        "description": "Ask ChatGPT about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://chatgpt.com/",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Ask Claude",
+        "description": "Ask Claude about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://claude.ai/new",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      "perplexity",
+      "copy"
+    ]
+  },
   "footer": {
     "socials": {
       "x": "https://x.com/potpiedotai",
