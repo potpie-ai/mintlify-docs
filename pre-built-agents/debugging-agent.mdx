@@ -1,0 +1,121 @@
+---
+title: 'Debugging Agent'
+description: 'Systematic bug diagnosis and resolution through root cause analysis and generalization.'
+---
+
+The Debugging Agent provides systematic bug diagnosis and resolution. It follows an 8-step debugging methodology for complex issues and adapts its approach based on context, staying conversational for general questions and switching to a rigorous structured mode for actual bugs.
+
+<CardGroup cols={2}>
+  <Card title="8-Step Methodology" icon="list-ol" href="#debugging-methodology">
+    Structured root cause analysis
+  </Card>
+  <Card title="Dual-Mode Behavior" icon="shuffle" href="#dual-mode-behavior">
+    Conversational or methodical, based on context
+  </Card>
+  <Card title="17 Tools" icon="wrench" href="#available-tools">
+    Knowledge graph and code analysis
+  </Card>
+  <Card title="Multi-Agent Mode" icon="users" href="#multi-agent-mode">
+    Debug Solution Specialist sub-agent
+  </Card>
+</CardGroup>
+
+## Pre-Implementation Checklist
+
+Before implementation, the agent verifies all of the following:
+
+- Generalized issue documented
+- Addresses root cause not symptom
+- All components covered
+- Fix location justified
+- Completeness checked
+- Knowledge not spreading
+- Future callers get the fix
+
+The Debugging Agent has two operating modes activated automatically based on the incoming query:
+
+| Mode | Triggered By | Behavior |
+|------|-------------|----------|
+| **Conversational** | Questions, explanations, code exploration | Natural dialogue, build on context, thorough but flexible |
+| **Debugging** | Bug reports, unexpected behavior, fix requests | Strict 8-step methodology, explicit step announcements, requirements and todo tracking |
+
+## Dual-Mode Behavior
+
+### Conversational Mode
+
+For general questions and code exploration, the agent:
+- Navigates the codebase using knowledge graph tools
+- Provides cited, markdown-formatted responses
+- Adapts to user expertise level
+- Builds on previous context in the conversation
+
+### Debugging Mode
+
+Triggered when the query involves a bug report, an error, unexpected behavior, or a fix request. The agent announces each step explicitly, maintains a requirements list, and tracks progress via todos throughout.
+
+
+## Debugging Methodology
+
+The agent follows a strict 8-step process. **Steps cannot be skipped.**
+
+<Steps>
+  <Step title="Understand and Validate the Problem">
+    The agent separates the problem from any suggested fix in the query. Users see symptoms, not root causes. The agent finds the real issue independently. It documents the problem via `add_requirements` and breaks exploration into trackable tasks with `add_todo`.
+  </Step>
+
+  <Step title="Explore and Hypothesize">
+    Formulates hypotheses about root causes and adds each as a verification task via `add_todo`. Updates task status with `update_todo_status` as each hypothesis is verified.
+  </Step>
+
+  <Step title="Identify Root Cause">
+    The agent traces the complete code flow, both upstream and downstream. Before concluding code is missing, it checks whether the logic exists but is not working correctly. Must produce an explicit statement: ROOT CAUSE IDENTIFIED with an exact description.
+  </Step>
+
+  <Step title="Generalize the Issue">
+    This step is always required. The agent identifies the general pattern the bug represents, what else is affected, and what the design-level fix should be.
+  </Step>
+
+  <Step title="Design Solution">
+    The agent looks for existing patterns before writing any code and validates the fix location to ensure it addresses the root cause rather than the symptom.
+  </Step>
+
+  <Step title="Scrutinize and Refine">
+    Challenges the solution with null, empty, zero, and boundary inputs. Verifies the fix covers all affected components and calls `get_requirements` to confirm all requirements are addressed.
+  </Step>
+
+  <Step title="Implement">
+    Makes precise, surgical changes. For debugging tasks, typically explains the fix and provides guidance rather than applying changes directly.
+  </Step>
+
+  <Step title="Final Verification">
+    Calls `get_requirements` to verify all issues are addressed. Calls `read_todos` to ensure all exploration tasks are completed. Confirms the fix addresses the generalized pattern, not just the original symptom.
+  </Step>
+</Steps>
+
+
+## Multi-Agent Mode
+
+For complex debugging tasks, the agent activates multi-agent mode:
+
+- **Main Agent:** coordinates investigation and applies the debugging methodology
+- **Debug Solution Specialist:** generates debugging solutions and strategies
+- **Integration Agents:** handle framework-specific analysis
+
+## API Overview
+
+See the <a href="/api-reference/overview" className="mode-link">API Reference</a> for full endpoint documentation, request formats, and response schemas.
+
+## Available Tools
+
+| Category | Tools |
+|----------|-------|
+| <a href="/agents/tools-reference#knowledge-graph-tools" className="mode-link">Knowledge Graph</a> | Semantic Search, Fuzzy Lookup, Bulk Fetch, Tag Filter, Node Neighbors |
+| <a href="/agents/tools-reference#code-query-tools" className="mode-link">Code Query</a> | File Structure, Fetch File, Code Analysis |
+| <a href="/agents/tools-reference#web-tools" className="mode-link">Web</a> | Web Search, Page Extractor |
+| <a href="/agents/tools-reference#execution-tools" className="mode-link">Execution</a> | Shell Command |
+| <a href="/agents/tools-reference#task-management-tools" className="mode-link">Task Management</a> | Create Todo, Update Status, Get Todo, List Todos, Add Note, Todo Summary |
+| <a href="/agents/tools-reference#requirement-tools" className="mode-link">Requirements</a> | Add Requirements, Get Requirements |
+
+<Note>
+  During project indexing (`INFERRING` status), embedding-dependent tools are temporarily excluded.
+</Note>

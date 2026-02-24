@@ -1,0 +1,143 @@
+---
+title: 'Codebase Q&A Agent'
+description: 'Answer any question about your codebase through semantic search and knowledge graph traversal.'
+---
+
+The Codebase Q&A Agent answers questions about your codebase using semantic search and knowledge graph traversal. It locates relevant code, analyzes relationships, and provides comprehensive answers with precise citations.
+
+<CardGroup cols={2}>
+  <Card title="Semantic Search" icon="magnifying-glass" href="#how-it-works">
+    Find code by meaning, not just text
+  </Card>
+  <Card title="19 Specialized Tools" icon="wrench" href="#available-tools">
+    Knowledge graph and code analysis
+  </Card>
+  <Card title="Multi-Agent Mode" icon="users" href="#how-it-works">
+    Q&A Specialist sub-agent for complex queries
+  </Card>
+  <Card title="Precise Citations" icon="quote-left" href="#api-overview">
+    File paths and line numbers in every answer
+  </Card>
+</CardGroup>
+
+## Overview
+
+The Codebase Q&A Agent answers natural language questions about your codebase. It navigates the knowledge graph, fetches relevant files, and synthesizes findings into structured markdown responses with exact file and line citations.
+
+Use it to:
+- Locate where specific features or functions live
+- Understand how components interact
+- Trace data flows end-to-end
+- Explore architecture and design patterns
+- Onboard to unfamiliar codebases quickly
+
+## API Overview
+
+**Authentication:** Bearer token required
+
+### Create a Conversation
+
+```bash cURL
+curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_123",
+    "title": "Understanding Authentication",
+    "status": "active",
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["codebase_qna_agent"]
+  }'
+```
+
+### Send a Question
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Where is authentication implemented?"
+```
+
+### Request Format
+
+```typescript
+// Conversation creation
+{
+  user_id: string
+  title: string
+  status: "active"
+  project_ids: string[]
+  agent_ids: ["codebase_qna_agent"]
+}
+
+// Message (Form data — multipart/form-data)
+{
+  content: string            // Your question about the codebase
+  node_ids?: string          // Optional: JSON string of NodeContext[]
+  images?: File[]            // Optional: image attachments
+}
+```
+
+### Response Format
+
+```typescript
+{
+  response: string           // Markdown-formatted answer with citations
+  tool_calls: ToolCall[]     // Tools invoked during exploration
+  citations: string[]        // Files and line numbers referenced
+}
+```
+
+## How It Works
+
+The agent enriches context before processing — loading referenced node IDs and fetching the project file structure. It then uses the knowledge graph to locate relevant code semantically, analyze component relationships, and synthesize findings into a structured response.
+
+For complex queries requiring synthesis across many files, the agent automatically activates **multi-agent mode**, delegating to a Q&A Specialist sub-agent (up to 12 iterations).
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="Find where a feature is implemented" icon="crosshairs" defaultOpen={true}>
+    ```
+    "Where is authentication implemented?"
+    "Show me the complete payment flow from cart to order confirmation"
+    "List all API endpoints related to user management"
+    ```
+  </Accordion>
+  <Accordion title="Understand how something works" icon="book-open">
+    ```
+    "How does authentication work in this app?"
+    "Trace what happens when a user submits a form"
+    "What happens when a background job fails?"
+    ```
+  </Accordion>
+  <Accordion title="Explore architecture and dependencies" icon="diagram-project">
+    ```
+    "What design patterns are used in this codebase?"
+    "What does the UserService depend on?"
+    "Which services interact with the database directly?"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Ask follow-up questions in the same conversation — the agent maintains context across the full conversation thread using the same `conversation_id`.
+</Tip>
+
+## Available Tools
+
+| Category | Tools |
+|----------|-------|
+| **Knowledge Graph** | `ask_knowledge_graph_queries`, `get_code_from_multiple_node_ids`, `get_node_neighbours_from_node_id`, `get_code_from_probable_node_name`, `get_nodes_from_tags` |
+| **Code Navigation** | `get_code_file_structure`, `fetch_file`, `fetch_files_batch`, `analyze_code_structure`, `bash_command` |
+| **Research** | `web_search_tool`, `webpage_extractor` |
+| **Task Tracking** | `read_todos`, `write_todos`, `add_todo`, `update_todo_status`, `remove_todo`, `add_subtask`, `set_dependency`, `get_available_tasks`, `add_requirements`, `get_requirements` |
+
+<Note>
+  During project indexing (`INFERRING` status), embedding-dependent tools are temporarily excluded.
+</Note>
+
+## Related Agents
+
+- [CodeGen Agent](/pre-built-agents/codegen-agent) — generates and applies code changes after exploration
+- [Debugging Agent](/pre-built-agents/debugging-agent) — systematic bug diagnosis and root cause analysis
