@@ -65,6 +65,14 @@
             "pages": [
               "agents/api-access",
               {
+                "group": "Pre-built Agents",
+                "pages": [
+                  "agents/qna-agent",
+                  "agents/code-changes-agent",
+                  "pre-built-agents/specgen-agent"
+                ]
+              },
+              {
                 "group": "Custom Agents",
                 "pages": [
                   "custom-agents/introduction",
