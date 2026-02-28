@@ -1,0 +1,51 @@
+---
+title: Spec Agent
+---
+
+An agent that turns natural language requests into structured **Specification** plan.
+
+**It accepts**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `request` | `string` | required | Natural language description of what to build or change |
+| `conversation_history` | `Message[]` | optional | Prior messages for spec update context |
+| `project_id` | `string` | required | Project identifier |
+| `project_name` | `string` | optional | Project name for additional spec context |
+| `node_ids` | `string[]` | optional | Specific nodes to scope the specification |
+
+**It returns**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `specification` | `Specification` | A validated `Specification` object with all sections complete |
+| `markdown_spec` | `string` | Formatted plan ready for UI rendering |
+
+## Choose what you want to do
+
+**New spec**
+- If no previous specification exists, SpecGen explores your repository and asks 3–5 clarification questions to understand your architecture before making changes.
+- It then runs the full 7-step workflow — Research → Requirements → Architecture → Technical Design → Validation → Assembly ,so every change is defined and reviewed before execution.
+- The result is a complete, validated specification that gives you a traceable plan instead of code you have to fix later.
+
+**Update existing spec**  
+- If a valid specification exists, SpecGen extracts it from conversation history and identifies what needs to change.
+- It regenerates only the affected parts while preserving everything that still applies.
+- The updated specification is revalidated and reassembled so you get a consistent, complete plan instead of patchwork edits.
+
+**Partial Update**
+- If you explicitly call out sections like “update architecture” or “regenerate technical design,” SpecGen targets only those sections.
+- It reruns the necessary workflow steps for those areas and reuses the rest of the specification unchanged.
+- The final output is a fully assembled, validated specification with only the requested sections updated.
+
+## Start building
+
+```python
+from app.modules.intelligence.agents.chat_agents.system_agents.specgen.spec_gen_agent import SpecGenAgent
+
+spec_gen = SpecGenAgent(
+    llm_provider=provider_service,
+    tools_provider=tool_service,
+    prompt_provider=prompt_service,
+)
+```

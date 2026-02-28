@@ -65,6 +65,15 @@
             "pages": [
               "agents/api-access",
               {
+                "group": "Pre-built Agents",
+                "pages": [
+                  "agents/qna-agent",
+                  "agents/code-changes-agent",
+                  "agents/debugging-agent",
+                  "pre-built-agents/spec-agent"
+                ]
+              },
+              {
                 "group": "Custom Agents",
                 "pages": [
                   "custom-agents/introduction",
@@ -154,6 +163,40 @@
         "label": "Support",
         "href": "mailto:hi@potpie.ai"
       }
+    ]
+  },
+  "contextual": {
+    "options": [
+      {
+        "title": "Ask ChatGPT",
+        "description": "Ask ChatGPT about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://chatgpt.com/",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Ask Claude",
+        "description": "Ask Claude about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://claude.ai/new",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      "perplexity",
+      "copy"
     ]
   },
   "footer": {
