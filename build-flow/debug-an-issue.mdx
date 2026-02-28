@@ -1,29 +1,29 @@
 ---
 title: 'Debug'
+description: 'Debug is Potpie's bug investigation interface.'
 ---
 
-The **Debug Agent** traces a reported issue from where it surfaces to where it originates. It walks the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> across every affected component, pins the **root cause** to an exact file and line, and returns a targeted fix.
 
-## Getting started
 
-<Steps>
-  <Step title="Describe the issue">
-    Paste an error message, stack trace, or describe the unexpected behavior. Include any context about when it occurs.
+When a reported issue is received, it traverses the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> across every affected component to determine where the problem truly originated.
 
-    <img src="/images/agent-debug.png" alt="Describing the issue" />
+It isolates the root cause to a specific file and line of code, then returns a precise and targeted fix grounded in the actual implementation.
 
-    <Tip>
-      Follow up messages within the same session retain full context. Start with a high-level symptom and narrow to the root cause across subsequent turns.
-    </Tip>
-  </Step>
+To start using Debug, see the <a href="/tutorials/trace-and-fix" className="mode-link">Trace and Fix Bugs tutorial</a>.
 
-  <Step title="Bug analysis">
-    The **Debug Agent** applies its **eight step methodology** automatically: validating the behavior, traversing code paths, pinning the **root cause**, and generating a targeted fix.
+## How It Investigates
 
-    <img src="/images/debug-chat.png" alt="Bug analysis and targeted fix" />
-  </Step>
-</Steps>
+Debug separates the reported problem from any fix the user may have suggested. User-reported symptoms and suggested fixes are treated as starting points for investigation, not conclusions. The goal is to find the real issue, which is often upstream of where the problem surfaces.
 
+Once the origin is found, Debug evaluates where the fix should live. A fix at the source prevents the problem for every downstream caller automatically. A fix at the symptom only handles one path. Debug always identifies which type of fix it's applying and why.
+
+For simple issues it runs end to end. For problems spanning multiple services it delegates to specialized subagents.
+
+---
+
+## What It Returns
+
+A root cause traced to its origin, a clear path from origin to symptom, and a fix that addresses the generalized issue — not just the specific instance that was reported.
 ## Eight-step methodology
 
 Potpie applies an **eight step methodology** to every issue:

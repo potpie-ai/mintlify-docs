@@ -7,13 +7,6 @@ mode: 'wide'
 
 Potpie allows you to perform **Spec Driven Development**, on large messy codebases. Our proprietary <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> allows our agents to understand the users context in much great detail required to perform complex **multi-hop reasoning** required for debugging, refactoring, etc
 
-<Card
-  title="Get started"
-  icon="rocket"
-  href="https://app.potpie.ai/sign-in"
->
-  Set up your account and connect your first repository in minutes.
-</Card>
 
 <img
   className="block dark:hidden"
@@ -26,19 +19,22 @@ Potpie allows you to perform **Spec Driven Development**, on large messy codebas
   alt="Potpie"
 />
 
+## Connect your repository
+Index a branch and generate a project context to initialize Potpie’s graph, enabling agents to reason over real call paths and architectural boundaries from your first spec.
+
+If you want to go deeper, create a custom agent with its own role and tools.
+
+<a href="https://app.potpie.ai/sign-in" className="mode-link"> Connect repository → </a>
 
 
 
 ## Example Uses
 
-<CardGroup cols={3}>
-  <Card title="Impact Analysis" href="/examples/impact-analysis">
-    Understand what breaks before modifying a core service.
+<CardGroup cols={2}>
+  <Card title="Create a graph-driven impact analysis system for core service changes: " href="/examples/impact-analysis">
+   Analyse a complete knowledge graph of calls, imports, and extensions to surface the full multi-hop blast radius of core service changes.
   </Card>
-  <Card title="Code Migration" href="/examples/code-migration">
-    Migrate a module to a new pattern without breaking dependent services.
-  </Card>
-  <Card title="Race Conditions" href="/examples/race-conditions">
-    Trace and fix race conditions causing unexpected behaviour in production.
+  <Card title="Build a dependency-aware migration system:" href="/examples/code-migration">
+    Traverse a complete codebase graph to identify every affected service, function, and class across direct and indirect dependencies in module changes.
   </Card>
 </CardGroup>

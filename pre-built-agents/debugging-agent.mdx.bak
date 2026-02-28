@@ -1,0 +1,259 @@
+---
+title: 'Debugging Agent'
+description: 'Systematic bug diagnosis and resolution through root cause analysis and generalization.'
+---
+
+The Debugging Agent provides systematic bug diagnosis and resolution. It follows an 8-step debugging methodology for complex issues and adapts its approach — conversational for general questions, rigorous and structured for actual bugs.
+
+<CardGroup cols={2}>
+  <Card title="8-Step Methodology" icon="list-ol" href="#debugging-methodology">
+    Structured root cause analysis
+  </Card>
+  <Card title="Dual-Mode Behavior" icon="shuffle" href="#dual-mode-behavior">
+    Conversational or methodical, based on context
+  </Card>
+  <Card title="17 Tools" icon="wrench" href="#available-tools">
+    Knowledge graph and code analysis
+  </Card>
+  <Card title="Multi-Agent Mode" icon="users" href="#multi-agent-mode">
+    Debug Solution Specialist sub-agent
+  </Card>
+</CardGroup>
+
+## Overview
+
+The Debugging Agent has two operating modes activated automatically based on the incoming query:
+
+| Mode | Triggered By | Behavior |
+|------|-------------|----------|
+| **Conversational** | Questions, explanations, code exploration | Natural dialogue, build on context, thorough but flexible |
+| **Debugging** | Bug reports, unexpected behavior, fix requests | Strict 8-step methodology, explicit step announcements, requirements and todo tracking |
+
+## Dual-Mode Behavior
+
+### Conversational Mode
+
+For general questions and code exploration, the agent:
+- Navigates the codebase using knowledge graph tools
+- Provides cited, markdown-formatted responses
+- Adapts to user expertise level
+- Builds on previous context in the conversation
+
+### Debugging Mode
+
+Triggered when the query involves a bug report, an error, unexpected behavior, or a fix request. The agent announces each step explicitly, maintains a requirements list, and tracks progress via todos throughout.
+
+## Debugging Methodology
+
+The agent follows a strict 8-step process. **Steps cannot be skipped.**
+
+<Steps>
+  <Step title="Understand & Validate the Problem">
+
+The agent separates the **problem** from any **suggested fix** included in the query.
+
+> User says: *"Method gets reset during redirect. We should save it before the copy on line 102."*
+> Agent extracts only: *"Method gets reset during redirect"* — and ignores the suggested fix entirely.
+
+Users see symptoms, not root causes. The agent finds the real issue independently.
+
+It then calls `add_requirements` to document the problem, and `add_todo` to break exploration into trackable tasks.
+
+  </Step>
+  <Step title="Explore & Hypothesize">
+
+- Formulates hypotheses about root causes
+- Adds each hypothesis as a verification task via `add_todo`
+- Updates task status with `update_todo_status` as each is verified
+
+  </Step>
+  <Step title="Identify Root Cause">
+
+The agent traces the **complete** code flow — both upstream and downstream:
+
+```
+ORIGIN → [transform] → [transform] → SYMPTOM LOCATION → [transform] → CONSUMER
+   ^                         ^                ^                           ^
+   Where should              Current          Where user                  What breaks
+   fix actually be?          bug location     sees problem                if we patch here?
+```
+
+Before concluding code is missing, it checks whether the logic exists but isn't working (normalization issues, data format mismatches, etc.).
+
+Must produce an explicit statement: `ROOT CAUSE IDENTIFIED: [exact description]`
+
+  </Step>
+  <Step title="Generalize the Issue *(Mandatory)*">
+
+This step is always required. The agent asks:
+
+1. **What general pattern does this bug represent?** (not just the specific symptom)
+2. **What else is affected by this pattern?** (all siblings, parallel code paths)
+3. **What is the design-level fix?** (not just the local tactical fix)
+
+#### Fix Location Decision Framework
+
+The agent evaluates every possible fix location and chooses using this hierarchy:
+
+| Priority | Location | Rationale |
+|----------|----------|-----------|
+| 1st ✅ | **Origin fix** | Prevents bad state from being created |
+| 2nd ✅ | **Transformation fix** | Corrects during natural data transformation |
+| 3rd ✅ | **Boundary fix** | Validates at API/module boundaries |
+| Avoid ❌ | **Symptom fix** | Handles instead of prevents |
+| Avoid ❌ | **Consumer guard** | Spreads knowledge of the problem across the codebase |
+
+The agent documents the decision with explicit reasoning before proceeding.
+
+  </Step>
+  <Step title="Design Solution">
+
+The agent looks for existing patterns before writing any code:
+
+- *"Is there something I can use from the codebase? Most edge cases would have already been taken care of."*
+- *"What is the origin of this issue? Can I fix the reason rather than handle the resulting state?"*
+
+**Validation tests applied:**
+
+- **"Spreading Knowledge" Test** — after the fix, does any other code still need to know about this edge case? If yes → fix is too far downstream.
+- **"Future Bug" Test** — if someone adds a new caller, do they automatically get the fix? If no → patching a symptom, go upstream.
+
+**Red flags that cause the agent to reconsider:**
+- Fix matches the user's originally suggested fix (likely tactical, not strategic)
+- Adding null checks or guards far from data origin
+- Multiple components need to "know" about this fix
+- Checking for a condition that "shouldn't happen"
+
+  </Step>
+  <Step title="Scrutinize & Refine">
+
+- Challenges the solution with null/empty/zero/boundary inputs, concurrency scenarios
+- Verifies the fix covers all items in AFFECTED COMPONENTS from Step 4
+- Calls `get_requirements` to verify all requirements are addressed
+
+  </Step>
+  <Step title="Implement">
+
+- Makes precise, surgical changes
+- For debugging tasks, typically explains the fix and provides guidance — implements only if explicitly requested or if tooling supports it
+
+  </Step>
+  <Step title="Final Verification">
+
+- Calls `get_requirements` — verifies GENERALIZED ISSUE, AFFECTED COMPONENTS, DESIGN FIX are all addressed
+- Calls `read_todos` — ensures all exploration tasks are completed
+- Confirms fix addresses the generalized pattern, not just the original symptom
+
+  </Step>
+</Steps>
+
+## Core Principles
+
+These principles guide every debugging task:
+
+| Principle | Description |
+|-----------|-------------|
+| **Extract problem, ignore suggested fix** | User suggestions are clues to the symptom. Find the real issue independently. |
+| **Verify, don't trust** | User-reported symptoms are hypotheses. Trace actual execution paths. |
+| **Think in categories** | One instance often indicates a broader pattern. Fix the category, not just the example. |
+| **Strategic over tactical** | Find the design flaw, not just the symptom. Ask "why does this bug exist?" |
+| **Fix at source** | Prefer preventing bad state at origin over handling it downstream. |
+| **Preserve patterns** | Match existing code style and idioms. Reuse existing utilities and functions. |
+| **Trace before fixing** | Map complete upstream and downstream flow. Identify ALL candidate fix locations. |
+| **Exhaustive verification** | Assume there's always one more case you haven't considered. |
+
+## Pre-Implementation Checklist
+
+Before Step 7, the agent verifies all of the following:
+
+- [ ] Generalized issue documented (GENERALIZED ISSUE, AFFECTED COMPONENTS, DESIGN FIX in requirements)
+- [ ] Solution addresses generalized issue — not just the specific symptom
+- [ ] All affected components covered
+- [ ] Fix location identified and justified with reasoning
+- [ ] Completeness checked (paired methods, full category addressed)
+- [ ] Not spreading knowledge — no other code needs to know about this edge case after the fix
+- [ ] Future-proof — new callers automatically get the fix
+
+## Multi-Agent Mode
+
+For complex debugging tasks, the agent activates multi-agent mode:
+
+- **Main Agent** — coordinates investigation and applies the debugging methodology
+- **Debug Solution Specialist** — generates debugging solutions and strategies (up to 12 iterations)
+- **Integration Agents** — handle framework-specific analysis
+
+## API Overview
+
+**Authentication:** Bearer token required
+
+### Create a Conversation
+
+```bash cURL
+curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_123",
+    "title": "Debug checkout null pointer",
+    "status": "active",
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["debugging_agent"]
+  }'
+```
+
+### Send a Bug Report
+
+```bash cURL
+curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+  -H "Authorization: Bearer <token>" \
+  -F "content=Users are getting null pointer errors during checkout when they have empty shopping carts"
+```
+
+### Request Format
+
+```typescript
+// Conversation creation
+{
+  user_id: string
+  title: string
+  status: "active"
+  project_ids: string[]
+  agent_ids: ["debugging_agent"]
+}
+
+// Message (Form data)
+{
+  content: string            // Bug report or code question
+  node_ids?: string          // Optional: JSON string of NodeContext[]
+}
+```
+
+### Response Format
+
+```typescript
+{
+  response: string           // Markdown-formatted analysis
+  tool_calls: ToolCall[]     // Tools used during investigation
+  citations: string[]        // Files and line numbers referenced
+}
+```
+
+
+
+## Available Tools
+
+| Category | Tools |
+|----------|-------|
+| **Knowledge Graph** | `ask_knowledge_graph_queries`, `get_code_from_multiple_node_ids`, `get_node_neighbours_from_node_id`, `get_code_from_probable_node_name`, `get_nodes_from_tags` |
+| **Code Navigation** | `get_code_file_structure`, `fetch_file`, `fetch_files_batch`, `analyze_code_structure`, `bash_command` |
+| **Research** | `web_search_tool`, `webpage_extractor` |
+| **Task Tracking** | `read_todos`, `write_todos`, `add_todo`, `update_todo_status`, `remove_todo`, `add_subtask`, `set_dependency`, `get_available_tasks`, `add_requirements`, `get_requirements` |
+
+<Note>
+  During project indexing (`INFERRING` status), embedding-dependent tools are temporarily excluded.
+</Note>
+
+## Related Agents
+
+- [Codebase QnA Agent](/pre-built-agents/codebase-qna-agent) — answers questions about your codebase
+- [CodeGen Agent](/pre-built-agents/codegen-agent) — generates and applies code modifications after a bug is diagnosed

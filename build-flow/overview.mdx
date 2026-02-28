@@ -1,18 +1,31 @@
 ---
-title: 'Overview'
+title: "Overview"
 ---
 
-**Ask**, **Build**, and **Debug** each operate on the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>, a structured map of every component, dependency, and relationship across the codebase.
+Potpie provides developers with three distinct ways to interact with their codebase, namely asking questions, generating code, and debugging issues.
 
-| Mode | Use when |
-|---|---|
-| <a href="/build-flow/ask-a-question" className="mode-link">Ask</a> | Use when a question about the codebase needs an answer, whether that is how a flow operates, where something is implemented, or what depends on a given component |
-| <a href="/build-flow/build-a-feature" className="mode-link">Build</a> | A feature, endpoint, or modification needs to be implemented with full awareness of existing patterns and dependencies |
-| <a href="/build-flow/debug-an-issue" className="mode-link">Debug</a> | A reported issue, exception, or unexpected behavior needs to be traced from where it surfaces to where it originates |
+Each interaction mode operates on the same underlying knowledge graph, ensuring that every response is grounded in a consistent, structured understanding of the system.
 
-## How they fit together
+## How It Works
 
-**Ask**, **Build**, and **Debug** operate on the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>. Using **Ask** first surfaces the relevant components and their relationships, narrowing what **Build** needs to generate or what **Debug** needs to trace.
+Every interaction in Potpie flows through a unified interface.
+
+When a query is received, it includes the full conversation history, the active project context, and any specific files or nodes referenced by the user.
+
+Before any reasoning begins, the agent retrieves the actual source code associated with those references and loads it into context. This ensures that all responses are grounded in real code rather than abstract summaries or descriptions.
+
+Depending on the complexity of the task, Potpie either operates as a single agent or delegates execution to specialized subagents.
+This orchestration is determined by the nature and scope of the request itself, not by any manual user configuration.
+
+---
+
+## Three Modes
+
+**Ask** is for understanding the codebase. It answers questions about how something works, where something lives, what something does, and why something was built the way it was.
+
+**Build** is for making changes. It reads existing patterns and conventions from the knowledge graph before writing a single line, then generates code that matches the style and structure of the codebase.
+
+**Debug** is for tracing issues. It follows a problem from where it surfaces back to where it originates, identifies the root cause in the graph, and returns a targeted fix.
 
 ## Agent tool mapping
 
