@@ -69,7 +69,8 @@
                 "pages": [
                   "agents/qna-agent",
                   "agents/code-changes-agent",
-                  "pre-built-agents/specgen-agent"
+                  "agents/debugging-agent",
+                  "pre-built-agents/spec-agent"
                 ]
               },
               {
