@@ -266,7 +266,7 @@ Use the code examples in each endpoint's MDX file:
 ```bash
 # Example: Test List Projects endpoint
 curl -X GET \
-  'https://production-api.potpie.ai/api/v1/projects/list' \
+  'https://localhost:8001/api/v1/projects/list' \
   -H 'Authorization: Bearer YOUR_API_KEY'
 ```
 

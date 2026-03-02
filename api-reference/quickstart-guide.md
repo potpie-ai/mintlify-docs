@@ -30,7 +30,7 @@ pip install requests
 
 ```typescript
 // TypeScript
-const response = await fetch('https://production-api.potpie.ai/api/v1/parse', {
+const response = await fetch('https://localhost:8001/api/v1/parse', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -52,7 +52,7 @@ console.log('Parsing initiated:', project_id);
 import requests
 
 response = requests.post(
-    'https://production-api.potpie.ai/api/v1/parse',
+    'https://localhost:8001/api/v1/parse',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ print(f'Parsing initiated: {project_id}')
 async function waitForParsing(projectId: string) {
   while (true) {
     const response = await fetch(
-      `https://production-api.potpie.ai/api/v1/parsing-status/${projectId}`,
+      `https://localhost:8001/api/v1/parsing-status/${projectId}`,
       {
         headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
       }
@@ -101,7 +101,7 @@ import time
 def wait_for_parsing(project_id):
     while True:
         response = requests.get(
-            f'https://production-api.potpie.ai/api/v1/parsing-status/{project_id}',
+            f'https://localhost:8001/api/v1/parsing-status/{project_id}',
             headers={'Authorization': 'Bearer YOUR_API_KEY'}
         )
 
@@ -123,7 +123,7 @@ wait_for_parsing(project_id)
 ```typescript
 // TypeScript
 const conversationResponse = await fetch(
-  'https://production-api.potpie.ai/api/v1/conversations/',
+  'https://localhost:8001/api/v1/conversations/',
   {
     method: 'POST',
     headers: {
@@ -147,7 +147,7 @@ console.log('Conversation created:', conversation_id);
 ```python
 # Python
 conversation_response = requests.post(
-    'https://production-api.potpie.ai/api/v1/conversations/',
+    'https://localhost:8001/api/v1/conversations/',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -170,7 +170,7 @@ print(f'Conversation created: {conversation_id}')
 ```typescript
 // TypeScript
 const messageResponse = await fetch(
-  `https://production-api.potpie.ai/api/v1/conversations/${conversation_id}/message/`,
+  `https://localhost:8001/api/v1/conversations/${conversation_id}/message/`,
   {
     method: 'POST',
     headers: {
@@ -189,7 +189,7 @@ console.log('Message sent successfully!');
 ```python
 # Python
 message_response = requests.post(
-    f'https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/',
+    f'https://localhost:8001/api/v1/conversations/{conversation_id}/message/',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -209,7 +209,7 @@ print('Message sent successfully!')
 ```typescript
 // complete-example.ts
 const POTPIE_API_KEY = process.env.POTPIE_API_KEY!;
-const BASE_URL = 'https://production-api.potpie.ai';
+const BASE_URL = 'https://localhost:8001';
 
 async function main() {
   try {
@@ -296,7 +296,7 @@ import time
 import requests
 
 POTPIE_API_KEY = os.environ['POTPIE_API_KEY']
-BASE_URL = 'https://production-api.potpie.ai'
+BASE_URL = 'https://localhost:8001'
 
 def main():
     try:
@@ -379,7 +379,7 @@ if __name__ == '__main__':
 
 # Set your API key
 export POTPIE_API_KEY="your_api_key_here"
-BASE_URL="https://production-api.potpie.ai"
+BASE_URL="https://localhost:8001"
 
 # 1. Parse repository
 echo "1. Starting parsing..."

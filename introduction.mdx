@@ -5,40 +5,33 @@ description: 'AI agents that understand your codebase'
 mode: 'wide'
 ---
 
-Potpie allows you to perform **Spec Driven Development**, on large messy codebases. Our proprietary <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> allows our agents to understand the users context in much great detail required to perform complex **multi-hop reasoning** required for debugging, refactoring, etc
+Potpie's proprietary [knowledge graph](/concepts/knowledge-graph) enables agents to understand a user’s codebase context in much greater detail required to perform complex **multi-hop** reasoning across components, either for **debugging**, **refactoring**, or other advanced tasks.
 
-<Card
-  title="Get started"
-  icon="rocket"
-  href="https://app.potpie.ai/sign-in"
->
-  Set up your account and connect your first repository in minutes.
-</Card>
 
 <img
   className="block dark:hidden"
-  src="/images/website.png"
+  src="/images/Mainpage.png"
   alt="Potpie"
 />
 <img
   className="hidden dark:block"
-  src="/images/website.png"
+  src="/images/Mainpage.png"
   alt="Potpie"
 />
 
-
+Just index a branch & generate a project context. 
+Potpie initiates a knowledge graph and does the rest for you.
+Start your [5-minute quickstart journey ->](/quickstart)
 
 
 ## Example Uses
 
-<CardGroup cols={3}>
-  <Card title="Impact Analysis" href="/examples/impact-analysis">
-    Understand what breaks before modifying a core service.
+<CardGroup cols={2}>
+  <Card title="Create a graph-driven impact analysis system for core service changes: " href="/examples/impact-analysis">
+   Analyse a complete knowledge graph of calls, imports, and extensions to surface the full multi-hop blast radius of core service changes.
   </Card>
-  <Card title="Code Migration" href="/examples/code-migration">
-    Migrate a module to a new pattern without breaking dependent services.
-  </Card>
-  <Card title="Race Conditions" href="/examples/race-conditions">
-    Trace and fix race conditions causing unexpected behaviour in production.
+  <Card title="Build a dependency-aware migration system:" href="/examples/code-migration">
+    Traverse a complete codebase graph to identify every affected service, function, and class across direct and indirect dependencies in module changes.
   </Card>
 </CardGroup>
+

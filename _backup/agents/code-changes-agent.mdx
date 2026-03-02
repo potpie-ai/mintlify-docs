@@ -139,7 +139,7 @@ The agent provides both the fix and an explanation. It may suggest additional im
 ## Example Request
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+curl -X POST https://locahost:8001/api/v1/agents/code \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -168,7 +168,7 @@ You can review changes before applying them. The agent provides several tools fo
 Request a summary of all modifications in the session.
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+curl -X POST https://locahost:8001/api/v1/agents/code \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -183,7 +183,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
 Request the diff for a specific file.
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+curl -X POST https://locahost:8001/api/v1/agents/code \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -198,7 +198,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
 Export all changes for application to your codebase.
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
+curl -X POST https://locahost:8001/api/v1/agents/code \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

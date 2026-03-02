@@ -1,101 +1,180 @@
 ---
 title: 'Local Setup'
-description: 'Run Potpie locally by configuring Firebase, GitHub, and Google Cloud.'
+description: 'Run Potpie locally on your own infrastructure.'
 ---
 
-## Firebase
+## Prerequisites
+
+- [Docker](https://docker.com) installed and running
+- [Git](https://git-scm.com) installed
+- [Python 3.11+](https://python.org) with [uv](https://docs.astral.sh/uv/)
+
+---
+
+## Installation
 
 <Steps>
-  <Step title="Create a Firebase project">
-    Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
+  <Step title="Clone the repository">
+    ```bash
+    git clone --recurse-submodules https://github.com/potpie-ai/potpie.git
+    cd potpie
+    ```
   </Step>
-  <Step title="Generate a service account key">
-    1. Open **Project Overview** from the sidebar
-    2. Go to the **Service Accounts** tab
-    3. Under **Firebase Admin SDK**, click **Generate new private key**
-    4. Confirm the warning, download the key, rename it to `firebase_service_account.json`, and place it in the root of the Potpie source directory
+
+  <Step title="Configure your environment">
+    ```bash
+    cp .env.template .env
+    ```
+
+    Edit `.env` with the following required values:
+
+    ```bash
+    # App & Environment
+    isDevelopmentMode=enabled
+    ENV=development
+    defaultUsername=defaultuser
+
+    # AI / LLM Configuration
+    LLM_PROVIDER=openai                    # openai | ollama | anthropic | openrouter
+    OPENAI_API_KEY=sk-proj-your-key
+    CHAT_MODEL=gpt-4o
+    INFERENCE_MODEL=gpt-4o-mini
+
+    # Database
+    POSTGRES_SERVER=postgresql://postgres:mysecretpassword@localhost:5432/momentum
+    NEO4J_URI=bolt://127.0.0.1:7687
+    NEO4J_USERNAME=neo4j
+    NEO4J_PASSWORD=mysecretpassword
+
+    # Redis & Background Jobs
+    REDISHOST=127.0.0.1
+    REDISPORT=6379
+    BROKER_URL=redis://127.0.0.1:6379/0
+    CELERY_QUEUE_NAME=dev
+
+    # Project & Repo Management
+    PROJECT_PATH=projects
+    ```
+
+    `CHAT_MODEL` is used for agent reasoning. `INFERENCE_MODEL` is used for knowledge graph generation. Model names follow the `provider/model_name` format as expected by [LiteLLM](https://docs.litellm.ai/docs/providers).
+
+    <Tip>
+      Using Ollama? Set `LLM_PROVIDER=ollama` and use `CHAT_MODEL=ollama_chat/qwen2.5-coder:7b` and `INFERENCE_MODEL=ollama_chat/qwen2.5-coder:7b`.
+    </Tip>
+
+    See `.env.template` in the repository for the full list of optional configuration — logging, feature flags, object storage, email, and analytics.
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    uv sync
+    ```
+
+    This creates a `.venv` directory and installs all dependencies from `pyproject.toml`.
+  </Step>
+
+  <Step title="Start all services">
+    ```bash
+    chmod +x scripts/start.sh
+    ./scripts/start.sh
+    ```
+
+    This starts Docker services, waits for PostgreSQL to be ready, applies database migrations, starts the FastAPI application, and starts the Celery worker.
+  </Step>
+
+  <Step title="Verify the server is running">
+    ```bash
+    curl -X GET 'http://localhost:8001/health'
+    ```
   </Step>
 </Steps>
 
-## Logfire
-
-Logfire provides observability and tracing for AI calls made by Potpie.
-
-Create a free account at [Logfire](https://logfire.pydantic.dev/) and add the following to `.env`:
+To stop all services:
 
 ```bash
-LOGFIRE_ENABLED=true
-LOGFIRE_TOKEN=your_token
-LOGFIRE_PROJECT_NAME=your_project_name
+./scripts/stop.sh
 ```
 
-## GitHub App
+---
 
-<Steps>
-  <Step title="Create the app">
-    Visit [GitHub App Creation](https://github.com/settings/apps/new) and choose a name relevant to Potpie (e.g. `potpie-auth`).
-  </Step>
-  <Step title="Set permissions">
-    | Scope | Permission |
-    |---|---|
-    | Repository Contents | Read only |
-    | Repository Metadata | Read only |
-    | Repository Pull requests | Read and write |
-    | Repository Secrets | Read only |
-    | Repository Webhooks | Read only |
-    | Organization Members | Read only |
-    | Account Email address | Read only |
-  </Step>
-  <Step title="Add credentials to env">
-    Generate a private key, download it, and add it to `.env` as `GITHUB_PRIVATE_KEY`. Add the app ID as `GITHUB_APP_ID`.
-  </Step>
-  <Step title="Install the app">
-    From the left sidebar, select **Install App** and install it on the organization or user account.
-  </Step>
-</Steps>
+## Frontend Setup
 
-## GitHub Auth on Firebase
+```bash
+cd potpie-ui
+cp .env.template .env
+pnpm build && pnpm start
+```
 
-<Steps>
-  <Step title="Enable GitHub sign-in">
-    In Firebase, go to **Authentication** and enable the GitHub sign-in provider. GitHub provides a client ID and client secret. Add both to Firebase.
-  </Step>
-  <Step title="Add the callback URL">
-    Copy the callback URL from Firebase and paste it into the GitHub App settings.
-  </Step>
-</Steps>
+---
 
-## Google Cloud
+## GitHub Authentication
 
-Potpie uses Google Secret Manager to store API keys. Creating a Firebase project automatically links a Google Cloud account. Use that or create a new one.
+Potpie supports three methods for accessing GitHub repositories. Set `GITHUB_AUTH_MODE` to `app`, `pat`, or `none` to select the method.
 
-<Steps>
-  <Step title="Enable Secret Manager">
-    Enable the Secret Manager API for the Google Cloud project.
-  </Step>
-  <Step title="Configure Application Default Credentials">
-    Run the following to authenticate locally:
+| Method | Configuration | Best For |
+|---|---|---|
+| **GitHub App** | `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY` | Production |
+| **PAT Pool** | `GH_TOKEN_LIST=ghp_token1,ghp_token2` | Development / Higher rate limits |
+| **Unauthenticated** | No configuration required | Public repositories only (60 req/hr) |
 
-    ```bash
-    gcloud auth application-default login
-    ```
+**GitHub App (recommended for production)**
 
-    Alternatively, place the GCP service account key file at `service-account.json` in the root of the codebase.
-  </Step>
-</Steps>
+Create a GitHub App in your organization. Set the following in `.env`:
 
-## Running Potpie
+```bash
+GITHUB_APP_ID=your-app-id
+GITHUB_PRIVATE_KEY=your-private-key
+```
 
-<Steps>
-  <Step title="Install Docker">
-    Verify Docker is installed and running.
-  </Step>
-  <Step title="Configure environment">
-    Create a `.env` file from the provided `.env.template` in the repository and fill in all required values.
-  </Step>
-  <Step title="Start the server">
-    ```bash
-    chmod +x scripts/start.sh && ./scripts/start.sh
-    ```
-  </Step>
-</Steps>
+Required permissions:
+
+| Scope | Permission |
+|---|---|
+| Repository Contents | Read only |
+| Repository Metadata | Read only |
+| Repository Pull requests | Read and write |
+| Repository Secrets | Read only |
+| Repository Webhooks | Read only |
+| Organization Members | Read only |
+| Account Email address | Read only |
+
+From the app's sidebar, select **Install App** and install it on the target organization or user account.
+
+**Personal Access Token Pool**
+
+Create one or more GitHub PATs with `repo` scope and add them to `.env`:
+
+```bash
+GH_TOKEN_LIST=ghp_token1,ghp_token2,ghp_token3
+```
+
+Potpie randomly selects from the pool for load balancing. Each token allows 5,000 requests/hour.
+
+---
+
+## Self-Hosted Git Providers
+
+For self-hosted Git servers such as GitBucket or GitLab, set the following in `.env`:
+
+```bash
+CODE_PROVIDER=github         # Options: github, gitbucket
+CODE_PROVIDER_BASE_URL=http://your-git-server.com/api/v3
+CODE_PROVIDER_TOKEN=your-token
+```
+
+`GH_TOKEN_LIST` tokens are always used for GitHub.com regardless of `CODE_PROVIDER_BASE_URL`.
+
+---
+
+## Logfire Tracing (Optional)
+
+Logfire provides observability and LLM trace monitoring for Potpie. Get a token at [logfire.pydantic.dev](https://logfire.pydantic.dev) and add it to `.env`:
+
+```bash
+LOGFIRE_TOKEN=your_token_here
+```
+
+Tracing is initialized automatically on startup. View traces at [logfire.pydantic.dev](https://logfire.pydantic.dev).
+
+Set `LOGFIRE_SEND_TO_CLOUD=false` to disable sending traces to Logfire cloud.

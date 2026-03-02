@@ -95,7 +95,7 @@ export POTPIE_API_KEY="your_api_key_here"
 
 ### 2. Parse a Repository
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/parse \
+curl -X POST https://locahost:8001/api/v1/parse \
   -H "Authorization: Bearer $POTPIE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -107,13 +107,13 @@ curl -X POST https://production-api.potpie.ai/api/v1/parse \
 
 ### 3. Check Parsing Status
 ```bash
-curl -X GET https://production-api.potpie.ai/api/v1/parsing-status/proj_456 \
+curl -X GET https://locahost:8001/api/v1/parsing-status/proj_456 \
   -H "Authorization: Bearer $POTPIE_API_KEY"
 ```
 
 ### 4. Create Conversation
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+curl -X POST https://locahost:8001/api/v1/conversations/ \
   -H "Authorization: Bearer $POTPIE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,7 +127,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
 
 ### 5. Ask Questions
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/conv_789/message/ \
+curl -X POST https://locahost:8001/api/v1/conversations/conv_789/message/ \
   -H "Authorization: Bearer $POTPIE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -146,7 +146,7 @@ import time
 class PotpieClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = 'https://production-api.potpie.ai'
+        self.base_url = 'https://locahost:8001'
         self.headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
@@ -210,7 +210,7 @@ conv_id = client.ask_agent(project_id, 'Explain the authentication flow')
 ```typescript
 class PotpieClient {
   private apiKey: string;
-  private baseUrl = 'https://production-api.potpie.ai';
+  private baseUrl = 'https://locahost:8001';
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -465,7 +465,7 @@ async function safeApiCall<T>(fn: () => Promise<T>): Promise<T | null> {
 export POTPIE_API_KEY="your_key_here"
 
 # Make requests
-curl -X GET https://production-api.potpie.ai/api/v1/projects/list \
+curl -X GET https://locahost:8001/api/v1/projects/list \
   -H "Authorization: Bearer $POTPIE_API_KEY"
 ```
 

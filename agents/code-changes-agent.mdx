@@ -1,259 +1,92 @@
 ---
-title: 'Code Agent'
+title: "Code Generation Agent"
 ---
 
-The Code Agent generates production-ready code modifications through systematic analysis. It manages changes using Redis-based session tracking. The agent provides diff views and comprehensive dependency analysis before you apply changes.
+The Code Generation Agent reads your codebase's existing patterns and conventions before writing a single line, then generates code that fits naturally into what already exists.
 
-## Quick Start
-
-**Q&A Page**
-
-The agent gathers requirements through interactive clarifying questions with multiple choice options.
-
-<img src="/images/code-agent-clarifying-questions.png" alt="Code Agent Clarifying Questions Interface" />
-
-**Specification Loader Page**
-
-The agent analyzes your codebase through structured phases shown in the specification progress tracker.
-
-<img src="/images/code-agent-spec-generation.png" alt="Specification Generation Progress" />
-
-**Specification Page**
-
-The complete specification displays implementation details, dependencies, and structured action items for review.
-
-<img src="/images/code-agent-spec-page.png" alt="Generated Specification Page" />
-
-**Plan: Summary**
-
-Each phase includes a written summary describing what will be built and how it fits into the overall implementation.
-
-<img src="/images/code-agent-plan-summary.png" alt="Plan Summary Tab" />
-
-**Plan: Architecture**
-
-The architecture tab visualizes component relationships across client, API, and data layers for each phase.
-
-<img src="/images/code-agent-plan-architecture.png" alt="Plan Architecture Diagram" />
-
-**Plan: Plan Items**
-
-Each plan item details the task description, files to create or modify, and verification criteria to confirm completion.
-
-<img src="/images/code-agent-plan-items.png" alt="Plan Items with File Changes and Verification Criteria" />
-
-**Code Generation Page**
-
-The agent generates code in a diff view showing exact file changes, with a "Create PR" button to push changes directly to your repository.
-
-<img src="/images/code-agent-codegen.png" alt="Code Generation with Diff View" />
-
-**Final Review**
-
-<img src="/images/code-agent-final-review.png" alt="Final Review" />
-
-## API Overview
-
-The Code Agent operates as a stateful API endpoint. You send code modification requests. The agent generates changes and stores them in a session. You can review, modify, and export changes when ready.
-
-**Endpoint:** `POST /api/v1/agents/code`
-
-**Authentication:** Bearer token required
-
-### Request Format
-
-```typescript
-{
-  query: string              // Your code modification request
-  project_id: string         // Project identifier
-  conversation_id: string    // Conversation context
-  node_ids?: string[]        // Optional: Specific code references
-}
-```
-
-### Response Format
-
-```typescript
-{
-  response: string           // Explanation of code changes (markdown)
-  tool_calls: ToolCall[]     // Tools used during generation
-  citations: string[]        // Files referenced during generation
-}
-```
+if specific `node_ids` are referenced in the query, it fetches their source code and appends it as code context.
 
 ## How It Works
 
-1. **Context Enrichment**: Fetches code from referenced node IDs to understand existing patterns
-2. **Systematic Analysis**: Analyzes your codebase to identify all files that will be impacted
-3. **Pattern Examination**: Examines existing code patterns and conventions
-4. **Style-Matched Generation**: Generates changes that match your project style exactly
+### Understand the Task
 
-All modifications go through the Code Changes Manager. This Redis-based system tracks changes across files. You can review diffs before applying changes to your repository.
+The agent classifies every incoming task into one of five types: 
+- **new feature**
+- **modification** 
+- **refactor**
+- **bug fix** 
+- **multi-file change**
+ 
+ It extracts target files, classes, functions, scope, and dependencies.
 
-### Multi-Agent Mode
+<Note> For **multi-file or complex tasks**, it upfront identifies all impacted files and determines the order changes that need to happen, and thereby resolving dependencies for the files . </Note>
 
-The agent activates multi-agent mode for complex code generation. It delegates implementation to a specialized Code Implementation sub-agent. This sub-agent has 20 iterations available, the highest among all agents. Integration agents handle integration-specific code.
 
-**Single-Agent Mode:** The agent processes simple modifications directly using its tools.
+### Explore the Codebase
 
-**Multi-Agent Mode:** Complex tasks trigger delegation to specialized sub-agents with up to 20 iterations for thorough implementation.
+The agent reads the codebase prior to writing anything:
 
-## Common Use Cases
+- `ask_knowledge_graph_queries` : finds where the relevant feature or functionality lives
+- `get_code_file_structure` : understands directory layout and module organization
+- `get_code_from_probable_node_name` : retrieves specific named classes or functions
+- `get_code_from_multiple_node_ids` : batch-fetches all relevant nodes collected so far
+- `get_node_neighbours_from_node_id` : maps all call relationships
+- `fetch_file` / `fetch_files_batch` : retrieves full files or specific line ranges
+- `web_search_tool` / `webpage_extractor` : retrieves domain best practices when relevant
+- `get_nodes_from_tags` : used as a last resort if no relevant files are found
 
-### Adding Features
+### Analyze Patterns
 
-You request new features. The agent generates the necessary code across multiple files. It tracks all changes in the session.
+Prior to  writing, the agent captures exact indentation, import order, naming conventions, string literal formats, and docstring style from the existing codebase.
 
-```
-"Add user profile endpoint to the API"
-"Implement email notifications for password resets"
-"Create a dashboard component with charts"
-```
+It maps every import that needs to change, identifies all impacted files including tests, and documents any database schema or API contract changes.
 
-The agent generates all required files. It updates existing files where needed. You can review all changes before applying them.
+### Write Code
 
-### Modifying Code
+Changes are written through the **Code Changes Manager** (a Redis-backed session). The agent begins by calling `checkout_worktree_branch`, which creates or reuses a dedicated branch named `agent/edits-{sanitized_conversation_id}`.
 
-You request modifications to existing code. The agent locates the relevant files. It makes precise changes while preserving functionality.
+The conversation ID is sanitized before branch creation by replacing forward slashes, backslashes, and spaces with hyphens to ensure the branch name is valid and safe. Changes are then written using:
+- `add_file_to_changes` : for new files
+- `update_file_lines`, `replace_in_file`, `insert_lines`, `delete_lines` : for modifications
 
-```
-"Update the login function to support OAuth"
-"Add error handling to the payment processor"
-"Refactor the user service to use async/await"
-```
+Before every line-based operation, the agent calls `get_file_from_changes` with `with_line_numbers=true` so it always works against the current state of the file and never assumes line numbers after a prior insert or delete.
 
-The agent shows diffs for each modified file. You can iterate on changes before finalizing them.
+<Note> After every operation, it re-fetches to verify the change applied correctly.</Note>
 
-### Fixing Bugs
+### Review and Apply
 
-You describe bugs and request fixes. The agent analyzes the issue. It generates corrections and explains the root cause.
+The agent calls `show_diff` to display all changes as unified diffs, then immediately invokes `apply_changes`to persist them.
+Until `apply_changes` is executed, all changes exist only within the Redis session and are not written to disk.
 
-```
-"Fix the null pointer error in checkout"
-"Resolve the race condition in data sync"
-"Correct the SQL injection vulnerability in search"
-```
+**PR creation** only happens upon explicit user confirmation. The agent presents the **diff**, asks the user to confirm, and waits. Upon confirmation, it calls `create_pr_workflow`, a single composite operation that applies the patches, creates or updates the branch, commits the changes, pushes them to the remote repository, and opens a pull request on GitHub or GitLab.
 
-The agent provides both the fix and an explanation. It may suggest additional improvements.
+---
 
-## Example Request
-
+## Calling the Agent
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+curl -X POST https://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "content": "Add a GET /api/users/:id endpoint that returns user details",
-    "project_id": "proj_123",
-    "conversation_id": "conv_456"
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["code_generation_agent"]
   }'
 ```
 
-## Example Response
-
-```json
-{
-  "response": "## User Endpoint Implementation\n\nI have added a GET endpoint for user details. The implementation includes three components:\n\n### Routes (app/routes/users.py:23-28)\n\n```python\n@router.get('/users/{user_id}')\nasync def get_user(user_id: str, db: Session = Depends(get_db)):\n    user = await user_service.get_user_by_id(db, user_id)\n    if not user:\n        raise HTTPException(status_code=404, detail='User not found')\n    return user\n```\n\n### Service (app/services/user_service.py:45-52)\n\nThe service layer queries the database and returns the user object.\n\n### Tests (tests/test_users.py:67-89)\n\nI have added integration tests for the new endpoint.",
-  "changes_summary": "Modified 2 files, added 1 file:\n- app/routes/users.py: Added get_user endpoint\n- app/services/user_service.py: Added get_user_by_id method\n- tests/test_users.py: Added test cases",
-  "session_id": "session_abc123"
-}
-```
-
-## Reviewing Changes
-
-You can review changes before applying them. The agent provides several tools for inspection.
-
-### View All Changes
-
-Request a summary of all modifications in the session.
-
+Once you have a `conversation_id`, send your instruction:
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "content": "Show me all changes in the current session",
-    "project_id": "proj_123",
-    "conversation_id": "conv_456"
+    "content": "Add rate limiting to the authentication endpoints",
+    "node_ids": ["node_abc123"]
   }'
 ```
 
-### View Specific Diff
+---
 
-Request the diff for a specific file.
+## Next Steps
 
-```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "Show me the diff for app/routes/users.py",
-    "project_id": "proj_123",
-    "conversation_id": "conv_456"
-  }'
-```
-
-### Export Changes
-
-Export all changes for application to your codebase.
-
-```bash
-curl -X POST https://production-api.potpie.ai/api/v1/agents/code \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "Export all changes",
-    "project_id": "proj_123",
-    "conversation_id": "conv_456"
-  }'
-```
-
-## Error Responses
-
-<AccordionGroup>
-  <Accordion title="400 Bad Request">
-    The request has invalid format or missing required fields.
-
-    ```json
-    {
-      "error": "VALIDATION_ERROR",
-      "message": "Missing required field: project_id"
-    }
-    ```
-  </Accordion>
-  <Accordion title="401 Unauthorized">
-    The API key is missing or invalid.
-
-    ```json
-    {
-      "error": "UNAUTHORIZED",
-      "message": "Invalid API key"
-    }
-    ```
-  </Accordion>
-  <Accordion title="404 Not Found">
-    The specified project does not exist or is not accessible.
-
-    ```json
-    {
-      "error": "PROJECT_NOT_FOUND",
-      "message": "Project not found"
-    }
-    ```
-  </Accordion>
-  <Accordion title="429 Too Many Requests">
-    You have exceeded the rate limit.
-
-    ```json
-    {
-      "error": "RATE_LIMIT_EXCEEDED",
-      "message": "Retry after 60 seconds"
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Related Agents
-
-- <a href="/build-flow/ask-a-question" className="mode-link">Ask a Question</a> - Answers questions about your codebase
-- <a href="/build-flow/debug-an-issue" className="mode-link">Debug an Issue</a> - Provides systematic bug diagnosis and resolution
+- See <a href="/agents/codebase-qna-agent" className="mode-link">Codebase Q&A Agent</a> to ask questions about your codebase
+- See <a href="/agents/debugging-agent" className="mode-link">Debugging Agent</a> to trace and fix issues

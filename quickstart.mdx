@@ -1,37 +1,54 @@
 ---
 title: 'Quickstart'
-description: 'Start using AI agents for your codebase in two steps.'
+description: 'Start using AI agents for your codebase in four steps.'
+mode: 'wide'
 ---
 
 <Steps>
-  <Step title="Select your repository and branch">
-    Potpie captures your entire codebase in a **graphical index** with all the relationships between `classes`, `files`, and `functions`, and **inferences** at every granularity level.
+  <Step title="Sign up and connect your repository">
+    Create your <a href="https://app.potpie.ai" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie account</a> and connect your GitHub account to allow Potpie AI agents access your codebases.
 
+    <img
+      src="/images/SignupPage.png"
+      alt="Sign Up Page"
+    />
+
+  </Step>
+
+  <Step title="Select the repository you want to work on.">
     <img
       src="/images/repo-select.png"
       alt="Repository Selection"
     />
 
-    <img
-      src="/images/branch-select.png"
-      alt="Select Branch"
-    />
+    Once the repo is selected, Potpie captures your entire codebase in a **topological index** which captures all the cannonical relationships(`classes`, `interfaces`, `files`, and `functions`) present in the codebase and performs [inference](/concepts/inference) at every abstraction level.
 
   </Step>
 
-  <Step title="Choose your mode">
-    <img src="/images/agent-select.png" alt="Select a Mode" />
+  <Step title="Start a conversation">
+    Start a conversation with your indexed codebase.
 
-    <CardGroup cols={3}>
-      <Card title="Ask a Question" href="/build-flow/ask-a-question">
-        Cited and precise graph answers.
-      </Card>
-      <Card title="Build a Feature" href="/build-flow/build-a-feature">
-        Builds that adapt to the codebase.
-      </Card>
-      <Card title="Debug an Issue" href="/build-flow/debug-an-issue">
-        Root cause traced through the graph.
-      </Card>
-    </CardGroup>
+    <img src="/images/agent-select.png" alt="Select a Mode" />
+    Potpie offers different agents/modes depending on your task. Each mode utilizes the same codebase graph but is optimized for a specialized task.
+    You can explore more about these modes here:
+
+      <CardGroup cols={3}>
+        <Card title="Ask a Question" href="/build-flow/ask-a-question">
+          Cited and precise graph answers.
+        </Card>
+        <Card title="Build a Feature" href="/build-flow/build-a-feature">
+          Builds that adapt to the codebase.
+        </Card>
+        <Card title="Debug an Issue" href="/build-flow/debug-an-issue">
+          Root cause traced through the graph.
+        </Card>
+      </CardGroup>
   </Step>
 </Steps>
+
+## Next Steps
+
+- [Tutorial: Make Your First Query](/tutorials/explore-your-codebase) - Learn how to ask questions and explore your codebase.
+- [Tutorial: Make Code Changes](/tutorials/make-code-changes) - Use the Build agent to make code changes with codebase awareness.
+- [Concepts: Knowledge Graph](/concepts/knowledge-graph) - Understand how Potpie analyzes your codebase.
+- [API Reference](/api-reference/introduction) - Integrate Potpie agents into your workflow programmatically.

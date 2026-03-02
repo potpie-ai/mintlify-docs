@@ -1,38 +1,24 @@
 ---
 title: 'Ask'
+description: "**Potpie's Q&A interface**"
 ---
 
-**Ask** answers natural language questions about the codebase. It queries the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> using <a href="/concepts/inference" className="mode-link">inference</a> to surface relationships, flows, and patterns. When a query involves a third-party library or external API, Ask retrieves the relevant documentation via **web fetch**.
+**Ask** answers questions about your codebase by navigating the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>  to find exactly what you need to know.
 
-## Getting started
+When a question involves a third-party library, it retrieves external documentation via web-Fetch. Follow-up questions in the same session retain full context from what came earlier
 
-<Steps>
-  <Step title="Ask your question">
-    Type a natural language question about the codebase. **Ask** handles **flow tracing**, **dependency mapping**, and **pattern analysis**.
+To start using Ask, see the <a href="/tutorials/explore-your-codebase" className="mode-link">Explore Your Codebase tutorial</a>.
 
-    <img src="/images/new-chat-interface.png" alt="Chat interface" />
-  </Step>
 
-  <Step title="Review the response">
-    Potpie returns an answer with exact file paths and line references for every claim.
+## How It Navigates
 
-    <img src="/images/ask-review1.png" alt="Response in progress" />
+Prior to  generating a response, Ask first classifies the question to determine whether it concerns behaviour, implementation, location, or design intent.
+Complex questions are broken into components and addressed one after other.
 
-    <img src="/images/ask-review2.png" alt="Completed response with citations" />
+## How It Responds
 
-    <Tip>
-      Follow up questions in the same session retain full context, so **Ask** can narrow from a broad overview to a specific function without re-establishing context.
-    </Tip>
-  </Step>
-</Steps>
+Answers are structured with headers, code snippets, and citations to exact file locations. File paths are shown relative to the repository root. Every requirement for the question raised is verified before the response is returned.
 
-## Question types
-
-| Type | Response |
-|---|---|
-| Tracing flows | Full component sequence from entry point to output, with file paths and line references at each step |
-| Mapping dependencies | Every class, function, and module that imports or calls the target, organized by dependency type |
-| Pattern analysis | Every instance of the pattern across the codebase with code citations |
 
 ## Using the API
 

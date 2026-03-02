@@ -1,52 +1,48 @@
 ---
-title: 'Knowledge Graph'
-description: 'How Potpie builds a semantic map of your codebase.'
+title: "Knowledge Graph"
 ---
 
-Potpie parses every source file in a connected repository and runs <a href="/concepts/inference" className="mode-link">inference</a> on each node to build a **knowledge graph**, a structured representation of what every component does and how it relates to everything else. **Ask**, **Build**, and **Debug** all run against this graph.
+Potpie queries the knowledge graph and retrieves the nodes based on relevance to what an agent has to understand.
 
-## What gets parsed
+<img
+  src="/images/Knowledge-graph.png"
+  alt="a simple image showing code to graph text"
+/>
 
-Every source file breaks down into typed nodes.
+## Query Entry
 
-| Node type | What it captures |
-|---|---|
-| `Function` / `Method` | Signature, parameters, return type, call sites, and the file it lives in |
-| `Class` | Fields, methods, inheritance chain, and every file that instantiates or extends it |
-| `Module` / `File` | Exports, imports, and the dependency relationships between files |
+Once the knowledge graph is fully annotated, agents can begin querying it.
+- Every node in the graph is both **structurally traversable** through its relationships and **semantically searchable** through its description.
+- When an agent receives a question, it evaluates the input and determines which method of querying the graph is most appropriate.
 
-<Info>
-Potpie indexes each branch independently, so queries always reflect the exact state of code on the selected branch.
-</Info>
+## Search and Traversal
 
-## How relationships are mapped
+Agents have 3 ways to explore nodes in the graph:
 
-Relationships between nodes become typed **edges** in the graph.
+1. **Vector search :** 
+    - converts a natural language question into an embedding and finds the nodes whose descriptions are most semantically similar to it. 
+    - When the agent works within a specific part of the codebase, the search is scoped to nodes connected to that context rather than the entire graph.
 
-| Edge type | What it represents |
-|---|---|
-| `Calls` | A function invoking another function |
-| `Imports` | A file or module depending on another |
-| `Extends` | A class inheriting from another |
-| `Implements` | A class implementing an interface or contract |
+2. **Structural traversal :** 
+   - Starts from a known node and follows all relationships outward, returning the complete subgraph of everything connected to it.
+   - No filtering is applied returning the full structure as a nested tree.
 
-<Info>
-Every edge carries directionality. The graph records which component depends on which, giving agents a precise map of every dependency in the codebase.
-</Info>
+3. **Filtered traversal :** 
+   
+   works the similarity but scores each connected node by architectural relevance before returning it.
+   - Core business logic and frontend components score highest.
+   - Noise like logs, mocks, and test stubs score lowest and are pruned. 
+   - Only nodes above a relevance threshold are included, giving the agent a cleaner view of what matters.
 
-## How agents use it
 
-<CardGroup cols={3}>
-  <Card title="Ask" href="/build-flow/ask-a-question">
-    Traces a flow by traversing edges from the entry point outward.
-  </Card>
-  <Card title="Build" href="/build-flow/build-a-feature">
-    Reads dependency edges around every file it plans to modify before generating a spec.
-  </Card>
-  <Card title="Debug" href="/build-flow/debug-an-issue">
-    Follows the call chain backwards from the point of failure to identify a root cause.
-  </Card>
-</CardGroup>
+## Graph Navigation
 
-Every answer is grounded in the graph. File paths and line numbers come directly from the indexed nodes.
+Agents understand the code flows through the codebase by the use of 2 Tools:
 
+1. **Entry point detection :** 
+
+   - Identifies every function that nothing else in the codebase calls like API handlers, CLI commands, event listeners, scheduled jobs. 
+   - These are the natural starting points of execution and give the agent a map of where behavior originates.
+
+2. **Neighbor traversal :** 
+  Starts from any function and follows its call graph outward, collecting every function reachable from it through any number of hops. This gives the agent the full downstream impact surface of any given function.

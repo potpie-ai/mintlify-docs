@@ -57,7 +57,7 @@ The response concludes with suggested follow-up questions and next steps tailore
 
     # Create conversation with codebase_qna_agent
     response = requests.post(
-        "https://production-api.potpie.ai/api/v1/conversations/",
+        "https://locahost:8001/api/v1/conversations/",
         headers={"Authorization": "Bearer <token>"},
         json={
             "user_id": "user_123",
@@ -73,7 +73,7 @@ The response concludes with suggested follow-up questions and next steps tailore
 
     ```javascript JavaScript
     const response = await fetch(
-      'https://production-api.potpie.ai/api/v1/conversations/',
+      'https://locahost:8001/api/v1/conversations/',
       {
         method: 'POST',
         headers: {
@@ -94,7 +94,7 @@ The response concludes with suggested follow-up questions and next steps tailore
     ```
 
     ```bash cURL
-    curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+    curl -X POST https://locahost:8001/api/v1/conversations/ \
       -H "Authorization: Bearer <token>" \
       -H "Content-Type": 'application/json" \
       -d '{
@@ -113,7 +113,7 @@ The response concludes with suggested follow-up questions and next steps tailore
     ```python Python
     # Send message to conversation (uses Form data)
     message_response = requests.post(
-        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
         headers={"Authorization": "Bearer <token>"},
         data={
             "content": "Where is authentication implemented?"
@@ -132,7 +132,7 @@ The response concludes with suggested follow-up questions and next steps tailore
     formData.append('content', 'Where is authentication implemented?');
 
     const messageResponse = await fetch(
-      `https://production-api.potpie.ai/api/v1/conversations/${conversationId}/message/?stream=false`,
+      `https://locahost:8001/api/v1/conversations/${conversationId}/message/?stream=false`,
       {
         method: 'POST',
         headers: {
@@ -148,7 +148,7 @@ The response concludes with suggested follow-up questions and next steps tailore
 
     ```bash cURL
     # Uses Form data (multipart/form-data)
-    curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+    curl -X POST "https://locahost:8001/api/v1/conversations/{conversation_id}/message/?stream=false" \
       -H "Authorization: Bearer <token>" \
       -F "content=Where is authentication implemented?"
     ```
@@ -341,7 +341,7 @@ Locate where specific functionality lives in your codebase.
     ```python Python
     # Send message in the same conversation
     response = requests.post(
-        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
         headers={"Authorization": "Bearer <token>"},
         data={
             "content": "Show me the complete payment flow from cart checkout to order confirmation"
@@ -353,7 +353,7 @@ Locate where specific functionality lives in your codebase.
     ```javascript JavaScript
     // Send message in the same conversation
     const response = await fetch(
-      `https://production-api.potpie.ai/api/v1/conversations/${conversationId}/message/`,
+      `https://locahost:8001/api/v1/conversations/${conversationId}/message/`,
       {
         method: 'POST',
         headers: {
@@ -448,7 +448,7 @@ Learn how features work by asking natural language questions.
     ```python Python
     # Ask initial question
     response = requests.post(
-        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
         headers={"Authorization": "Bearer <token>"},
         data={
             "content": "How does authentication work in this app?"
@@ -458,7 +458,7 @@ Learn how features work by asking natural language questions.
 
     # Follow-up question in same conversation maintains context
     followup = requests.post(
-        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
         headers={"Authorization": "Bearer <token>"},
         data={
             "content": "What happens if the token expires?"
@@ -545,7 +545,7 @@ Get high-level system overviews and identify patterns.
 <CodeGroup>
 ```bash cURL
 # Send message to existing conversation
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/ \
+curl -X POST https://locahost:8001/api/v1/conversations/{conversation_id}/message/ \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -558,7 +558,7 @@ import requests
 
 # Send message to existing conversation
 response = requests.post(
-    f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+    f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
     headers={"Authorization": "Bearer <token>"},
     json={
         "content": "Where is authentication implemented?",
@@ -573,7 +573,7 @@ print(answer)
 ```javascript JavaScript
 // Send message to existing conversation
 const response = await fetch(
-  `https://production-api.potpie.ai/api/v1/conversations/${conversationId}/message/`,
+  `https://locahost:8001/api/v1/conversations/${conversationId}/message/`,
   {
     method: 'POST',
     headers: {
