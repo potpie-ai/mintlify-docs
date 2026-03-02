@@ -1,10 +1,11 @@
 ---
 title: "Knowledge Graph"
-description: "Potpie queries the knowledge graph to find and retrieve the nodes most relevant to what an agent is trying to understand."
 ---
 
+Potpie queries the knowledge graph and retrieves the nodes based on relevance to what an agent has to understand.
+
 <img
-  src="/images/parsing-architecture.png"
+  src="/images/Knowledge-graph.png"
   alt="a simple image showing code to graph text"
 />
 
@@ -16,11 +17,11 @@ Once the knowledge graph is fully annotated, agents can begin querying it.
 
 ## Search and Traversal
 
-Agents have 3 ways to find and explore nodes in the graph: 
+Agents have 3 ways to explore nodes in the graph:
 
 1. **Vector search :** 
     - converts a natural language question into an embedding and finds the nodes whose descriptions are most semantically similar to it. 
-    - When the agent is already working within a specific part of the codebase, the search is scoped to nodes connected to that context rather than the entire graph.
+    - When the agent works within a specific part of the codebase, the search is scoped to nodes connected to that context rather than the entire graph.
 
 2. **Structural traversal :** 
    - Starts from a known node and follows all relationships outward, returning the complete subgraph of everything connected to it.
@@ -28,16 +29,15 @@ Agents have 3 ways to find and explore nodes in the graph:
 
 3. **Filtered traversal :** 
    
-   Works the similarly but scores each connected node by architectural relevance before returning it. 
+   works the similarity but scores each connected node by architectural relevance before returning it.
    - Core business logic and frontend components score highest.
    - Noise like logs, mocks, and test stubs score lowest and are pruned. 
    - Only nodes above a relevance threshold are included, giving the agent a cleaner view of what matters.
 
----
 
 ## Graph Navigation
 
-Agents have 2 tools for understanding how code flows through the codebase: 
+Agents understand the code flows through the codebase by the use of 2 Tools:
 
 1. **Entry point detection :** 
 

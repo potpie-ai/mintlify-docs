@@ -24,7 +24,7 @@ info:
     ## Base URL
 
     ```
-    Production: https://production-api.potpie.ai
+    Production: https://locahost:8001
     Development: http://localhost:8000
     ```
 
@@ -38,7 +38,7 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 
 servers:
-  - url: https://production-api.potpie.ai
+  - url: https://locahost:8001
     description: Production server
   - url: http://localhost:8000
     description: Development server

@@ -189,7 +189,7 @@ For complex debugging tasks, the agent activates multi-agent mode:
 ### Create a Conversation
 
 ```bash cURL
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+curl -X POST https://localhost:8001/api/v1/conversations/ \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -204,7 +204,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
 ### Send a Bug Report
 
 ```bash cURL
-curl -X POST "https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/?stream=false" \
+curl -X POST "https://localhost:8001/api/v1/conversations/{conversation_id}/message/?stream=false" \
   -H "Authorization: Bearer <token>" \
   -F "content=Users are getting null pointer errors during checkout when they have empty shopping carts"
 ```

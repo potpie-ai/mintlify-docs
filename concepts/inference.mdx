@@ -1,36 +1,35 @@
 ---
 title: "Inference"
-description: "Potpie parses through your repository's source code to build a structured dependency graph, capturing every symbol and the relationships between them as a navigable map it reasons over."
+description: "Potpie parses repository's source code & builds a structured dependency graph, capturing every symbol and the relationships between them as a navigable map it reasons over."
 ---
 <img
-  src="/images/parsing-architecture.png"
+  src="/images/Inference.png"
   alt="a simple image showing code to graph text"
 />
 
 ## Node Preparation
 
-Once parsing is complete, Potpie takes every node in the graph and prepares it for understanding. 
+Post Parsing, Potpie ensures every node in the graph is prepared for understanding.
 
-Each node carries the raw source code of the symbol it represents. Before any processing begins, that source text is fully resolved , ensuring every node contains complete, self-contained code rather than references to other nodes.
+Each node carries the raw source code of represented symbol. Prior to any processing, concerned source text is fully resolved, ensuring every node contains complete, self-contained code rather than references to other nodes.
 
 ## Cache Resolution
 
-Before sending any code to an LLM, Potpie checks whether it has seen that exact source before. 
-- Nodes whose code hasn't changed since a previous run are retrieved directly from cache, skip inference entirely. 
+Prior to sending any code to LLM, Potpie verifies if exact source is referred earlier.
+- Nodes with no change in code since previous run, are retrieved directly from cache, & inference is skipped.
 - Only nodes with new or changed code proceed to **LLM processing**.
 
----
 
 ## LLM Processing
 
-Each uncached node is sent to an LLM, which produces a short description of what the code does and a set of `tag` classifying its role.
+Every uncached node is sent to LLM, which then does a short description of what the code does & a set of `tag` classifying its role, across the multiple actions like authentication, database access, UI rendering, state management, and so on... 
 
- Whether it handles authentication, database access, UI rendering, state management, and so on... Large nodes are split into chunks, processed separately, and then merged back into a single result before moving forward.
+Large nodes are split into chunks, processed separately, and then merged back into a single result before moving ahead.
 
----
+
 
 ## Storage and Indexing
 
-Once every node has a description and tags,Potpie generates a semantic embedding from each description and writes everything back to the knowledge graph. 
+Once every node has a description and `tag` , Potpie generates a semantic embedding from each description and writes everything back to the knowledge graph. 
  
- The result is a fully annotated graph where every node is searchable by name, by role, and by meaning `ready` for agents to navigate and query.
+The result is a fully annotated graph wherein every node is searchable by name, by role, and by meaning `ready` for agents to navigate and query.

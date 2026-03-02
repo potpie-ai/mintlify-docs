@@ -4,7 +4,7 @@
 
 This document provides comprehensive documentation for the 7 core Potpie API endpoints. The API enables AI-powered codebase intelligence through conversations, semantic search, and intelligent agents.
 
-**Base URL:** `https://production-api.potpie.ai`
+**Base URL:** `https://locahost:8001`
 
 **Authentication:** All endpoints require Bearer token authentication via the `Authorization` header.
 
@@ -70,7 +70,7 @@ This document provides comprehensive documentation for the 7 core Potpie API end
 ### Example (cURL)
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
+curl -X POST https://locahost:8001/api/v1/conversations/ \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -88,7 +88,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/conversations/ \
 import requests
 
 response = requests.post(
-    'https://production-api.potpie.ai/api/v1/conversations/',
+    'https://locahost:8001/api/v1/conversations/',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ conversation_id = response.json()['conversation_id']
 ### Example (TypeScript)
 
 ```typescript
-const response = await fetch('https://production-api.potpie.ai/api/v1/conversations/', {
+const response = await fetch('https://locahost:8001/api/v1/conversations/', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -181,7 +181,7 @@ const { conversation_id } = await response.json();
 ### Example (cURL)
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/parse \
+curl -X POST https://locahost:8001/api/v1/parse \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -197,7 +197,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/parse \
 import requests
 
 response = requests.post(
-    'https://production-api.potpie.ai/api/v1/parse',
+    'https://locahost:8001/api/v1/parse',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -260,7 +260,7 @@ print(f"Parsing started for project: {project_id}")
 ### Example (cURL)
 
 ```bash
-curl -X GET https://production-api.potpie.ai/api/v1/parsing-status/proj_456 \
+curl -X GET https://locahost:8001/api/v1/parsing-status/proj_456 \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -276,7 +276,7 @@ def wait_for_parsing(project_id: str, timeout: int = 600):
 
     while time.time() - start_time < timeout:
         response = requests.get(
-            f'https://production-api.potpie.ai/api/v1/parsing-status/{project_id}',
+            f'https://locahost:8001/api/v1/parsing-status/{project_id}',
             headers={'Authorization': 'Bearer YOUR_API_KEY'}
         )
 
@@ -306,7 +306,7 @@ async function waitForParsing(projectId: string): Promise<void> {
 
   while (attempts < maxAttempts) {
     const response = await fetch(
-      `https://production-api.potpie.ai/api/v1/parsing-status/${projectId}`,
+      `https://locahost:8001/api/v1/parsing-status/${projectId}`,
       {
         headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
       }
@@ -409,7 +409,7 @@ async function waitForParsing(projectId: string): Promise<void> {
 ### Example (cURL)
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/conversations/conv_789/message/ \
+curl -X POST https://locahost:8001/api/v1/conversations/conv_789/message/ \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -423,7 +423,7 @@ curl -X POST https://production-api.potpie.ai/api/v1/conversations/conv_789/mess
 import requests
 
 response = requests.post(
-    'https://production-api.potpie.ai/api/v1/conversations/conv_789/message/',
+    'https://locahost:8001/api/v1/conversations/conv_789/message/',
     headers={
         'Authorization': 'Bearer YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -445,7 +445,7 @@ print(f"Message sent: {response.json()['message_id']}")
 ```typescript
 async function askQuestion(conversationId: string, question: string) {
   const response = await fetch(
-    `https://production-api.potpie.ai/api/v1/conversations/${conversationId}/message/`,
+    `https://locahost:8001/api/v1/conversations/${conversationId}/message/`,
     {
       method: 'POST',
       headers: {
@@ -505,7 +505,7 @@ async function askQuestion(conversationId: string, question: string) {
 ### Example (cURL)
 
 ```bash
-curl -X GET https://production-api.potpie.ai/api/v1/projects/list \
+curl -X GET https://locahost:8001/api/v1/projects/list \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -515,7 +515,7 @@ curl -X GET https://production-api.potpie.ai/api/v1/projects/list \
 import requests
 
 response = requests.get(
-    'https://production-api.potpie.ai/api/v1/projects/list',
+    'https://locahost:8001/api/v1/projects/list',
     headers={'Authorization': 'Bearer YOUR_API_KEY'}
 )
 
@@ -532,7 +532,7 @@ for project in active_projects:
 ```typescript
 async function findProject(name: string) {
   const response = await fetch(
-    'https://production-api.potpie.ai/api/v1/projects/list',
+    'https://locahost:8001/api/v1/projects/list',
     {
       headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
     }
@@ -602,7 +602,7 @@ console.log(`Project ID: ${project?.id}`);
 ### Example (cURL)
 
 ```bash
-curl -X GET https://production-api.potpie.ai/api/v1/list-available-agents/ \
+curl -X GET https://locahost:8001/api/v1/list-available-agents/ \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -612,7 +612,7 @@ curl -X GET https://production-api.potpie.ai/api/v1/list-available-agents/ \
 import requests
 
 response = requests.get(
-    'https://production-api.potpie.ai/api/v1/list-available-agents/',
+    'https://locahost:8001/api/v1/list-available-agents/',
     headers={'Authorization': 'Bearer YOUR_API_KEY'}
 )
 
@@ -634,7 +634,7 @@ for agent in test_agents:
 ```typescript
 async function getAgentIds(): Promise<string[]> {
   const response = await fetch(
-    'https://production-api.potpie.ai/api/v1/list-available-agents/',
+    'https://locahost:8001/api/v1/list-available-agents/',
     {
       headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
     }
@@ -729,7 +729,7 @@ console.log('Available agents:', agentIds);
 ### Example (cURL)
 
 ```bash
-curl -X POST https://production-api.potpie.ai/api/v1/search \
+curl -X POST https://locahost:8001/api/v1/search \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -745,7 +745,7 @@ import requests
 
 def search_codebase(project_id: str, query: str, min_relevance: float = 0.5):
     response = requests.post(
-        'https://production-api.potpie.ai/api/v1/search',
+        'https://locahost:8001/api/v1/search',
         headers={
             'Authorization': 'Bearer YOUR_API_KEY',
             'Content-Type': 'application/json'
@@ -777,7 +777,7 @@ for result in results:
 async function searchAndAsk(projectId: string, query: string) {
   // 1. Search for relevant code
   const searchResponse = await fetch(
-    'https://production-api.potpie.ai/api/v1/search',
+    'https://locahost:8001/api/v1/search',
     {
       method: 'POST',
       headers: {
@@ -793,7 +793,7 @@ async function searchAndAsk(projectId: string, query: string) {
 
   // 2. Create conversation
   const convResponse = await fetch(
-    'https://production-api.potpie.ai/api/v1/conversations/',
+    'https://locahost:8001/api/v1/conversations/',
     {
       method: 'POST',
       headers: {
@@ -814,7 +814,7 @@ async function searchAndAsk(projectId: string, query: string) {
 
   // 3. Ask question with context
   await fetch(
-    `https://production-api.potpie.ai/api/v1/conversations/${conversation_id}/message/`,
+    `https://locahost:8001/api/v1/conversations/${conversation_id}/message/`,
     {
       method: 'POST',
       headers: {
@@ -850,7 +850,7 @@ import time
 class PotpieClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = 'https://production-api.potpie.ai'
+        self.base_url = 'https://locahost:8001'
         self.headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
@@ -1113,7 +1113,7 @@ except requests.exceptions.RequestException as e:
 -H "Authorization: Bearer YOUR_API_KEY"
 
 # Base URL
-https://production-api.potpie.ai
+https://locahost:8001
 
 # Endpoints
 POST   /api/v1/conversations/                          # Create conversation

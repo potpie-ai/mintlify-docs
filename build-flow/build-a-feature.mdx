@@ -1,28 +1,29 @@
 ---
 title: 'Build a Feature'
+description: "**Potpie's code generation interface**"
 sidebarTitle: 'Build'
 ---
 
-Build is Potpie's code generation interface.Potpie reads existing patterns, conventions, and dependencies from the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before writing a line of code.
+Potpie reads existing patterns, conventions, and dependencies from the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before initiating a line of code.
 
 It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. The code it produces fits naturally into what already exists.
 
-To start using Build, see the <a href="/tutorials/make-code-changes" className="mode-link">Make Code Changes tutorial</a>.
+If you intend to generate code, that fits  existing patterns and review every change as a diff before it reaches the repository, follow the <a href="/tutorials/make-code-changes" className="mode-link">Make Code Changes tutorial</a>.
 
 ## How It Works
 
-Build starts by asking **clarifying questions** to lock in scope to generate a **specification** covering every file that needs to be created or modified. 
+Build starts by probing **clarifying questions** to lock- in the scope to generate a **specification** covering every file that needs to be created or modified.
 
 It then produces a **plan** showing what changes, in what order, and how new components relate to existing ones. Code is presented as a **diff** for every file touched.
 
-Potpie automatically determines whether a **single agent** can handle the full task or whether **specialized subagents** should split the research and coding work ,based on the complexity of what's being built.
+Based upon the complexity of what's being built, Potpie automatically determines whether a **single agent** can handle the full task or whether **specialized subagents** should split the research and coding work.
 
 
 ## What It Produces
 
 Every change is shown as a diff. Once approved, Potpie creates the **pull request**.
 
-Nothing is generated speculatively, so if a referenced file cannot be located in the codebase, Build pauses execution and requests clarification rather than fabricating code or assumptions that do not exist.
+Nothing is generated speculatively, For instance, iff a referenced file cannot be located in the codebase, Build pauses execution and requests clarification rather than fabricating code or assumptions that do not exist.
 
 
 ## Using the API

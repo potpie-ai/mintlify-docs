@@ -1,6 +1,6 @@
 ---
 title: "Parsing"
-description: "Potpie parses through your repository's source code to build a structured dependency graph, capturing every symbol and the relationships between themexpl"
+description: "With Potpie, you can with ease, parse through repository’s complex source code, build a structured dependency graph & seamlessly capture every symbol along with their inter relationship."
 ---
 
 <img
@@ -10,32 +10,33 @@ description: "Potpie parses through your repository's source code to build a str
 
 ## Repo Onboarding
 
-When a repository is added, Potpie first determines whether it has already been parsed.  
-- If a parsed graph exists for the same commit, parsing is skipped and the existing graph is reused.
-- If no prior graph is found, the acquired repository is passed to the **File Analysis**.
+As you add repository, Potpie instantly validates the current parsed `status`.
+
+If parsed graph exists, then potpie uses the existing graph, else the acquired repository is passed to the **File Analysis**.
+
 
 ## File Analysis
 
-Every file in the repository is evaluated before parsing begins.  
-- Files that cannot contain meaningful source code, such as images, binaries, or notebooks, are excluded early to avoid unnecessary processing.  
+Every file in the repository is evaluated before parsing action is initiated.  
+- Files without meaningful source code, such as images, binaries, or notebooks, are excluded early on to avoid unnecessary processing.
 - Files with recognized source extensions are accepted as valid inputs and forwarded for structured analysis.
 
-Each accepted file is then matched to a language grammar that determines how its symbols will be extracted.
+Symbols are extracted by matching the accepted file to language grammar.
 
 ## AST Querying
 
 Each file is parsed into an abstract syntax tree and queried for symbols.  
 - Every `function`, `class`, `method`, or `interface` discovered is recorded with its exact name and precise location in the codebase.  
-- Each symbol is also classified to indicate whether it represents an original **definition or** a **reference** to a definition elsewhere.
+- Each symbol is also classified to indicate whether it represents an **original definition** or a **reference** to a definition elsewhere.
 
 ## Graph Construction
 
 - **Definitions** are represented as nodes in the knowledge graph.  
 - **References** between symbols are represented as edges.  
 
-This creates a navigable structural map of the codebase that captures not only what exists, but how components depend on one another.
+This creates a navigable structural map of the codebase that captures not only what exists, but also interdependency between the components.
 
 ## Storage
 
-- Once all nodes and relationships are persisted, the repository is marked as `ready`.  
+- The repository is marked as ‘ready’ only when all nodes & relationships are persisted.
 - Any subsequent request for the same commit skips parsing entirely and queries the existing graph directly.

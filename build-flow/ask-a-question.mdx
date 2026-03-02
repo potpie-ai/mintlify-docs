@@ -1,22 +1,23 @@
 ---
 title: 'Ask'
+description: "**Potpie's Q&A interface**"
 ---
 
-**Ask** is Potpie's Q&A interface. It answers questions about your codebase by navigating the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>  to find exactly what you need to know.
+**Ask** answers questions about your codebase by navigating the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>  to find exactly what you need to know.
 
-When a question involves a third-party library, it retrieves external documentation via web-Fetch.Follow-up questions in the same session retain full context from what came before.
+When a question involves a third-party library, it retrieves external documentation via web-Fetch. Follow-up questions in the same session retain full context from what came earlier
 
 To start using Ask, see the <a href="/tutorials/explore-your-codebase" className="mode-link">Explore Your Codebase tutorial</a>.
 
 
 ## How It Navigates
 
-Before generating a response, Ask first classifies the question to determine whether it concerns behavior, implementation, location, or design intent.
-Complex questions are broken into components and addressed one by one.
+Prior to  generating a response, Ask first classifies the question to determine whether it concerns behaviour, implementation, location, or design intent.
+Complex questions are broken into components and addressed one after other.
 
 ## How It Responds
 
-Answers are structured with headers, code snippets, and citations to exact file locations. File paths are shown relative to the repository root. Every requirement the question raised is verified before the response is returned.
+Answers are structured with headers, code snippets, and citations to exact file locations. File paths are shown relative to the repository root. Every requirement for the question raised is verified before the response is returned.
 
 
 ## Using the API

@@ -1,130 +1,103 @@
 ---
-title: 'API Access'
+title: "API Access"
+description: "Use the Potpie API to parse repositories, create conversations, and query your codebase programmatically."
 ---
 
-The **Potpie API** follows **REST** conventions. Authenticate with an **API key** in the `x-api-key` header. Parse a repository, open a conversation with an agent, and retrieve structured answers with exact file and line citations.
+## Authentication
 
-## Generating an API Key
+Every request to the Potpie API requires an `x-api-key` header. To generate a key, see <a href="/tutorials/generate-api-key" className="mode-link">Generate an API Key</a>.
 
-<Steps>
-  <Step title="Sign in to the dashboard">
-    Open <a href="https://app.potpie.ai" className="mode-link">Potpie</a> and sign in.
+## Parse a Repository
 
-    <img src="/images/new-chat-interface.png" alt="Potpie Dashboard" />
-  </Step>
+Parsing builds the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> for your repository. Send a `POST /api/v2/parse` request to begin.
+```bash
+curl -X POST http://localhost:8001/api/v2/parse \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "repo_name": "owner/repo",
+    "branch_name": "main"
+  }'
+```
 
-  <Step title="Open Settings">
-    Click the account menu in the bottom-left corner and select **Settings**.
+| Field | Required | Description |
+|---|---|---|
+| `repo_name` | Yes (cloud) | GitHub repository in `owner/repo` format |
+| `repo_path` | Yes (local dev only) | Absolute path to a local repository. Only works when `isDevelopmentMode=enabled` |
+| `branch_name` | No | Branch to parse. If omitted, passed as `null` |
+| `commit_id` | No | Specific commit to parse |
 
-    <img src="/images/api-key-username-menu.png" alt="Username menu" />
-  </Step>
+Returns a `project_id` and `status`. Use the `project_id` in every subsequent request.
 
-  <Step title="Generate an API key">
-    In the **API Key** section, click **+ Generate API Key**.
+```json
+{ "project_id": "<your_project_id>", "status": "submitted" }
+```
 
-    <img src="/images/api-key-management-page.png" alt="API Key Management" />
-  </Step>
+---
 
-  <Step title="Copy the key">
-    The key appears once. Copy and store it securely.
+## Check Parsing Status
 
-    <img src="/images/api-key-generated.png" alt="Generated API Key" />
-  </Step>
-</Steps>
+Parsing runs asynchronously. Poll `GET /api/v2/parsing-status/{project_id}` until `status` is `ready`.
+```bash
+curl http://localhost:8001/api/v2/parsing-status/<your_project_id> \
+  -H "x-api-key: YOUR_API_KEY"
+```
+```json
+{ "status": "ready", "latest": true }
+```
 
-## API Workflow
+Status moves through `submitted` → `cloned` → `parsed` → `inferring` before reaching `ready`. If anything fails at any point, status becomes `error`.
 
-All API interactions follow a four-stage sequence. Each stage requires the previous to succeed.
+<Warning>Do not create a conversation until `status` is `ready`.</Warning>
 
-<Info>
-  The `/api/v2` endpoints use **API key** authentication.
-</Info>
+---
 
-<Steps>
-  <Step title="Parse the repository">
-    Submit a parse request to index the repository and build the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>. The response returns a `project_id` used in all subsequent requests.
+## Create a Conversation
+```bash
+curl -X POST http://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_ids": ["<your_project_id>"],
+    "agent_ids": ["codebase_qna_agent"]
+  }'
+```
 
-    **Endpoint:** `POST /api/v2/parse`
+| Agent ID | Purpose |
+|---|---|
+| `codebase_qna_agent` | Answer questions about the codebase |
+| `code_generation_agent` | Generate and modify code |
+| `spec_generation_agent` | Generate technical specifications |
+| `debugging_agent` | Trace and fix bugs |
 
-    **Headers:**
-    ```
-    x-api-key: your_api_key_here
-    ```
 
-    **Request:**
-    ```json
-    {
-      "repo_name": "potpie-ai/potpie",
-      "branch_name": "main"
-    }
-    ```
 
-    **Response:** Returns a `project_id` for use in subsequent requests.
-  </Step>
+Returns a `conversation_id`.
 
-  <Step title="Check parsing status">
-    Poll the status endpoint before proceeding. Conversation creation fails if <a href="/concepts/parsing" className="mode-link">parsing</a> has not completed. The `inferring` status indicates <a href="/concepts/inference" className="mode-link">inference</a> is still running.
+---
 
-    **Endpoint:** `GET /api/v2/parsing-status/{project_id}`
+## Send a Message
+```bash
+curl -X POST http://localhost:8001/api/v2/conversations/<your_conversation_id>/message/?stream=true \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "How is authentication implemented?"
+  }'
+```
 
-    **Headers:**
-    ```
-    x-api-key: your_api_key_here
-    ```
+**Streaming response** (`stream=true`, default)
 
-    Proceed once the response contains `"status": "ready"`.
-  </Step>
+Each chunk is yielded as a JSON object as it arrives:
+```json
+{"message": "Authentication is handled in...", "citations": ["app/auth/service.py"], "tool_calls": []}
+```
 
-  <Step title="Create a conversation">
-    Initialize a conversation by specifying the **project** and **agent**. The response returns a `conversation_id` for subsequent messages.
-
-    **Endpoint:** `POST /api/v2/conversations/`
-
-    **Headers:**
-    ```
-    x-api-key: your_api_key_here
-    ```
-
-    **Request:**
-    ```json
-    {
-      "project_ids": ["your_project_id"],
-      "agent_ids": ["codebase_qna_agent"]
-    }
-    ```
-
-    <Note>
-      Each conversation supports exactly one project ID and one agent ID.
-    </Note>
-  </Step>
-
-  <Step title="Send a message">
-    Submit a message to the conversation. The agent processes the query and returns a structured response with citations.
-
-    **Endpoint:** `POST /api/v2/conversations/{conversation_id}/message/`
-
-    **Headers:**
-    ```
-    x-api-key: your_api_key_here
-    ```
-
-    **Request:**
-    ```json
-    {
-      "content": "Where is authentication implemented?"
-    }
-    ```
-
-    **Query Parameters:**
-    - `stream` (boolean, default: `true`): Set to `false` to receive the full response as a single JSON object.
-
-    **Response:**
-    ```json
-    {
-      "message": "Markdown-formatted answer with citations",
-      "tool_calls": [],
-      "citations": ["app/auth/service.py", "app/middleware/auth.py"]
-    }
-    ```
-  </Step>
-</Steps>
+**Non-streaming response** (`stream=false`)
+```json
+{
+  "message": "Authentication is implemented in...",
+  "citations": ["app/auth/service.py", "app/middleware/auth.py"],
+  "tool_calls": []
+}
+```

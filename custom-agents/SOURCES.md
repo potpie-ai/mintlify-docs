@@ -49,7 +49,7 @@ def _initialize_tools(self) -> Dict[str, Any]:
         "get_node_neighbours_from_node_id": get_node_neighbours_from_node_id_tool(...),
         # ... 30+ more tools
     }
-    # Plus todo management tools (6), code changes tools (18), requirement tools (3)
+    # Plus project management tools (9), code changes tools (18)
     # Total: 60+ tools
 ```
 

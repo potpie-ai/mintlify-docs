@@ -5,26 +5,26 @@ description: 'Complete reference of 60+ tools available to custom agents'
 
 # Available Tools
 
-Custom agents access 60+ specialized tools across six categories: Knowledge Graph, Code Analysis, Integration Tools, Web & Research, Code Management, and Task Management.
+Custom agents access 60+ specialized tools across six categories: Knowledge Graph, Code Access, External, Project Management, Integration, and Code Changes.
 
 ## Tool Categories
 
 ```mermaid
 graph LR
     A[Custom Agent] --> B[Knowledge Graph Tools]
-    A --> C[Code Analysis Tools]
-    A --> D[Integration Tools]
-    A --> E[Web & Research Tools]
-    A --> F[Code Management Tools]
-    A --> G[Task Management Tools]
+    A --> C[Code Access Tools]
+    A --> D[External Tools]
+    A --> E[Project Management Tools]
+    A --> F[Integration Tools]
+    A --> G[Code Changes Tools]
 
     style A fill:#b3f5d1,stroke:#333,color:#000
     style B fill:#e8f4f8,stroke:#333,color:#000
     style C fill:#f0f0f0,stroke:#333,color:#000
-    style D fill:#fff4e1,stroke:#333,color:#000
-    style E fill:#bfe3ff,stroke:#333,color:#000
-    style F fill:#f4e8f8,stroke:#333,color:#000
-    style G fill:#ffc9c9,stroke:#333,color:#000
+    style D fill:#bfe3ff,stroke:#333,color:#000
+    style E fill:#ffc9c9,stroke:#333,color:#000
+    style F fill:#fff4e1,stroke:#333,color:#000
+    style G fill:#f4e8f8,stroke:#333,color:#000
 ```
 
 ## Knowledge Graph Tools
@@ -523,9 +523,9 @@ Updates file content in a repository branch.
 **show_diff**
 - Show git-style diff to user
 
-## Task Management Tools
+## Project Management Tools
 
-6 tools for tracking multi-step operations and agent state.
+Tools for tracking multi-step operations, managing requirements, and coordinating agent workflows.
 
 ### create_todo
 
@@ -641,34 +641,33 @@ Clears the requirements document.
 | Understanding dependencies | `get_code_graph_from_node_id`, `get_node_neighbours_from_node_id` |
 | Reviewing recent changes | `change_detection` |
 | Exploring file structure | `get_code_file_structure` |
-| Making code changes | Code Management tools (`add_file_to_changes`, `update_file_lines`, etc.) |
-| Tracking progress | Task Management tools (`create_todo`, `update_todo_status`, etc.) |
-| External integrations | Jira, Linear, Confluence tools |
-| Research & documentation | `web_search_tool`, `webpage_extractor` |
+| Making code changes | Code Changes tools (`add_file_to_changes`, `update_file_lines`, etc.) |
+| Tracking progress | Project Management tools (`create_todo`, `update_todo_status`, etc.) |
+| External integrations | Integration tools (GitHub, Jira, Linear, Confluence) |
+| Research & documentation | External tools (`web_search_tool`, `webpage_extractor`) |
 
 ### By Agent Type
 
 **QnA / Research Agents:**
 - Knowledge Graph tools
-- Code Analysis tools
-- Web & Research tools
+- Code Access tools
+- External tools
 
 **Code Generation Agents:**
 - Knowledge Graph tools
-- Code Management tools
-- Code Provider tools
-- Requirement Verification tools
+- Code Changes tools
+- Integration tools (GitHub)
+- Project Management tools
 
 **Debugging Agents:**
 - Knowledge Graph tools
-- Code Analysis tools
+- Code Access tools
 - `change_detection`
-- Task Management tools
+- Project Management tools
 
 **Integration Agents:**
-- Jira, Linear, Confluence tools
-- Code Provider tools
-- Task Management tools
+- Integration tools (Jira, Linear, Confluence, GitHub)
+- Project Management tools
 
 ## Best Practices
 

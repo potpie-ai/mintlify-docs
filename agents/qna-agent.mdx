@@ -1,50 +1,77 @@
 ---
-title: QnA Agent
+title: "Codebase Q&A Agent"
+sidebarTitle: "Q&A Agent"
 ---
 
-An agent that answers natural language questions about your codebase using semantic search and knowledge graph traversal.
+The Codebase Q&A Agent answers questions about your codebase by navigating the <a href= "/concepts/knowledge-graph" className= "mode-link">knowledge graph</a> to find relevant code, trace dependencies, and return cited answers.
 
-**It accepts**
+Prior to the agent runs, it prepares two pieces of context automatically:
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `user_question` | `string` | required | Natural language question about your codebase |
-| `conversation_history` | `Message[]` | optional | Prior messages for follow-up context |
-| `project_id` | `string` | required | Project identifier |
-| `node_ids` | `string[]` | optional | Specific files or functions to scope the search |
+- If `node_ids` are referenced in the query, it fetches their source code via `get_code_from_multiple_node_ids` and appends it as code context
+- It always fetches the full file structure of the project via `fetch_repo_structure`
 
-**It returns**
+Both are injected into context before the agent processes your message.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `response` | `string` | Markdown-formatted answer with precise file citations |
-| `citations` | `string[]` | Exact file paths with line numbers referencing relevant code |
+## How It Works
 
-## Choose what you want to do
+### Understand the Question
 
-**Find code**
-- If you ask where a feature or function lives, QnA Agent searches semantically across your files, maps relationships between components, and traces end-to-end flows to locate it.
-- It surfaces the payment processor, API endpoints, database queries, or any other construct across multiple files & not just a grep match.
-- The result is a structured answer showing exactly which files implement what you're looking for, with line level citations.
+The agent classifies every incoming question into one of four types:
 
-**Understand how something works**
-- If you ask how a feature behaves, QnA Agent traces the full execution path : login endpoint → AuthService → Database → token generation → middleware — across every file involved.
-- It synthesizes findings from multiple files into a coherent explanation with code examples inline, so you see the system as a whole.
-- The answer follows the flow from start to finish so you understand what's happening, not just where the code lives.
+- **What** (functionality, purpose),
+- **How** (implementation, flow), 
+- **Where** (location, usage sites), 
+- **Why** (rationale, design decisions). 
 
-**Explore architecture**
-- If you ask about design patterns, dependency graphs, or system structure, QnA Agent maps what depends on what and surfaces the patterns your codebase uses.
-- It identifies direct and transitive dependencies, lists callers and callees, and names the patterns like repository, factory, observer along with code examples for each.
-- The result is a system-level overview backed by exact code references, not a generic architectural guess.
+It extracts key entities such as class names, function names, modules to determine scope.
 
-## Start building
+<Note> For complex or multi-part questions, it calls `add_requirements` to track what needs answering and `add_todo` to break exploration into individual tasks prior to any navigation. </Note>
 
-```python
-from app.modules.intelligence.agents.chat_agents.qna_agent import QnAAgent
+### Navigate the Codebase
 
-qna = QnAAgent(
-    llm_provider=provider_service,
-    tools_provider=tool_service,
-    prompt_provider=prompt_service,
-)
+The agent moves from broad to narrow:
+
+- `ask_knowledge_graph_queries` : finds where relevant functionality lives in the graph
+- `get_code_file_structure` : understands directory layout and module organization
+- `get_code_from_probable_node_name` : retrieves specific named classes or functions
+- `get_code_from_multiple_node_ids` : batch-fetches all relevant nodes collected so far
+- `get_node_neighbours_from_node_id` : finds what calls this code and what this code calls
+- `fetch_file` / `fetch_files_batch` : retrieves full files or specific line ranges
+- `web_search_tool` / `webpage_extractor` : retrieves external documentation when the question involves a third-party library
+
+<Note> `update_todo_status` is called after each exploration task completion. </Note>
+
+### Respond
+
+Answers are structured using clear section headings such as Main Answer, Details, Code Examples, and Related Components.
+
+Every claim is grounded in the codebase and supported with a **precise file path and line number**, and all code snippets are presented in fenced blocks with appropriate language tags for clarity.
+
+Prior to returning, the agent calls `get_requirements` and `read_todos` to verify that all aspects of the question are answered and all exploration tasks are complete.
+
+## Calling the Agent
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["codebase_qna_agent"]
+  }'
 ```
+
+Once you have a `conversation_id`, send your question:
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "How is authentication implemented?",
+    "node_ids": ["node_abc123"]
+  }'
+```
+
+## Next Steps
+
+- See <a href="/agents/debugging-agent" className="mode-link">Debugging Agent</a> to trace and fix issues across the codebase
+- See <a href="/agents/code-generation-agent" className="mode-link">Code Generation Agent</a> to generate and modify code

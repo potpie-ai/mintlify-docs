@@ -1,51 +1,82 @@
 ---
-title: SpecGen Agent
+title: "Spec Agent"
+---
+The Spec Agent analyzes your repository prior to probing, it first identifies your actual stack, architecture, and existing patterns.
+
+It then asks **clarifying questions** grounded in those findings, ensuring that its specification is tailored to your codebase rather than on a generic template.
+
+Prior to the agent run, `project_id` is injected into context so all tool calls can reference it.
+
+## How It Works
+
+**Explore the codebase**
+
+The agent starts by reading the repository prior to user interaction.
+
+- `get_code_file_structure` : builds the full file tree
+- `ask_knowledge_graph_queries` : discovers the framework, architectural patterns, database and ORM layer, and main entry points
+- `fetch_file` : reads `README.md`, dependency manifests (`package.json`, `requirements.txt`, `pyproject.toml`), and the main entry file
+
+If `node_ids` are referenced in the request, it fetches their code and maps their neighbours before proceeding.
+
+**Ask clarifying questions**
+
+The agent generates three to five multiple choice questions grounded in what it actually discovers within the repository, such as the real framework in use, the existing authentication mechanism, or the configured database.
+
+Every option is derived directly from those findings, ensuring that every question reflects the actual implementation. It then outputs the question block.
+
+
+
+**Generate the specification**
+
+Upon the user replying with their choices, the agent treats those answers as hard constraints and combines them with the original request and codebase findings to produce a full specification:
+
+- `Technical Specification`
+- `Executive Summary` : what is being built, for whom, and the main outcomes
+- `Context` : project overview, original request, summary of clarification answers, and research findings
+- `Success Metrics` : 3–4 measurable outcomes
+- `Functional Requirements` : each with description, acceptance criteria, and priority
+- `Non-Functional Requirements` : each with measurement criteria
+- `Architecture` : narrative description and a Mermaid diagram
+- `Technical Design` : data models, interfaces and API endpoints, external dependencies
+- `Notes and Open Questions`
+
 ---
 
-An agent that turns natural language requests into structured **Specification** plan.
+### Refinement
 
-**It accepts**
+If a prior specification exists in the conversation history, the agent skips exploration and clarification. It instead retrieves the most recent version of the spec.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `request` | `string` | required | Natural language description of what to build or change |
-| `conversation_history` | `Message[]` | optional | Prior messages for spec update context |
-| `project_id` | `string` | required | Project identifier |
-| `project_name` | `string` | optional | Project name for additional spec context |
-| `node_ids` | `string[]` | optional | Specific nodes to scope the specification |
+It applies only the requested modification, whether that involves updating a section, adding a requirement, or removing content, and then outputs the fully revised document. The overall structure and all unchanged sections are preserved exactly as they were.
 
-**It returns**
+Clarifying questions are skipped unless the change is ambiguous, in which case the agent at most does one question before proceeding.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `specification` | `Specification` | A validated `Specification` object with all sections complete |
-| `markdown_spec` | `string` | Formatted plan ready for UI rendering |
+---
 
-## Choose what you want to do
-
-**New spec**
-- If no previous specification exists, SpecGen explores your repository and asks 3–5 clarification questions to understand your architecture before making changes.
-- It then runs the full 7-step workflow — Research → Requirements → Architecture → Technical Design → Validation → Assembly ,so every change is defined and reviewed before execution.
-- The result is a complete, validated specification that gives you a traceable plan instead of code you have to fix later.
-
-**Update existing spec**  
-- If a valid specification exists, SpecGen extracts it from conversation history and identifies what needs to change.
-- It regenerates only the affected parts while preserving everything that still applies.
-- The updated specification is revalidated and reassembled so you get a consistent, complete plan instead of patchwork edits.
-
-**Partial Update**
-- If you explicitly call out sections like “update architecture” or “regenerate technical design,” SpecGen targets only those sections.
-- It reruns the necessary workflow steps for those areas and reuses the rest of the specification unchanged.
-- The final output is a fully assembled, validated specification with only the requested sections updated.
-
-## Start building
-
-```python
-from app.modules.intelligence.agents.chat_agents.system_agents.specgen.spec_gen_agent import SpecGenAgent
-
-spec_gen = SpecGenAgent(
-    llm_provider=provider_service,
-    tools_provider=tool_service,
-    prompt_provider=prompt_service,
-)
+## Calling the Agent
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["spec_generation_agent"]
+  }'
 ```
+
+Once you have a `conversation_id`, describe what you want to build:
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Add a notifications system that supports email and in-app alerts"
+  }'
+```
+
+---
+
+## Next Steps
+
+- See <a href="/agents/code-generation-agent" className="mode-link">Code Generation Agent</a> to implement the specification
+- See <a href="/agents/codebase-qna-agent" className="mode-link">Codebase Q&A Agent</a> to explore the codebase before specing a feature

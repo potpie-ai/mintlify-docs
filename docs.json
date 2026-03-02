@@ -13,7 +13,7 @@
   ],
   "openapi": "/api-reference/openapi.json",
   "api": {
-    "baseUrl": "https://production-api.potpie.ai",
+    "baseUrl": "http://localhost:8001",
     "auth": {
       "method": "key",
       "name": "x-api-key"
@@ -48,7 +48,8 @@
               "tutorials/explore-your-codebase",
               "tutorials/make-code-changes",
               "tutorials/trace-and-fix",
-              "tutorials/configure-custom-agents"
+              "tutorials/configure-custom-agents",
+              "tutorials/generate-api-key"
             ]
           },
           {
@@ -78,16 +79,11 @@
                 "pages": [
                   "agents/qna-agent",
                   "agents/code-changes-agent",
+                  "agents/debugging-agent",
                   "pre-built-agents/specgen-agent"
                 ]
               },
-              {
-                "group": "Custom Agents",
-                "pages": [
-                  "custom-agents/introduction",
-                  "custom-agents/configuration"
-                ]
-              },
+              "custom-agents/introduction",
               {
                 "group": "Integrations",
                 "pages": [
@@ -101,13 +97,7 @@
                   "extensions/vscode"
                 ]
               },
-              {
-                "group": "Self-Hosting",
-                "pages": [
-                  "self-hosting/setup",
-                  "self-hosting/getting-started"
-                ]
-              },
+              "self-hosting/setup",
               "agents/tools-reference"
             ]
           },

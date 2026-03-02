@@ -25,7 +25,7 @@ All agents follow the same usage pattern: create a conversation, send messages, 
   <Step title="Create Conversation">
     ```python Choose your agent and create a conversation
     response = requests.post(
-        "https://production-api.potpie.ai/api/v1/conversations/",
+        "https://locahost:8001/api/v1/conversations/",
         headers={"Authorization": "Bearer <firebase_token>"},
         json={
             "user_id": "user_123",
@@ -42,7 +42,7 @@ All agents follow the same usage pattern: create a conversation, send messages, 
   <Step title="Send Message">
     ```python All agents use Form data (not JSON) for messages
     message_response = requests.post(
-        f"https://production-api.potpie.ai/api/v1/conversations/{conversation_id}/message/",
+        f"https://locahost:8001/api/v1/conversations/{conversation_id}/message/",
         headers={"Authorization": "Bearer <firebase_token>"},
         data={
             "content": "Your question, request, or bug report"

@@ -1,51 +1,92 @@
 ---
-title: Code Agent
+title: "Code Generation Agent"
 ---
 
-An agent that generates production-ready code modifications through systematic analysis and tracks every change in a Redis-based session before you apply them.
+The Code Generation Agent reads your codebase's existing patterns and conventions before writing a single line, then generates code that fits naturally into what already exists.
 
-**It accepts**
+if specific `node_ids` are referenced in the query, it fetches their source code and appends it as code context.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `request` | `string` | required | Natural language description of the code change to make |
-| `conversation_history` | `Message[]` | optional | Prior messages for session context |
-| `project_id` | `string` | required | Project identifier |
-| `conversation_id` | `string` | required | Conversation identifier for session tracking |
-| `node_ids` | `string[]` | optional | Specific files or functions to scope the change |
+## How It Works
 
-**It returns**
+### Understand the Task
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `response` | `string` | Markdown explanation of what changed and why |
-| `changes` | `FileDiff[]` | Diff view of every changed file, ready for review |
+The agent classifies every incoming task into one of five types: 
+- **new feature**
+- **modification** 
+- **refactor**
+- **bug fix** 
+- **multi-file change**
+ 
+ It extracts target files, classes, functions, scope, and dependencies.
 
-## Choose what you want to do
+<Note> For **multi-file or complex tasks**, it upfront identifies all impacted files and determines the order changes that need to happen, and thereby resolving dependencies for the files . </Note>
 
-**Add a feature**
-- If you describe a new capability, Code Agent asks clarifying questions to understand your architecture, then runs Spec → Plan → Generate before touching any file.
-- It generates all required files and updates existing ones, tracking every change in the session so you can review diffs before anything lands in your repo.
-- The result is a complete, multi-file changeset that matches your project's existing patterns and style.
 
-**Modify existing code**
-- If you ask to extend, refactor, or update existing code, Code Agent locates the relevant files, examines surrounding context, and makes precise changes while preserving the rest.
-- It shows a diff for each modified file and keeps changes in the session so you can iterate before finalizing.
-- The changes slot cleanly into your codebase without breaking adjacent logic.
+### Explore the Codebase
 
-**Fix a bug**
-- If you describe a bug like a null pointer, a race condition, an injection vulnerability , Code Agent analyzes the issue, generates a targeted fix, and explains the root cause.
-- It may surface related problems found during investigation, so you get a complete fix rather than a patch that moves the bug elsewhere.
-- The result is a diff with the correction alongside a written explanation of what was wrong and why the fix resolves it.
+The agent reads the codebase prior to writing anything:
 
-## Start building
+- `ask_knowledge_graph_queries` : finds where the relevant feature or functionality lives
+- `get_code_file_structure` : understands directory layout and module organization
+- `get_code_from_probable_node_name` : retrieves specific named classes or functions
+- `get_code_from_multiple_node_ids` : batch-fetches all relevant nodes collected so far
+- `get_node_neighbours_from_node_id` : maps all call relationships
+- `fetch_file` / `fetch_files_batch` : retrieves full files or specific line ranges
+- `web_search_tool` / `webpage_extractor` : retrieves domain best practices when relevant
+- `get_nodes_from_tags` : used as a last resort if no relevant files are found
 
-```python
-from app.modules.intelligence.agents.chat_agents.code_changes_agent import CodeChangesAgent
+### Analyze Patterns
 
-code_agent = CodeChangesAgent(
-    llm_provider=provider_service,
-    tools_provider=tool_service,
-    prompt_provider=prompt_service,
-)
+Prior to  writing, the agent captures exact indentation, import order, naming conventions, string literal formats, and docstring style from the existing codebase.
+
+It maps every import that needs to change, identifies all impacted files including tests, and documents any database schema or API contract changes.
+
+### Write Code
+
+Changes are written through the **Code Changes Manager** (a Redis-backed session). The agent begins by calling `checkout_worktree_branch`, which creates or reuses a dedicated branch named `agent/edits-{sanitized_conversation_id}`.
+
+The conversation ID is sanitized before branch creation by replacing forward slashes, backslashes, and spaces with hyphens to ensure the branch name is valid and safe. Changes are then written using:
+- `add_file_to_changes` : for new files
+- `update_file_lines`, `replace_in_file`, `insert_lines`, `delete_lines` : for modifications
+
+Before every line-based operation, the agent calls `get_file_from_changes` with `with_line_numbers=true` so it always works against the current state of the file and never assumes line numbers after a prior insert or delete.
+
+<Note> After every operation, it re-fetches to verify the change applied correctly.</Note>
+
+### Review and Apply
+
+The agent calls `show_diff` to display all changes as unified diffs, then immediately invokes `apply_changes`to persist them.
+Until `apply_changes` is executed, all changes exist only within the Redis session and are not written to disk.
+
+**PR creation** only happens upon explicit user confirmation. The agent presents the **diff**, asks the user to confirm, and waits. Upon confirmation, it calls `create_pr_workflow`, a single composite operation that applies the patches, creates or updates the branch, commits the changes, pushes them to the remote repository, and opens a pull request on GitHub or GitLab.
+
+---
+
+## Calling the Agent
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["code_generation_agent"]
+  }'
 ```
+
+Once you have a `conversation_id`, send your instruction:
+```bash
+curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Add rate limiting to the authentication endpoints",
+    "node_ids": ["node_abc123"]
+  }'
+```
+
+---
+
+## Next Steps
+
+- See <a href="/agents/codebase-qna-agent" className="mode-link">Codebase Q&A Agent</a> to ask questions about your codebase
+- See <a href="/agents/debugging-agent" className="mode-link">Debugging Agent</a> to trace and fix issues
