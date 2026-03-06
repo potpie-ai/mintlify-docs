@@ -49,7 +49,7 @@ Get your API key from the [Potpie Dashboard](https://app.potpie.ai/settings/api-
 
 ```bash
 curl -X GET \
-  'https://production-api.potpie.ai/api/v1/projects/list' \
+  'https://localhost:8001/api/v1/projects/list' \
   -H 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -163,7 +163,7 @@ class PotpieClient {
 
   async parseRepo(repoName: string, branch: string) {
     const response = await fetch(
-      'https://production-api.potpie.ai/api/v1/parse',
+      'https://localhost:8001/api/v1/parse',
       {
         method: 'POST',
         headers: {
@@ -193,7 +193,7 @@ import os
 class PotpieClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = 'https://production-api.potpie.ai'
+        self.base_url = 'https://localhost:8001'
 
     def parse_repo(self, repo_name: str, branch: str):
         response = requests.post(
@@ -368,7 +368,7 @@ Import `openapi.json` into Postman to get a complete collection with:
 ```bash
 # Set up environment
 export POTPIE_API_KEY="your-key-here"
-export POTPIE_API_URL="https://production-api.potpie.ai"
+export POTPIE_API_URL="https://localhost:8001"
 
 # Test endpoints
 curl -X GET \

@@ -38,7 +38,7 @@ x-api-key: YOUR_API_KEY
 </ResponseField>
 
 <ResponseField name="visibility" type="string">
-  `public` for system agents, `private` for custom agents
+  Visibility of the agent. `null` for system agents; `private`, `shared`, or `public` for custom agents.
 </ResponseField>
 
 ## Error Responses
@@ -85,7 +85,7 @@ The endpoint returns this error when unexpected exceptions occur.
 
 ```typescript TypeScript
 const response = await fetch(
-  'https://production-api.potpie.ai/api/v2/list-available-agents',
+  'http://localhost:8001/api/v2/list-available-agents',
   {
     headers: {
       'x-api-key': 'YOUR_API_KEY'
@@ -106,7 +106,7 @@ agents.forEach(agent => {
 import requests
 
 response = requests.get(
-    'https://production-api.potpie.ai/api/v2/list-available-agents',
+    'http://localhost:8001/api/v2/list-available-agents',
     headers={'x-api-key': 'YOUR_API_KEY'}
 )
 
@@ -121,12 +121,12 @@ for agent in agents:
 ```bash cURL
 # List all agents
 curl -X GET \
-  'https://production-api.potpie.ai/api/v2/list-available-agents' \
+  'http://localhost:8001/api/v2/list-available-agents' \
   -H 'x-api-key: YOUR_API_KEY'
 
 # Pretty print with jq
 curl -X GET \
-  'https://production-api.potpie.ai/api/v2/list-available-agents' \
+  'http://localhost:8001/api/v2/list-available-agents' \
   -H 'x-api-key: YOUR_API_KEY' | jq '.'
 ```
 

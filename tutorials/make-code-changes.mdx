@@ -1,0 +1,64 @@
+---
+title: 'Make Code Changes'
+sidebarTitle: 'Build a Feature'
+---
+
+In this tutorial, you'll learn how to use Build in Potpie to generate code that matches your codebase's exact patterns and review every change as a diff before it reaches the repository.
+
+To understand how Build works, see the [Build mode page](/build-flow/build-a-feature).
+
+## Workflow
+
+<Steps>
+  <Step title="Describe the feature">
+    Enter a description of the feature for to build.
+
+    <img src="/images/feature-description-input.png" alt="Feature description input" />
+  </Step>
+
+  <Step title="Clarifying questions">
+    Potpie surfaces a set of clarifying questions as multiple choice options. Answers lock in the scope and requirements before the specification begins.
+
+    <img src="/images/code-agent-clarifying-questions.png" alt="Clarifying questions" />
+  </Step>
+
+  <Step title="Specification">
+    Potpie parses the codebase against the confirmed requirements and generates a specification covering every file to create or modify, implementation details for each change, and dependency relationships between affected components.
+
+    <img src="/images/code-agent-spec-page.png" alt="Specification page" />
+  </Step>
+
+  <Step title="Plan">
+    Once the spec is confirmed, Potpie generates a plan.
+
+    <Tabs>
+      <Tab title="Summary">
+        An explanation of what changes, which parts of the codebase are in scope, and how the new code fits the existing system.
+
+        <img src="/images/code-agent-plan-summary.png" alt="Plan summary tab" />
+      </Tab>
+      <Tab title="Architecture">
+        A dependency graph showing how new components wire into existing services, data models, and API boundaries as they exist in the repository.
+
+        <img src="/images/build-architecture1.png" alt="Architecture tab" />
+      </Tab>
+      <Tab title="Plan items">
+        Each task lists the target file, implementation intent, dependency order, and the verification criteria checked after each diff is generated.
+
+        <img src="/images/code-agent-plan-items.png" alt="Plan items tab" />
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Code generation">
+    Potpie generates the code and presents every change as a **diff**. Changes match the existing code style and conventions identified during **specification**.
+
+    <img src="/images/build-codegen.png" alt="Code generation diff view" />
+  </Step>
+
+  <Step title="Pull request">
+    Clicking **Create PR** pushes the full diff to the repository.
+
+    <img src="/images/Build-Pull.png" alt="Final review before PR" />
+  </Step>
+</Steps>

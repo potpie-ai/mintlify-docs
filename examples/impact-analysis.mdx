@@ -1,20 +1,47 @@
 ---
 title: 'Impact Analysis'
-description: 'Map every dependency before touching a core service.'
+description: 'Find everything that depends on a service before you change it.'
 ---
 
-Modifying a core service with unknown dependencies turns a contained change into a cascade of broken builds. Most teams spend hours manually tracing call chains across files before proceeding.
+Changing a core service without knowing its dependents turns a contained refactor into a cascade of broken builds. This guide shows you how to map the full blast radius of any service change before touching a single line of code.
 
-**Ask** traverses the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> outward from the target service using the Node Neighbors tool, mapping every dependent function, class, and module across the repository. The response lists each dependency with its exact file path and line number. Full **blast radius**, before touching a single line.
 
-**Question:**
+## Before you begin
+
+- Your repository is connected and indexed in Potpie ([how to connect a repo](/tutorials/connect-your-repo))
+- You know the name of the service or interface you want to change
+
+## Run the analysis
+
+<Steps>
+  <Step title="Open Ask on your codebase">
+    Go to [Potpie](https://app.potpie.ai) → **Ask** and select your repository.
+  </Step>
+  <Step title="Ask about dependencies">
+    Describe the service you want to change and ask what depends on it:
 ```
-What depends on PaymentService and what breaks if I change its interface?
+    What depends on PaymentService and what breaks if I change its interface?
 ```
 
-**Ask returns:**
-- Every class, function, and module that calls or imports `PaymentService`
-- Each call site with its exact file path and line number
-- Transitive dependencies that would be affected by an interface change
+    Ask traverses the [knowledge graph](/concepts/knowledge-graph) outward from the target service, mapping every dependent function, class, and module across the repository.
+  </Step>
+  <Step title="Review the dependency map">
+    Ask returns:
 
-<a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> uses the same dependency map to generate a spec and diff across every affected file.
+    - Every class, function, and module that calls or imports `PaymentService`
+    - Each call site with its exact file path and line number
+    - Transitive dependencies that would be affected by an interface change
+  </Step>
+</Steps>
+
+## Results
+
+Once you have the dependency map, you have two paths:
+
+**Proceed manually** by updating each call site yourself using the file paths and line numbers, knowing nothing is missed.
+
+**Hand off to Build** by pasting the dependency list into a [Build](/build-flow/build-a-feature) conversation. Build uses the same map to generate a spec and a diff across every affected file simultaneously.
+
+## Try it on your codebase
+
+→ [Explore your codebase with Ask](/tutorials/explore-your-codebase)

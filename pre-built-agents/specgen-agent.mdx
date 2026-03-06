@@ -1,0 +1,69 @@
+---
+title: "Spec Agent"
+---
+
+The Spec Agent analyzes your repository before asking a single question. It first identifies your actual stack, architecture, and existing patterns, then asks clarifying questions grounded in those findings. The specification it produces is tailored to your codebase rather than built from a generic template.
+
+## How It Works
+
+### Explore the Codebase
+
+The agent starts by reading the repository before any user interaction. It builds the full file tree, discovers the framework, architectural patterns, database and ORM layer, and main entry points, then reads the README, dependency manifests, and the main entry file.
+
+If specific nodes are referenced in the request, it fetches their code and maps their neighbors before proceeding.
+
+### Ask Clarifying Questions
+
+The agent generates three to five multiple choice questions grounded in what it actually finds in the repository. These cover the real framework in use, the existing authentication mechanism, and the configured database. Every option is derived directly from those findings, so every question reflects the actual implementation rather than hypothetical choices.
+
+## Generate the specification
+
+Upon the user replying with their choices, the agent treats those answers as hard constraints and combines them with the original request and codebase findings to produce a full specification:
+
+- **Technical Specification** : the complete requirements document produced for the requested feature
+- **Executive Summary** : what is being built, for whom, and the main outcomes
+- **Context** : project overview, original request, summary of clarification answers, and research findings
+- **Success Metrics** : 3–4 measurable outcomes
+- **Functional Requirements** : each with description, acceptance criteria, and priority
+- **Non-Functional Requirements** : each with measurement criteria
+- **Architecture** : narrative description and a Mermaid diagram
+- **Technical Design** : data models, interfaces and API endpoints, external dependencies
+- **Notes and Open Questions** : follow-ups and caveats. 
+
+### Refinement
+
+If a prior specification exists in the conversation history, the agent skips exploration and clarification entirely. It retrieves the most recent version of the spec, applies only the requested modification (whether updating a section, adding a requirement, or removing content), and outputs the fully revised document. All unchanged sections are preserved exactly as they were.
+
+Clarifying questions are skipped unless the change is ambiguous, in which case the agent asks at most one question before proceeding.
+
+---
+
+## Calling the Agent
+
+```bash
+curl -X POST http://localhost:8001/api/v2/conversations/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_ids": ["proj_abc123"],
+    "agent_ids": ["spec_generation_agent"]
+  }'
+```
+
+Once you have a `conversation_id`, describe what you want to build:
+
+```bash
+curl -X POST http://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Add a notifications system that supports email and in-app alerts"
+  }'
+```
+
+---
+
+## Next Steps
+
+- See [Code Generation Agent](/agents/code-changes-agent) to implement the specification
+- See [Codebase Q&A Agent](/agents/qna-agent) to explore the codebase before speccing a feature

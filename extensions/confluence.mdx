@@ -1,215 +1,71 @@
 ---
-title: 'Confluence Integration'
-description: 'Connect Potpie with Confluence to manage documentation and knowledge bases'
+title: "Confluence Integration"
+description: "Connect Confluence to Potpie to give agents the ability to read, search, and update pages directly from your codebase conversations."
 ---
 
-## Overview
+## Before you begin
 
-The Confluence integration enables Potpie agents to interact with Confluence workspaces using Atlassian OAuth 2.0 (3LO), providing access to spaces, pages, and content management.
+Make sure you have:
+- A <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie account</a>
+- A <a href="https://id.atlassian.com/login" className="mode-link" target="_blank" rel="noopener noreferrer">Confluence Cloud</a> account with permission to authorize OAuth applications on your Atlassian organization
 
+---
 
-## Quick Start
+## Connect your Confluence account
 
 <Steps>
-  <Step title="Create Atlassian OAuth App">
-    Go to <a href="https://developer.atlassian.com/console/myapps/" className="mode-link">Atlassian Developer Console</a>
-
-    Create OAuth 2.0 integration:
-    - **App name**: Potpie AI
-    - **Callback URL**: `https://app.potpie.ai/integrations/confluence/callback`
-    - **Permissions**: See scopes below
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Integrations**.
   </Step>
-
-  <Step title="Configure Environment">
-    ```bash
-    # Can reuse Jira credentials if same Atlassian account
-    CONFLUENCE_CLIENT_ID=your_client_id
-    CONFLUENCE_CLIENT_SECRET=your_client_secret
-    CONFLUENCE_OAUTH_SCOPE="write:confluence-content read:confluence-space.summary ... offline_access"
-    ```
-  </Step>
-
-  <Step title="Connect Confluence Site">
-    1. Settings → Integrations → Confluence
-    2. Click "Connect"
-    3. Select the Confluence site
-    4. Authorize permissions
-    5. Name the integration
-  </Step>
-
-  <Step title="Test Integration">
-    *"List all Confluence spaces"*
-
-    *"Search Confluence for 'API documentation'"*
+  <Step title="Authorize Confluence">
+    Click **Connect Confluence** and complete the OAuth consent screen on Atlassian's side. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Confluence Cloud site.
   </Step>
 </Steps>
 
----
-
-## OAuth Setup
-
-### Atlassian OAuth 2.0 (3LO)
-
-**Authorization URL**: `https://auth.atlassian.com/authorize`
-**Token URL**: `https://auth.atlassian.com/oauth/token`
-**API Base**: `https://api.atlassian.com/ex/confluence/{cloud_id}`
-
-### Required Scopes
-
-```
-write:confluence-content         # Create/update pages
-read:confluence-space.summary    # Read space info
-write:confluence-space           # Manage spaces
-write:confluence-file            # Upload attachments
-read:confluence-props            # Read properties
-write:confluence-props           # Write properties
-read:confluence-content.all      # Read all content
-read:confluence-content.summary  # Read summaries
-search:confluence                # Search (CQL)
-read:confluence-content.permission # Read permissions
-read:confluence-user             # Read user info
-read:confluence-groups           # Read groups
-readonly:content.attachment:confluence # Read attachments
-read:space:confluence            # Read spaces
-read:page:confluence             # Read pages
-write:page:confluence            # Write pages
-write:comment:confluence         # Write comments
-read:content-details:confluence  # Read details
-offline_access                   # Refresh tokens
-```
-
-### Cloud ID
-
-Same as Jira - fetch accessible resources after OAuth:
-```bash
-GET https://api.atlassian.com/oauth/token/accessible-resources
-Authorization: Bearer {access_token}
-```
+<Note>
+  Once connected, agents can use Confluence tools whenever they are included in the agent's tool list.
+</Note>
 
 ---
 
-## Available Tools
+## What agents can do with Confluence
 
-The Confluence integration provides 7 tools. See <a href="/agents/tools-reference#confluence-tools" className="mode-link">Confluence Tools</a> in the Tools Reference for full documentation.
+Each tool below becomes available to any agent that has it included in its tool list. All tools require an active Confluence connection — if none is found, the tool returns an error prompting you to connect Confluence first.
 
-| Tool | Description |
-|------|-------------|
-| <a href="/agents/tools-reference#confluence-space-lister" className="mode-link">Space Lister</a> | List all spaces |
-| <a href="/agents/tools-reference#confluence-page-fetcher" className="mode-link">Page Fetcher</a> | Fetch a page by ID |
-| <a href="/agents/tools-reference#confluence-space-pages" className="mode-link">Space Pages</a> | List pages in a space |
-| <a href="/agents/tools-reference#confluence-page-search" className="mode-link">Page Search</a> | Search using CQL |
-| <a href="/agents/tools-reference#confluence-page-creator" className="mode-link">Page Creator</a> | Create a new page |
-| <a href="/agents/tools-reference#confluence-page-updater" className="mode-link">Page Updater</a> | Update an existing page |
-| <a href="/agents/tools-reference#confluence-comment-writer" className="mode-link">Comment Writer</a> | Add a comment to a page |
+**Reading and searching pages**
 
----
+<ParamField path="get_confluence_spaces" type="tool">
+  Lists all Confluence spaces accessible to the connected account.
+</ParamField>
 
-## Storage Format
+<ParamField path="get_confluence_space_pages" type="tool">
+  Lists pages within a specific space. Use this to browse available content before reading or updating a page.
+</ParamField>
 
-Confluence uses its own storage format for content:
+<ParamField path="get_confluence_page" type="tool">
+  Reads the full content of a page, including its body and current version number. Always call this before updating a page — Confluence requires the correct incremented version in update requests.
+</ParamField>
 
-### Simple HTML-like Format
-```html
-<p>Hello world!</p>
-<p>This is <strong>bold</strong> and <em>italic</em> text.</p>
+<ParamField path="search_confluence_pages" type="tool">
+  Searches pages using CQL (Confluence Query Language) with full-text search across spaces. Use this to find relevant documentation by keyword, label, or space.
+</ParamField>
 
-<h2>Heading 2</h2>
-<ul>
-  <li>Item 1</li>
-  <li>Item 2</li>
-</ul>
+**Creating and updating pages**
 
-<ac:structured-macro ac:name="code">
-  <ac:plain-text-body><![CDATA[
-    console.log('Hello');
-  ]]></ac:plain-text-body>
-</ac:structured-macro>
-```
+<ParamField path="create_confluence_page" type="tool">
+  Creates a new page in a specified space. Requires a title, body content, and a valid space key.
+</ParamField>
 
-### Input Format
-The `create_confluence_page_tool` accepts **HTML or plain text**.
+<ParamField path="update_confluence_page" type="tool">
+  Updates a page's title or body. You must call `get_confluence_page` first to obtain the current version number — Confluence rejects updates that do not include the correct incremented version.
+</ParamField>
 
-- **HTML**: Passed through directly as Confluence storage format.
-- **Plain text**: Automatically wrapped in `<p>` tags.
-
-For code blocks, wrap content manually using HTML tags (`<pre>`, `<code>`) or the Confluence macro XML shown above.
+<ParamField path="add_confluence_comment" type="tool">
+  Posts a footer comment or a threaded reply to an existing page.
+</ParamField>
 
 ---
 
-## CQL (Confluence Query Language)
+## Token refresh
 
-### Basic Syntax
-
-```cql
-# Search by text
-text ~ "authentication"
-
-# Filter by space
-space = DOCS
-
-# Filter by type
-type = page
-
-# Combine conditions
-space = DOCS AND type = page AND text ~ "API"
-
-# Date filters
-lastModified >= "2024-01-01"
-created >= now("-7d")
-
-# User filters
-creator = currentUser()
-contributor = "john@company.com"
-
-# Sort results
-order by lastModified desc
-```
-
-### Advanced Examples
-
-```cql
-# Recent pages in multiple spaces
-space in (DOCS, ENG) AND lastModified >= now("-30d")
-
-# Pages with specific label
-label = "api-docs" AND space = DOCS
-
-# My recent edits
-contributor = currentUser() AND lastModified >= now("-7d")
-
-# Popular pages
-space = DOCS AND type = page ORDER BY lastModified desc
-```
-
----
-
-## Webhook Support
-
-<Warning>
-  Confluence OAuth 2.0 apps **cannot** register webhooks via API. Webhooks are only available for Atlassian Connect apps.
-</Warning>
-
-**Alternative**: Use Confluence's built-in automation rules to trigger external webhooks for page events.
-
----
-
-For endpoint details and request schemas, see the <a href="/api-reference/endpoint/save-integration" className="mode-link">API reference</a>.
-
----
-
-## What's Next?
-
-<CardGroup cols={2}>
-  <Card title="Jira Integration" icon="puzzle-piece" href="/extensions/jira">
-    Connect Confluence with Jira
-  </Card>
-  <Card title="GitHub Integration" icon="github" href="/extensions/github">
-    Link docs to GitHub repos
-  </Card>
-  <Card title="Custom Agents" icon="robot" href="/custom-agents/introduction">
-    Build agents with Confluence tools
-  </Card>
-  <Card title="Ask a Question" icon="messages-question" href="/build-flow/ask-a-question">
-    Query Confluence knowledge base
-  </Card>
-</CardGroup>
+Potpie automatically refreshes your Confluence access token before it expires. No action is required from you — agents will continue working without interruption across token cycles.

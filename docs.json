@@ -13,7 +13,7 @@
   ],
   "openapi": "/api-reference/openapi.json",
   "api": {
-    "baseUrl": "https://production-api.potpie.ai",
+    "baseUrl": "http://localhost:8001",
     "auth": {
       "method": "key",
       "name": "x-api-key"
@@ -43,6 +43,16 @@
             ]
           },
           {
+            "group": "Tutorials",
+            "pages": [
+              "tutorials/explore-your-codebase",
+              "tutorials/make-code-changes",
+              "tutorials/trace-and-fix",
+              "tutorials/configure-custom-agents",
+              "tutorials/generate-api-key"
+            ]
+          },
+          {
             "group": "Modes",
             "pages": [
               "build-flow/overview",
@@ -65,47 +75,34 @@
             "pages": [
               "agents/api-access",
               {
-                "group": "Custom Agents",
+                "group": "Pre-built Agents",
                 "pages": [
-                  "custom-agents/introduction",
-                  "custom-agents/configuration"
+                  "agents/qna-agent",
+                  "agents/code-changes-agent",
+                  "agents/debugging-agent",
+                  "pre-built-agents/specgen-agent"
                 ]
               },
-              {
-                "group": "Integrations",
-                "pages": [
-                  "extensions/overview",
-                  "extensions/github",
-                  "extensions/linear",
-                  "extensions/jira",
-                  "extensions/confluence",
-                  "extensions/sentry",
-                  "extensions/slack",
-                  "extensions/vscode"
-                ]
-              },
-              {
-                "group": "Self-Hosting",
-                "pages": [
-                  "self-hosting/setup",
-                  "self-hosting/getting-started"
-                ]
-              },
+              "custom-agents/introduction",
+              "self-hosting/setup",
               "agents/tools-reference"
             ]
           },
           {
             "group": "Example Uses",
             "pages": [
+              "examples/overview",
               "examples/impact-analysis",
               "examples/code-migration",
-              "examples/race-conditions",
               "examples/auth-flow",
               "examples/refactor-scope",
-              "examples/api-endpoint",
+              "examples/rate-limiting",
               "examples/auth-middleware",
               "examples/null-pointer",
-              "examples/memory-leak"
+              "examples/memory-leak",
+              "examples/race-conditions",
+              "examples/code-review",
+              "examples/api-endpoint"
             ]
           }
         ]
@@ -154,6 +151,40 @@
         "label": "Support",
         "href": "mailto:hi@potpie.ai"
       }
+    ]
+  },
+  "contextual": {
+    "options": [
+      {
+        "title": "Ask ChatGPT",
+        "description": "Ask ChatGPT about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://chatgpt.com/",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Ask Claude",
+        "description": "Ask Claude about this page",
+        "icon": "message",
+        "href": {
+          "base": "https://claude.ai/new",
+          "query": [
+            {
+              "key": "q",
+              "value": "Here is some documentation. Answer any questions I have about it: $page"
+            }
+          ]
+        }
+      },
+      "perplexity",
+      "copy"
     ]
   },
   "footer": {

@@ -1,0 +1,29 @@
+---
+title: 'Rate Limiting'
+description: 'Add rate limiting to existing routes with full middleware chain awareness.'
+---
+
+Adding rate limiting to an existing API without mapping every route, middleware chain, and configuration surface leaves gaps. Some routes get protected. Others don't. Limits set in one place conflict with defaults defined elsewhere.
+
+**Build** reads the full routing structure through the [knowledge graph](/concepts/knowledge-graph), identifies every entry point that needs a limit, and generates a **specification** covering every file to create or modify before writing a line.
+
+**Request:**
+```
+Add rate limiting to all public API routes — 100 requests per minute per IP, with a stricter 10 per minute on auth endpoints
+```
+
+**Build maps:**
+- Every public route and its position in the middleware stack
+- Existing middleware configuration files and where limits are currently defined
+- Auth-specific routes that need a separate, stricter policy
+- Any tests covering route behavior that need updating
+
+**Code generation includes:**
+- Rate limiting middleware wired into the existing middleware chain
+- Per-route and per-group limit configuration matching the existing config structure
+- Updated auth route handlers with the stricter policy applied
+- Test coverage reflecting the new limiting behavior
+
+The complete change set appears as a **diff** before PR creation. [Create the PR](/build-flow/build-a-feature#what-it-produces) directly from the **diff** view.
+
+Try it yourself on your codebase → [Build a Feature](/tutorials/make-code-changes)

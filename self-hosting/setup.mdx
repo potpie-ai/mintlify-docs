@@ -1,101 +1,167 @@
 ---
 title: 'Local Setup'
-description: 'Run Potpie locally by configuring Firebase, GitHub, and Google Cloud.'
+description: 'Run Potpie locally on your own infrastructure.'
 ---
 
-## Firebase
+## Before you begin
+
+Make sure you have the following installed:
+
+- [Docker](https://docker.com) installed and running
+- [Git](https://git-scm.com) installed
+- [Python 3.11+](https://python.org) with [uv](https://docs.astral.sh/uv/)
+
+---
+
+## Install Potpie
 
 <Steps>
-  <Step title="Create a Firebase project">
-    Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
+  <Step title="Clone the repository">
+    ```bash
+    git clone --recurse-submodules https://github.com/potpie-ai/potpie.git
+    cd potpie
+    ```
   </Step>
-  <Step title="Generate a service account key">
-    1. Open **Project Overview** from the sidebar
-    2. Go to the **Service Accounts** tab
-    3. Under **Firebase Admin SDK**, click **Generate new private key**
-    4. Confirm the warning, download the key, rename it to `firebase_service_account.json`, and place it in the root of the Potpie source directory
+
+  <Step title="Configure your environment">
+    ```bash
+    cp .env.template .env
+    ```
+
+    Open `.env` and fill in the values — see `.env.template` in the repository for all required and optional fields including LLM provider, database, Redis, and storage settings.
+
+    Set `isDevelopmentMode=enabled` to parse local repositories directly, or `isDevelopmentMode=disabled` to use GitHub-connected repos.
+
+    <Tip>
+      Using Ollama? Set `LLM_PROVIDER=ollama` and use `ollama_chat/qwen2.5-coder:7b` for both `CHAT_MODEL` and `INFERENCE_MODEL`.
+    </Tip>
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    uv sync
+    ```
+
+    This creates a `.venv` directory and installs all dependencies from `pyproject.toml`.
+  </Step>
+
+  <Step title="Start all services">
+    ```bash
+    chmod +x scripts/start.sh
+    ./scripts/start.sh
+    ```
+
+    The script starts Docker services, waits for PostgreSQL to be ready, applies database migrations, starts the FastAPI application, and starts the Celery worker.
+  </Step>
+
+  <Step title="Verify the server is running">
+    ```bash
+    curl -X GET 'http://localhost:8001/health'
+    ```
   </Step>
 </Steps>
 
-## Logfire
-
-Logfire provides observability and tracing for AI calls made by Potpie.
-
-Create a free account at [Logfire](https://logfire.pydantic.dev/) and add the following to `.env`:
+To stop all services:
 
 ```bash
-LOGFIRE_ENABLED=true
-LOGFIRE_TOKEN=your_token
-LOGFIRE_PROJECT_NAME=your_project_name
+./scripts/stop.sh
 ```
 
-## GitHub App
+---
 
-<Steps>
-  <Step title="Create the app">
-    Visit [GitHub App Creation](https://github.com/settings/apps/new) and choose a name relevant to Potpie (e.g. `potpie-auth`).
-  </Step>
-  <Step title="Set permissions">
-    | Scope | Permission |
-    |---|---|
-    | Repository Contents | Read only |
-    | Repository Metadata | Read only |
-    | Repository Pull requests | Read and write |
-    | Repository Secrets | Read only |
-    | Repository Webhooks | Read only |
-    | Organization Members | Read only |
-    | Account Email address | Read only |
-  </Step>
-  <Step title="Add credentials to env">
-    Generate a private key, download it, and add it to `.env` as `GITHUB_PRIVATE_KEY`. Add the app ID as `GITHUB_APP_ID`.
-  </Step>
-  <Step title="Install the app">
-    From the left sidebar, select **Install App** and install it on the organization or user account.
-  </Step>
-</Steps>
+## Set up the frontend
 
-## GitHub Auth on Firebase
+```bash
+cd potpie-ui
+cp .env.template .env
+pnpm build && pnpm start
+```
 
-<Steps>
-  <Step title="Enable GitHub sign-in">
-    In Firebase, go to **Authentication** and enable the GitHub sign-in provider. GitHub provides a client ID and client secret. Add both to Firebase.
-  </Step>
-  <Step title="Add the callback URL">
-    Copy the callback URL from Firebase and paste it into the GitHub App settings.
-  </Step>
-</Steps>
+---
 
-## Google Cloud
+## Configure GitHub authentication
 
-Potpie uses Google Secret Manager to store API keys. Creating a Firebase project automatically links a Google Cloud account. Use that or create a new one.
+Potpie supports three methods for accessing GitHub repositories. The method is selected automatically based on which environment variables are set.
 
-<Steps>
-  <Step title="Enable Secret Manager">
-    Enable the Secret Manager API for the Google Cloud project.
-  </Step>
-  <Step title="Configure Application Default Credentials">
-    Run the following to authenticate locally:
+**GitHub App** *(recommended for production)*
 
-    ```bash
-    gcloud auth application-default login
-    ```
+<ParamField body="GITHUB_APP_ID" type="string">
+  Your GitHub App's numeric ID. Found in the app's settings page on GitHub.
+</ParamField>
 
-    Alternatively, place the GCP service account key file at `service-account.json` in the root of the codebase.
-  </Step>
-</Steps>
+<ParamField body="GITHUB_PRIVATE_KEY" type="string">
+  The private key generated when you created the GitHub App.
+</ParamField>
 
-## Running Potpie
+Create a GitHub App in your organization with the following permissions, then set the variables above in `.env`:
 
-<Steps>
-  <Step title="Install Docker">
-    Verify Docker is installed and running.
-  </Step>
-  <Step title="Configure environment">
-    Create a `.env` file from the provided `.env.template` in the repository and fill in all required values.
-  </Step>
-  <Step title="Start the server">
-    ```bash
-    chmod +x scripts/start.sh && ./scripts/start.sh
-    ```
-  </Step>
-</Steps>
+| Scope | Permission |
+|---|---|
+| Repository Contents | Read only |
+| Repository Metadata | Read only |
+| Repository Pull requests | Read and write |
+| Repository Secrets | Read only |
+| Repository Webhooks | Read only |
+| Organization Members | Read only |
+| Account Email address | Read only |
+
+Once the app is created, select **Install App** from its sidebar and install it on your target organization or user account.
+
+---
+
+**Personal Access Token Pool** *(recommended for development)*
+
+<ParamField body="GH_TOKEN_LIST" type="string">
+  A comma-separated list of GitHub personal access tokens with `repo` scope. Potpie randomly selects from the pool for load balancing. Each token allows 5,000 requests per hour.
+
+  ```bash
+  GH_TOKEN_LIST=ghp_token1,ghp_token2,ghp_token3
+  ```
+</ParamField>
+
+---
+
+**Unauthenticated** *(public repositories only)*
+
+No configuration required. Rate-limited to 60 requests per hour. Not recommended for anything beyond initial testing.
+
+---
+
+## Use a self-hosted Git provider
+
+For self-hosted Git servers such as GitBucket, set the following in `.env`:
+
+<ParamField body="CODE_PROVIDER" type="string">
+  The Git provider to use. Accepted values: `github`, `gitbucket`.
+</ParamField>
+
+<ParamField body="CODE_PROVIDER_BASE_URL" type="string">
+  Base URL of your self-hosted Git server's API.
+
+  ```bash
+  CODE_PROVIDER_BASE_URL=http://your-git-server.com/api/v3
+  ```
+</ParamField>
+
+<ParamField body="CODE_PROVIDER_TOKEN" type="string">
+  Access token for your self-hosted Git server.
+</ParamField>
+
+<Note>
+  `GH_TOKEN_LIST` tokens are always used for GitHub.com requests regardless of what `CODE_PROVIDER_BASE_URL` is set to.
+</Note>
+
+---
+
+## Enable observability with Logfire *(optional)*
+
+[Logfire](https://logfire.pydantic.dev) provides LLM trace monitoring for Potpie. Get a token at [logfire.pydantic.dev](https://logfire.pydantic.dev) and add it to `.env`:
+
+<ParamField body="LOGFIRE_TOKEN" type="string">
+  Your Logfire project token. Tracing is initialized automatically on startup once this is set. View traces at [logfire.pydantic.dev](https://logfire.pydantic.dev).
+</ParamField>
+
+<ParamField body="LOGFIRE_SEND_TO_CLOUD" type="boolean" default="true">
+  Set to `false` to disable sending traces to Logfire cloud and keep all trace data local.
+</ParamField>

@@ -1,40 +1,125 @@
 ---
-title: 'Custom Agents'
+title: "Custom Agents"
+description: "Build an agent with a defined role, goal, and task set that runs against your codebase."
 ---
 
-**Custom agents** are purpose-built with a defined **role**, **goal**, and **task** set. Each agent runs against the same <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> and tool library as the built-in agents, scoped to a specific, repeatable workflow.
+A custom agent runs a defined `role`, `goal`, and `task` set against your codebase. You control which tools it uses, who can access it, and what it produces.
 
-## Agent types
+---
 
-| Type | Access |
-|---|---|
-| Private | Accessible only to the creator. Use for personal workflows and agents under active development. |
-| Shared | Accessible to specific team members granted access by email. Collaborators can execute the agent but cannot modify its configuration. |
-| Public | Accessible to all members of the organization. Discoverable in the agent library for standardized, reusable workflows. |
+## Before you begin
 
-## Agent definition
+- <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">A Potpie account</a>
+- Your repository parsed and `ready` . If you haven't done this yet see [API Access](/agents/api-access) .
 
-Every custom agent specifies four attributes:
+---
 
-- **Role:** The professional function the agent adopts, such as `"Senior Python Developer"` or `"Security Auditor"`. This shapes how the agent frames its analysis.
-- **Goal:** The primary objective, defined with specific, measurable outcomes, such as `"Identify SQL injection vulnerabilities across all database query constructions"`.
-- **Backstory:** Professional context that informs decision-making. Include relevant methodology, standards, or principles the agent applies.
-- **System Prompt:** High-level instructions that control execution behavior: output format, edge case handling, and quality standards.
+## Define the agent
 
-## Task configuration
+A custom agent is built from four required attributes that together determine how it thinks, what it prioritizes, and how it formats its output.
 
-Each agent contains between one and five tasks. A task defines a discrete action and consists of three components:
+<ParamField body="role" type="string" required>
+  The professional function the agent adopts. Shapes how it frames analysis and what expertise it draws on. Be specific — "Senior Automated Code Review Agent" produces more focused output than "Code Reviewer."
+</ParamField>
 
-1. **Description:** A clear statement of what the task accomplishes, focused on outcomes. The system automatically enhances descriptions with step-by-step reasoning to improve execution quality.
-2. **Tools:** An array of tool IDs the agent can use. Each task requires at least one tool, selected from the <a href="/agents/tools-reference" className="mode-link">library of 70+ options</a>.
-3. **Expected Output:** A JSON object specifying the format and structure of the result.
+<ParamField body="goal" type="string" required>
+  The primary objective, stated specifically and measurably. The agent uses this to evaluate whether a task is complete. Vague goals produce vague results.
+</ParamField>
 
-## Execution
+<ParamField body="backstory" type="string" required>
+  Professional context that informs the agent's decision-making — experience level, methodology, domain standards. This shapes judgment calls the agent makes when instructions are ambiguous.
+</ParamField>
 
-<img src="/images/custom-agent-list.png" alt="Custom Agents List" />
+<ParamField body="system_prompt" type="string" required>
+  High-level instructions applied across all tasks — output format, edge case handling, quality standards. Use this to enforce consistent structure across every response the agent produces.
+</ParamField>
 
-Potpie runs each task in sequence using the configured tools and streams the result with file and line citations. Complex queries requiring synthesis across multiple files trigger **multiagent mode** automatically. A **supervisor agent** coordinates the work and delegates to specialized subagents.
+---
 
-## Agent generation
+## Configure tasks
 
-Generate a custom agent from a natural language description. The system infers an appropriate **role**, **goal**, **backstory**, and task breakdown, and recommends tools matched to the described workflow. The agent executes immediately and accepts refinements through subsequent attribute updates.
+Each agent requires between one and five tasks. A task defines what the agent does, which tools it can use, and what its output should look like.
+
+<ParamField body="description" type="string" required>
+  What the task accomplishes, focused on outcomes rather than steps. Potpie automatically enhances this with step-by-step reasoning before the agent runs, so you don't need to enumerate every action — describe the goal.
+</ParamField>
+
+<ParamField body="tools" type="array of strings" required>
+  Tool IDs the agent can use for this task. At least one is required. See [Tools Reference](/agents/tools-reference) for all valid IDs and what each tool does.
+</ParamField>
+
+<ParamField body="expected_output" type="object">
+  A JSON object specifying the format and structure of the task result. Use this to enforce consistent output — for example, a markdown report with specific sections, or a JSON object with defined keys.
+</ParamField>
+
+<ParamField body="mcp_servers" type="array">
+  MCP server configurations scoped to this task. The schema is accepted but MCP execution is not active in the current release.
+</ParamField>
+
+---
+
+## Set access permissions
+
+Agent access can be scoped to just you, shared with specific teammates by email, or made available to everyone in your organization.
+
+---
+
+## Full example: Code review agent
+
+The following example shows a complete agent built from a plain-language prompt.
+
+**User prompt**
+
+> I need an agent that can help software developers with code reviews. It should analyze pull requests, identify potential bugs, suggest improvements for code quality, and ensure best practices are followed.
+
+---
+
+**role**
+```
+Senior Automated Code Review & Pull Request Quality Agent
+```
+
+**goal**
+```
+Help software developers by reviewing pull requests end-to-end — analyze changes, identify 
+potential bugs and security issues, suggest concrete improvements for code quality and 
+maintainability, and ensure team best practices are followed.
+```
+
+**backstory**
+```
+A staff-level software engineer and code quality specialist with deep experience across 
+backend, frontend, and DevOps stacks. Has led large-scale code review programs, authored 
+secure coding standards, and mentored teams on maintainability, testing discipline, and 
+performance.
+```
+
+**system_prompt**
+```
+Return all findings as markdown. Prioritize by impact. Show evidence from diffs. 
+Provide minimal, safe patches or precise suggestions for every blocker.
+```
+
+---
+
+**Task**
+
+<ParamField body="description" type="string">
+  Perform a comprehensive pull request code review — analyze the diff, identify bugs and security issues, suggest concrete improvements, evaluate testing and rollout risk, and optionally post inline review comments and create follow-up issues.
+</ParamField>
+
+<ParamField body="tools" type="array of strings">
+  `change_detection`, `get_changes_for_pr`, `get_file_diff`, `get_code_file_structure`, `analyze_code_structure`, `fetch_file`, `fetch_files_batch`, `intelligent_code_graph`, `ask_knowledge_graph_queries`, `get_code_graph_from_node_id`, `get_node_neighbours_from_node_id`, `get_code_from_node_id`, `execute_terminal_command`, `show_diff`, `apply_changes`, `github_add_pr_comments`, `create_jira_issue`, `get_linear_issue`
+</ParamField>
+
+<ParamField body="expected_output" type="object">
+  Markdown PR review report containing: PR overview, risk assessment, prioritized findings (Blocker / Major / Minor / Nit) with file citations and suggested fixes, tests and quality gates, best practices checklist, and links to any created issues or PR comments.
+</ParamField>
+
+---
+
+## What to do next
+
+- Follow the step-by-step walkthrough → [Configure a Custom Agent](/tutorials/configure-custom-agents)
+- See what Potpie's built-in agents can do → [Forge](/build-flow/forge)
+- Connect external services to extend your agent → [Integrations](/extensions/overview)

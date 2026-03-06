@@ -2,34 +2,28 @@
 title: 'Tools Reference'
 ---
 
-**Custom agents** access specialized tools across twelve categories: **Knowledge Graph**, **Code Query**, **Code Changes**, **Integration**, **Web**, **Execution**, **Task Management**, **Requirements**, **GitHub**, **Linear**, **Jira**, and **Confluence**. Assign tools per task at agent creation to control what the agent can access during execution.
+**Custom agents** access specialized tools across six categories: **Knowledge Graph**, **Code Access**, **External**, **Project Management**, **Integration**, and **Code Changes**. Assign tools per task at agent creation to control what the agent can access during execution.
 
 ## Tool Categories
 
 | Category | Description |
 |---|---|
-| <a href="#knowledge-graph-tools" className="mode-link">Knowledge Graph</a> | Query and traverse the codebase by node, tag, name, or semantic meaning |
-| <a href="#code-query-tools" className="mode-link">Code Query</a> | Retrieve file contents, directory structures, and analyzed code element breakdowns |
-| <a href="#code-changes-management-tools" className="mode-link">Code Changes</a> | Manage code modifications through a session-based change tracking system. Available exclusively to the Code Agent |
-| <a href="#integration-tools" className="mode-link">Integration</a> | Detect code changes between branches and commits |
-| <a href="#github-tools" className="mode-link">GitHub</a> | Read files, manage branches, PRs, and issues in GitHub repositories |
-| <a href="#linear-tools" className="mode-link">Linear</a> | Fetch and update Linear issues |
-| <a href="#jira-tools" className="mode-link">Jira</a> | Create, search, and manage Jira issues and projects |
-| <a href="#confluence-tools" className="mode-link">Confluence</a> | Read and write Confluence spaces, pages, and comments |
-| <a href="#web-tools" className="mode-link">Web</a> | Search the web and extract content from external URLs |
-| <a href="#execution-tools" className="mode-link">Execution</a> | Run read-only shell commands against the repository |
-| <a href="#task-management-tools" className="mode-link">Task Management</a> | Track and manage work items within the current agent session |
-| <a href="#requirement-tools" className="mode-link">Requirements</a> | Store and retrieve session-level requirements and constraints |
+| [Knowledge Graph](#knowledge-graph-tools) | Query and traverse the codebase by node, tag, name, or semantic meaning |
+| [Code Access](#code-access-tools) | Retrieve file contents, directory structures, and analyzed code element breakdowns |
+| [External](#external-tools) | Search the web and extract content from external URLs |
+| [Project Management](#project-management-tools) | Track tasks, requirements, and manage session-based workflows |
+| [Integration](#integration-tools) | Connect with external services like GitHub, Jira, Linear, and Confluence |
+| [Code Changes](#code-changes-management-tools) | Manage code modifications through a session-based change tracking system. Available exclusively to the Code Agent |
 
 ## Knowledge Graph Tools
 
-Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
+Query and traverse the [knowledge graph](/concepts/knowledge-graph) by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
 
 <AccordionGroup>
   <Accordion title="Semantic Search">
     `ask_knowledge_graph_queries`
 
-    Execute natural language queries against the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> using **vector similarity search** over docstring <a href="/concepts/inference" className="mode-link">embeddings</a>. The primary tool for semantic codebase search.
+    Execute natural language queries against the [knowledge graph](/concepts/knowledge-graph) using **vector similarity search** over docstring [embeddings](/concepts/inference). The primary tool for semantic codebase search.
 
     **Parameters:**
     - `query` (string, required): Natural language or structured query
@@ -114,7 +108,7 @@ Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link"
   <Accordion title="Node Neighbors">
     `get_node_neighbours_from_node_id`
 
-    Retrieve the immediate neighboring nodes in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> for a given node ID.
+    Retrieve the immediate neighboring nodes in the [knowledge graph](/concepts/knowledge-graph) for a given node ID.
 
     **Parameters:**
     - `node_id` (string, required): Node ID to retrieve neighbors for
@@ -134,7 +128,7 @@ Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link"
   </Accordion>
 </AccordionGroup>
 
-## Code Query Tools
+## Code Access Tools
 
 Retrieve file contents, directory structures, and structured code element breakdowns.
 
@@ -312,6 +306,16 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
 
     **Returns:** Summary including file count, line changes, and change types
   </Accordion>
+  <Accordion title="PR Changes">
+    `get_changes_for_pr`
+
+    Retrieve a summary of all code changes for a given conversation. Used in delegated PR flows to verify changes exist in the session before calling `create_pr_workflow`.
+
+    **Parameters:**
+    - `conversation_id` (string, required): Conversation ID where changes are stored
+
+    **Returns:** List of changed files with change types and counts
+  </Accordion>
   <Accordion title="Export Changes">
     `export_changes`
 
@@ -361,24 +365,139 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
   </Accordion>
 </AccordionGroup>
 
-## Integration Tools
+## External Tools
+
+Search the web and extract content from external URLs to supplement codebase knowledge with external documentation and resources.
 
 <AccordionGroup>
-  <Accordion title="Change Detection">
-    `change_detection`
+  <Accordion title="Web Search">
+    `web_search_tool`
 
-    Detect code changes in the current branch compared to the default branch and retrieve updated function details.
+    Search external documentation, resources, and references.
 
     **Parameters:**
-    - `base_branch` (string, default: `main`): Branch to compare against
-    - `target_branch` (string, optional): Branch or commit to compare (defaults to current)
-    - `project_id` (string, required): Project to analyze
+    - `query` (string, required): Search query
+    - `num_results` (integer, default: `5`): Number of results to return
 
-    **Returns:** Changed files with diff information and impact analysis
+    **Returns:** Search results with titles, URLs, and snippets
+  </Accordion>
+  <Accordion title="Page Extractor">
+    `webpage_extractor`
+
+    Extract text content from a specific URL.
+
+    **Parameters:**
+    - `url` (string, required): URL to extract content from
+
+    **Returns:** Extracted text content and page metadata
+  </Accordion>
+  <Accordion title="Shell Command">
+    `bash_command`
+
+    Execute read-only shell commands. Available only when the repository manager is active in the deployment. Agents cannot run commands that modify files or perform destructive operations.
+
+    **Parameters:**
+    - `command` (string, required): Shell command to execute
+
+    **Returns:** Command output
+
+    **Permitted use cases:** `git status`, directory listings, system information queries, read-only diagnostics.
   </Accordion>
 </AccordionGroup>
 
-## GitHub Tools
+## Project Management Tools
+
+Track tasks, requirements, and manage session-based workflows for complex multi-step agent operations.
+
+<AccordionGroup>
+  <Accordion title="Create Todo">
+    `add_todo`
+
+    Create a todo item to track work in the current session.
+
+    **Parameters:**
+    - `title` (string, required): Title of the todo item
+    - `description` (string, optional): Additional detail about the task
+
+    **Returns:** Todo ID and creation confirmation
+  </Accordion>
+  <Accordion title="Update Status">
+    `update_todo_status`
+
+    Update the completion status of an existing todo item.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to update
+    - `status` (string, required): New status: `pending`, `in_progress`, or `done`
+
+    **Returns:** Updated todo with new status
+  </Accordion>
+  <Accordion title="Get Todo">
+    `get_todo`
+
+    Retrieve a specific todo item by ID.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to retrieve
+
+    **Returns:** Todo details including title, description, status, and notes
+  </Accordion>
+  <Accordion title="List Todos">
+    `read_todos`
+
+    List all todo items tracked in the current session.
+
+    **Returns:** All todo items with their statuses and notes
+  </Accordion>
+  <Accordion title="Add Note">
+    `add_todo_note`
+
+    Append a note to an existing todo item.
+
+    **Parameters:**
+    - `todo_id` (string, required): ID of the todo to update
+    - `note` (string, required): Note content to append
+
+    **Returns:** Updated todo with the new note
+  </Accordion>
+  <Accordion title="Todo Summary">
+    `get_todo_summary`
+
+    Get an overview of all todo items and their statuses in the current session.
+
+    **Returns:** Todo counts by status and a summary of pending and completed work
+  </Accordion>
+  <Accordion title="Add Requirements">
+    `add_requirements`
+
+    Store requirements or constraints for the current agent session.
+
+    **Parameters:**
+    - `requirements` (string, required): Requirements content to store
+
+    **Returns:** Confirmation of stored requirements
+  </Accordion>
+  <Accordion title="Get Requirements">
+    `get_requirements`
+
+    Retrieve requirements from the current session.
+
+    **Returns:** Stored requirements content
+  </Accordion>
+  <Accordion title="Delete Requirements">
+    `delete_requirements`
+
+    Remove requirements from the current session. Available exclusively to the **Code Agent**.
+
+    **Returns:** Deletion confirmation
+  </Accordion>
+</AccordionGroup>
+
+## Integration Tools
+
+Connect with external services like GitHub, Jira, Linear, and Confluence to extend agent capabilities beyond the codebase.
+
+### GitHub Tools
 
 <AccordionGroup>
   <Accordion title="Issue Fetcher" id="github-issue-fetcher">
@@ -458,7 +577,7 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
   </Accordion>
 </AccordionGroup>
 
-## Linear Tools
+### Linear Tools
 
 <AccordionGroup>
   <Accordion title="Issue Fetcher" id="linear-issue-fetcher">
@@ -484,7 +603,7 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
   </Accordion>
 </AccordionGroup>
 
-## Jira Tools
+### Jira Tools
 
 <AccordionGroup>
   <Accordion title="Issue Creator" id="jira-issue-creator">
@@ -596,7 +715,7 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
   </Accordion>
 </AccordionGroup>
 
-## Confluence Tools
+### Confluence Tools
 
 <AccordionGroup>
   <Accordion title="Space Lister" id="confluence-space-lister">
@@ -675,140 +794,20 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
   </Accordion>
 </AccordionGroup>
 
-## Web Tools
+### Change Detection
 
 <AccordionGroup>
-  <Accordion title="Web Search">
-    `web_search_tool`
+  <Accordion title="Change Detection">
+    `change_detection`
 
-    Search external documentation, resources, and references.
-
-    **Parameters:**
-    - `query` (string, required): Search query
-    - `num_results` (integer, default: `5`): Number of results to return
-
-    **Returns:** Search results with titles, URLs, and snippets
-  </Accordion>
-  <Accordion title="Page Extractor">
-    `webpage_extractor`
-
-    Extract text content from a specific URL.
+    Detect code changes in the current branch compared to the default branch and retrieve updated function details.
 
     **Parameters:**
-    - `url` (string, required): URL to extract content from
+    - `base_branch` (string, default: `main`): Branch to compare against
+    - `target_branch` (string, optional): Branch or commit to compare (defaults to current)
+    - `project_id` (string, required): Project to analyze
 
-    **Returns:** Extracted text content and page metadata
+    **Returns:** Changed files with diff information and impact analysis
   </Accordion>
 </AccordionGroup>
 
-## Execution Tools
-
-<AccordionGroup>
-  <Accordion title="Shell Command">
-    `bash_command`
-
-    Execute read-only shell commands. Available only when the repository manager is active in the deployment. Agents cannot run commands that modify files or perform destructive operations.
-
-    **Parameters:**
-    - `command` (string, required): Shell command to execute
-
-    **Returns:** Command output
-
-    **Permitted use cases:** `git status`, directory listings, system information queries, read-only diagnostics.
-  </Accordion>
-</AccordionGroup>
-
-## Task Management Tools
-
-Track and manage work items within the current agent session. Agents use these tools to plan, sequence, and record progress across multi-step tasks.
-
-<AccordionGroup>
-  <Accordion title="Create Todo">
-    `create_todo`
-
-    Create a todo item to track work in the current session.
-
-    **Parameters:**
-    - `title` (string, required): Title of the todo item
-    - `description` (string, optional): Additional detail about the task
-
-    **Returns:** Todo ID and creation confirmation
-  </Accordion>
-  <Accordion title="Update Status">
-    `update_todo_status`
-
-    Update the completion status of an existing todo item.
-
-    **Parameters:**
-    - `todo_id` (string, required): ID of the todo to update
-    - `status` (string, required): New status: `pending`, `in_progress`, or `done`
-
-    **Returns:** Updated todo with new status
-  </Accordion>
-  <Accordion title="Get Todo">
-    `get_todo`
-
-    Retrieve a specific todo item by ID.
-
-    **Parameters:**
-    - `todo_id` (string, required): ID of the todo to retrieve
-
-    **Returns:** Todo details including title, description, status, and notes
-  </Accordion>
-  <Accordion title="List Todos">
-    `list_todos`
-
-    List all todo items tracked in the current session.
-
-    **Returns:** All todo items with their statuses and notes
-  </Accordion>
-  <Accordion title="Add Note">
-    `add_todo_note`
-
-    Append a note to an existing todo item.
-
-    **Parameters:**
-    - `todo_id` (string, required): ID of the todo to update
-    - `note` (string, required): Note content to append
-
-    **Returns:** Updated todo with the new note
-  </Accordion>
-  <Accordion title="Todo Summary">
-    `get_todo_summary`
-
-    Get an overview of all todo items and their statuses in the current session.
-
-    **Returns:** Todo counts by status and a summary of pending and completed work
-  </Accordion>
-</AccordionGroup>
-
-## Requirement Tools
-
-Store and retrieve session-level requirements and constraints that guide agent behavior throughout a task.
-
-<AccordionGroup>
-  <Accordion title="Add Requirements">
-    `add_requirements`
-
-    Store requirements or constraints for the current agent session.
-
-    **Parameters:**
-    - `requirements` (string, required): Requirements content to store
-
-    **Returns:** Confirmation of stored requirements
-  </Accordion>
-  <Accordion title="Get Requirements">
-    `get_requirements`
-
-    Retrieve requirements from the current session.
-
-    **Returns:** Stored requirements content
-  </Accordion>
-  <Accordion title="Delete Requirements">
-    `delete_requirements`
-
-    Remove requirements from the current session. Available exclusively to the **Code Agent**.
-
-    **Returns:** Deletion confirmation
-  </Accordion>
-</AccordionGroup>

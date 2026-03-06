@@ -1,40 +1,42 @@
 ---
-title: 'Parsing'
-description: 'How Potpie reads a repository and extracts its structure.'
+title: "Parsing"
+description: "With Potpie, you can with ease, parse through repository’s complex source code, build a structured dependency graph & seamlessly capture every symbol along with their relationship."
 ---
 
-Potpie reads every source file in a connected repository through a **Tree-Sitter** **AST** parser using language specific query patterns. Each file produces a set of typed **nodes**. The relationships between those nodes become **edges**.
+<img
+  src="/images/img1.png"
+  alt="a simple image showing code to graph text"
+/>
 
-Potpie extracts three node types from every source file.
+## Repo Onboarding
 
-| Node type | What it captures |
-|---|---|
-| `File` | Path, imports, exports, and the definitions it contains |
-| `Function` / `Method` | Name, parameters, return type, line number, and containing file |
-| `Class` | Name, methods, fields, and containing file |
+As you add a repository, Potpie instantly validates the current parsed `status`.
 
-<Info>
-Each node receives a fully qualified name such as `auth/service.py:AuthService.validate_token`, making it referenceable across the entire graph.
-</Info>
+If parsed graph exists, then potpie uses the existing graph, else the repository is passed to the **File Analysis**.
 
-## How files are read
 
-<Steps>
-  <Step title="Definitions">
-    Potpie extracts every **definition** in the file and turns it into a node. Each node stores its source text, file path, and line numbers.
-  </Step>
-  <Step title="References">
-    Potpie extracts every **reference** and turns it into an edge pointing back to the definition it uses. Two edge types connect nodes.
+## File Analysis
 
-    | Edge type | What it represents |
-    |---|---|
-    | `CONTAINS` | A file holding a function or class |
-    | `REFERENCES` | One definition referencing another |
-  </Step>
-  <Step title="Scoring">
-    **PageRank** scores each node by how frequently other nodes reference it. These scored nodes then pass to <a href="/concepts/inference" className="mode-link">inference</a>, which gives each one a semantic meaning.
-  </Step>
-</Steps>
+Every file in the repository is evaluated before parsing action is initiated.  
+- Files without meaningful source code, such as images, binaries, or notebooks, are excluded early on to avoid unnecessary processing.
+- Files with recognized source extensions are accepted as valid inputs and forwarded for structured analysis.
 
-Supported languages: Python, Java, JavaScript, TypeScript, C#, C++, Go, Ruby, Rust, and PHP.
 
+
+## AST Querying
+
+Each file is parsed into an abstract syntax tree and queried for symbols, which are extracted by matching the file against the language grammar.
+- Every `function`, `class`, `method`, or `interface` discovered is recorded with its exact name and precise location in the codebase.  
+- Each symbol is also classified to indicate whether it represents an **original definition** or a **reference** to a definition elsewhere.
+
+## Graph Construction
+
+- **Definitions** are represented as nodes in the knowledge graph.  
+- **References** between symbols are represented as edges.  
+
+This creates a navigable structural map of the codebase that captures not only what exists, but also interdependency between the components.
+
+## Storage
+
+- The repository is marked as `ready` only when all nodes & relationships are persisted.
+- Any subsequent request for the same commit skips parsing entirely and queries the existing graph directly.

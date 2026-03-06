@@ -1,143 +1,98 @@
 ---
-title: 'Jira Integration'
-description: 'Connect Potpie with Jira for issue tracking and project management'
+title: "Jira Integration"
+description: "Connect Jira to Potpie to give agents the ability to read, create, and update issues directly from your codebase conversations."
 ---
 
-## Overview
+## Before you begin
 
-The **Jira integration** enables Potpie agents to access issues, projects, and workflows in the Jira workspace. Authentication uses **Atlassian OAuth 2.0 (3LO)** with **webhook** support for real-time notifications.
+Make sure you have:
+- A <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie account</a>
+- A <a href="https://id.atlassian.com/login" className="mode-link" target="_blank" rel="noopener noreferrer">Jira Cloud account</a> with permission to authorize OAuth applications on your Atlassian organization
 
+---
 
-## Quick Start
+## Connect your Jira account
 
 <Steps>
-  <Step title="Create Atlassian OAuth App">
-    Go to <a href="https://developer.atlassian.com/console/myapps/" className="mode-link">Atlassian Developer Console</a>
-
-    Create an **OAuth 2.0** integration with:
-    - **App name**: Potpie AI
-    - **Callback URL**: `https://app.potpie.ai/api/v2/integrations/jira/callback`
-    - **Scopes**: `read:jira-user read:jira-work write:jira-work manage:jira-webhook offline_access manage:jira-configuration`
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Integrations**.
   </Step>
-
-  <Step title="Connect Jira Site">
-    1. Settings → Integrations → Jira
-    2. Click **Connect**
-    3. Select the Jira site
-    4. Authorize permissions
-    5. Name the integration
-  </Step>
-
-  <Step title="Test Integration">
-    *"Create a Jira issue in project ENG with title 'Test issue'"*
-
-    *"Show me issue ENG-123"*
+  <Step title="Authorize Jira">
+    Click **Connect Jira** and complete the OAuth consent screen on Atlassian's side. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Jira Cloud organization.
   </Step>
 </Steps>
 
----
-
-## Available Tools
-
-The Jira integration provides 10 tools. See <a href="/agents/tools-reference#jira-tools" className="mode-link">Jira Tools</a> in the Tools Reference for full documentation.
-
-| Tool | Description |
-|------|-------------|
-| <a href="/agents/tools-reference#jira-issue-creator" className="mode-link">Issue Creator</a> | Create a new issue |
-| <a href="/agents/tools-reference#jira-issue-fetcher" className="mode-link">Issue Fetcher</a> | Fetch issue details |
-| <a href="/agents/tools-reference#jira-issue-updater" className="mode-link">Issue Updater</a> | Update issue fields |
-| <a href="/agents/tools-reference#jira-issue-search" className="mode-link">Issue Search</a> | Search using JQL |
-| <a href="/agents/tools-reference#jira-comment-writer" className="mode-link">Comment Writer</a> | Add a comment |
-| <a href="/agents/tools-reference#jira-status-mover" className="mode-link">Status Mover</a> | Move issue to a new status |
-| <a href="/agents/tools-reference#jira-issue-linker" className="mode-link">Issue Linker</a> | Link two issues |
-| <a href="/agents/tools-reference#jira-project-lister" className="mode-link">Project Lister</a> | List all projects |
-| <a href="/agents/tools-reference#jira-project-details" className="mode-link">Project Details</a> | Get project metadata |
-| <a href="/agents/tools-reference#jira-project-members" className="mode-link">Project Members</a> | List project members |
-
----
-
-## Webhook Configuration
-
-When you connect Jira, Potpie automatically registers a webhook to receive real-time issue events — no manual setup required.
-
-### Webhook Events
-
-- `jira:issue_created` — New issues
-- `jira:issue_updated` — Issue changes
-- `jira:issue_deleted` — Deleted issues
-- `comment_created` — New comments
-
----
-
-## ADF Format
-
-Jira uses **Atlassian Document Format (ADF)** for rich text:
-
-```python
-# Simple text
-{"type": "doc", "content": [
-    {"type": "paragraph", "content": [
-        {"type": "text", "text": "Hello world"}
-    ]}
-]}
-
-# With formatting
-{"type": "doc", "content": [
-    {"type": "paragraph", "content": [
-        {"type": "text", "text": "Bold text", "marks": [{"type": "strong"}]},
-        {"type": "text", "text": " and "},
-        {"type": "text", "text": "italic", "marks": [{"type": "em"}]}
-    ]}
-]}
-```
-
-Potpie automatically converts plain text to **ADF**.
-
----
-
-## Self-Hosted Setup
-
-### Backend Configuration
-
-Add Jira OAuth credentials to the environment:
-
-```bash
-JIRA_CLIENT_ID=your_client_id
-JIRA_CLIENT_SECRET=your_client_secret
-JIRA_OAUTH_SCOPE="read:jira-user read:jira-work write:jira-work manage:jira-webhook offline_access manage:jira-configuration"
-```
-
-### OAuth App Setup
-
-**Authentication Type:** Atlassian OAuth 2.0 (3LO)
-**Authorization URL:** `https://auth.atlassian.com/authorize`
-**Token URL:** `https://auth.atlassian.com/oauth/token`
-**API Base:** `https://api.atlassian.com/ex/jira/{cloud_id}`
-
 <Note>
-  The callback URL is dynamically constructed from the deployment hostname: `https://{your-deployment-hostname}/api/v2/integrations/jira/callback`
+  Once connected, agents can use Jira tools whenever they are included in the agent's tool list.
 </Note>
 
-### Cloud ID
+---
 
-After OAuth, Potpie fetches accessible resources to determine the Cloud ID for your Jira site:
+## What agents can do with Jira
 
-```bash
-GET https://api.atlassian.com/oauth/token/accessible-resources
-Authorization: Bearer {access_token}
-```
+Each tool below becomes available to any agent that has it included in its tool list. All tools require an active Jira connection — if none is found, the tool returns an error prompting you to connect Jira first.
 
-```json
-[{
-  "id": "cloud-id-123",
-  "name": "My Jira Site",
-  "url": "https://mysite.atlassian.net"
-}]
-```
+**Reading issues**
 
-All API calls use the Cloud ID:
-```
-https://api.atlassian.com/ex/jira/{cloud_id}/rest/api/3/issue/ENG-123
-```
+<ParamField path="get_jira_issue_tool" type="tool">
+  Fetches a single issue by key. Returns summary, status, assignee, priority, labels, and description.
+</ParamField>
 
-For Potpie API endpoints that manage the Jira integration lifecycle, see the <a href="/api-reference/introduction" className="mode-link">API Reference</a>.
+<ParamField path="search_jira_issues_tool" type="tool">
+  Searches issues using JQL with pagination support. Use this to find issues by project, status, assignee, or any JQL expression.
+</ParamField>
+
+**Creating and updating issues**
+
+<ParamField path="create_jira_issue_tool" type="tool">
+  Creates a new issue with summary, description, type, priority, assignee, and labels. Requires a valid project key.
+</ParamField>
+
+<ParamField path="update_jira_issue_tool" type="tool">
+  Updates one or more fields on an existing issue. Pass only the fields you want to change — unchanged fields are left as-is.
+</ParamField>
+
+<ParamField path="add_jira_comment_tool" type="tool">
+  Posts a comment to an existing issue. Useful for logging agent actions or adding context to issues without modifying their fields.
+</ParamField>
+
+<ParamField path="transition_jira_issue_tool" type="tool">
+  Moves an issue through its workflow by transition name (e.g. `"In Progress"`, `"Done"`). Use `get_jira_project_details_tool` first to retrieve valid transitions for the project.
+</ParamField>
+
+<ParamField path="link_jira_issues_tool" type="tool">
+  Links two issues using a relationship type such as `Blocks`, `Relates to`, or `Duplicates`.
+</ParamField>
+
+**Project and user discovery**
+
+<ParamField path="get_jira_projects_tool" type="tool">
+  Lists all Jira projects accessible to the connected account.
+</ParamField>
+
+<ParamField path="get_jira_project_details_tool" type="tool">
+  Returns valid issue types, priorities, and statuses for a specific project. Call this before creating or transitioning issues to ensure you're passing valid values.
+</ParamField>
+
+<ParamField path="get_jira_project_users_tool" type="tool">
+  Lists users who can be assigned to issues in a given project.
+</ParamField>
+
+---
+
+## Token refresh
+
+Potpie automatically refreshes your Jira access token before it expires. No action is required from you — agents will continue working without interruption across token cycles.
+
+---
+
+## Webhooks
+
+At connection time, Potpie registers a webhook on your Jira Cloud site that subscribes to the following events:
+
+- Issue created
+- Issue updated
+- Issue deleted
+- Comment added
+
+All incoming webhook events are verified using a signed JWT before processing. This ensures Potpie only acts on events originating from your Jira organization.

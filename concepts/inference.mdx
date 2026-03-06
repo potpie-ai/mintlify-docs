@@ -1,30 +1,39 @@
 ---
-title: 'Inference'
-description: 'How Potpie gives every node in the graph a semantic meaning.'
+title: "Inference"
+description: "Inference in Potpie is the process of interpreting parsed code to understand what each symbol does and how it behaves in the system."
 ---
 
-<a href="/concepts/parsing" className="mode-link">Parsing</a> maps the repository into typed nodes and edges. Potpie then runs on each **inference** of a node in that graph, generating a **vector embedding** that captures what that node does in context.
+After the repository graph is built, Potpie runs inference on each node to generate descriptions, tags, and semantic meaning that agents can reason over.
 
-<Info>
-A **vector embedding** encodes the **semantic meaning** of a node. Similar functions cluster close in vector space regardless of naming, so agents can locate relevant code by concept.
-</Info>
+<img
+  src="/images/Inference.png"
+  alt="a simple image showing code to graph text"
+/>
 
-## How inference runs
+## Inference Setup
 
-<Steps>
-  <Step title="Node processing">
-    Inference processes each node individually through the configured **LLM provider**.
-  </Step>
-  <Step title="Caching">
-    Potpie caches results. Nodes unchanged since the last parse skip re-embedding. Only new or modified code runs through inference on subsequent parses.
-  </Step>
-  <Step title="Storage">
-    Potpie stores **embeddings** alongside the structural nodes and edges in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>. Every component carries both a structural position and a **semantic address**.
-  </Step>
-</Steps>
+Post parsing, Potpie ensures every node in the graph is prepared for understanding.
 
-## What this enables
+Each node carries the raw source code of the represented symbol. Prior to any processing, the concerned source text is fully resolved, ensuring every node contains complete, self contained code rather than references to other nodes.
 
-Once every node carries an embedding, agents query the graph by concept. A query for authentication handlers resolves to the nodes with the closest embeddings to that concept, regardless of function naming conventions.
+## Cache Resolution
 
-**Structural edges** from <a href="/concepts/parsing" className="mode-link">parsing</a> give agents the paths to traverse. **Embeddings** give agents the starting points.
+Prior to sending any code to an LLM, Potpie verifies if the exact source was processed in a previous run.
+
+Nodes with no change in code since the previous run are retrieved directly from cache and inference is skipped. Only nodes with new or changed code proceed to LLM processing.
+
+## LLM Processing
+
+Every uncached node is sent to an LLM, which produces a short description of what the code does and a set of tags classifying its role across actions like authentication, database access, UI rendering, and state management.
+
+Large nodes are split into chunks, processed separately, and merged back into a single result before moving ahead.
+
+## Inference Indexing
+
+Once every node has a description and tags, Potpie generates a semantic embedding from each description and writes everything back to the knowledge graph.
+
+The result is a fully annotated graph where every node is searchable by name, by role, and by meaning ready for agents to navigate and query.
+
+## Inference Outcome
+
+The descriptions, tags, and embeddings produced during inference are what allow agents to do more than pattern match on raw code. Inference is what turns a graph of code into a graph of meaning.

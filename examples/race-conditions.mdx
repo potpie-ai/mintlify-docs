@@ -5,7 +5,7 @@ description: 'Trace and fix race conditions causing intermittent failures in pro
 
 Race conditions leave intermittent, hard to reproduce failures in production. The stack trace shows where the failure surfaces, while the unsafe shared state originates elsewhere.
 
-**Debug** walks the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> through every concurrent code path involved in the failure, identifies the exact timing window where state is shared unsafely, and returns a targeted fix pinpointing the precise file and line that needs a guard.
+**Debug** walks the [knowledge graph](/concepts/knowledge-graph) through every concurrent code path involved in the failure, identifies the exact timing window where state is shared unsafely, and returns a targeted fix pinpointing the precise file and line that needs a guard.
 
 **Issue:**
 ```
@@ -25,4 +25,6 @@ Orders occasionally duplicate during checkout. Only happens under load.
 - Lock or atomic operation at the correct layer with the minimal change required
 - Verification across all shared resources for the same exposure pattern
 
-<a href="/build-flow/build-a-feature" className="mode-link">**Build**</a> generates the corrected code as a reviewable **diff**.
+[**Build**](/build-flow/build-a-feature) generates the corrected code as a reviewable **diff**.
+
+Try it yourself on your codebase → [Debug an Issue](/tutorials/trace-and-fix)

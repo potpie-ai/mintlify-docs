@@ -1,194 +1,173 @@
 ---
-title: 'GitHub Integration'
-description: 'Connect Potpie with GitHub to manage code, PRs, and issues directly from AI agents'
+title: "GitHub Integration"
+description: "Connect your GitHub account to let Potpie access repositories and push agent-generated changes as pull requests."
 ---
 
-## Prerequisites
+## Before you begin
 
-Before using the GitHub integration, you need:
+Make sure you have:
+- <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">A Potpie account </a>
+- <a href="https://github.com/login" className="mode-link" target="_blank" rel="noopener noreferrer">A GitHub account</a>
 
-- A <a href="https://app.potpie.ai" className="mode-link">Potpie account</a>
-- A GitHub account with access to the repositories you want to connect
-- Admin permissions on the repository or organization to install the GitHub App
+---
 
-## Overview
-
-The **GitHub integration** enables Potpie agents to interact with GitHub repositories through a **GitHub App** installation. The app provides secure, fine-grained access to code, pull requests, branches, and issues.
-
-
-## Quick Start
-
-### Prerequisites
-
-- GitHub account with repository access
-- Repository admin permissions (for app installation)
-- Potpie account
-
-### Setup Steps
+## Connect your GitHub account
 
 <Steps>
-  <Step title="Install Potpie GitHub App">
-    Open <a href="https://github.com/apps/potpie-ai" className="mode-link">Potpie GitHub App</a> and click **Install**. Select repositories:
-    - All repositories, or
-    - Specific repositories only
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Settings** → **Integrations**.
+  </Step>
+  <Step title="Authorize GitHub">
+    Click **Connect GitHub** and complete the OAuth flow. Potpie stores your access token encrypted in PostgreSQL and links it to your account.
+  </Step>
+</Steps>
+
+<Note>
+  A GitHub account already connected to a different Potpie user cannot be merged or transferred.
+</Note>
+
+---
+
+## How Potpie authenticates repository requests
+
+Every repository request resolves authentication using the following priority order. Potpie tries each source in sequence and uses the first one that succeeds:
+
+<ParamField path="1" type="Highest priority">
+  **GitHub App installation token** — used when a GitHub App is installed on the target organization or repository. A short-lived token is generated fresh per request and never stored.
+</ParamField>
+
+<ParamField path="2" type="">
+  **`GH_TOKEN_LIST`** — a comma-separated list of personal access tokens. One is picked at random per request to distribute load across GitHub rate limits. GitHub only.
+</ParamField>
+
+<ParamField path="3" type="">
+  **`CODE_PROVIDER_TOKEN`** — a single personal access token. Works across all provider types (GitHub, GitBucket, GitLab, Bitbucket).
+</ParamField>
+
+<ParamField path="4" type="Lowest priority">
+  **`CODE_PROVIDER_USERNAME` / `CODE_PROVIDER_PASSWORD`** — basic auth, used only when no token source is available. Primarily for self-hosted GitBucket installs.
+</ParamField>
+
+For **local repositories**, Potpie uses the filesystem path directly — no token resolution occurs.
+
+---
+
+## List accessible repositories
+
+<ResponseField name="GET /github/user-repos" type="endpoint">
+  Returns all repositories accessible to the authenticated user.
+</ResponseField>
+
+<CodeGroup>
+```bash cURL
+curl http://localhost:8001/api/v2/github/user-repos \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "http://localhost:8001/api/v2/github/user-repos",
+    headers={"x-api-key": "YOUR_API_KEY"}
+)
+```
+
+```javascript Node
+const response = await fetch("http://localhost:8001/api/v2/github/user-repos", {
+  headers: { "x-api-key": "YOUR_API_KEY" }
+});
+```
+</CodeGroup>
+
+**Query parameters**
+
+<ParamField query="search" type="string">
+  Filter repositories by name. Returns only repositories whose name contains the search string.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum number of repositories to return in a single response.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Number of results to skip. Use with `limit` to paginate through results.
+</ParamField>
+
+---
+
+## Create a pull request from agent changes
+
+PR creation happens through a conversation with the [Code Generation Agent](/agents/code-generation-agent) — not through a direct API call. You ask the agent to make code changes, then explicitly ask it to open a PR.
+
+<Note>
+  The agent only creates a PR when you explicitly ask for one. It will not open one automatically after making changes.
+</Note>
+
+<Steps>
+  <Step title="Start a conversation with the Code Generation Agent">
+    ```bash
+    POST /api/v2/conversations
+    Content-Type: application/json
+
+    {
+      "project_id": "your_project_id",
+      "agent_id": "code_generation_agent"
+    }
+    ```
   </Step>
 
-  <Step title="Verify Installation">
-    Parse a repository in Potpie to verify the connection:
-    1. Go to New Chat
-    2. Select the repository dropdown
-    3. GitHub repos appear in the list
+  <Step title="Request your code change">
+    Send a message describing what you want changed. The agent will analyze the codebase and prepare the modification.
+
+    ```bash
+    POST /api/v2/conversations/{conversation_id}/message
+    Content-Type: multipart/form-data
+
+    content: "Add input validation to the login function"
+    ```
   </Step>
 
-  <Step title="Start Using">
-    Ask agents to interact with GitHub:
+  <Step title="Ask the agent to create the PR">
+    Once you're happy with the proposed changes, ask the agent to open a pull request. Specify the branch name and title.
 
-    *"Show me the latest PR for repo owner/repo"*
+    ```bash
+    POST /api/v2/conversations/{conversation_id}/message
+    Content-Type: multipart/form-data
 
-    *"Create a branch called feature/new-auth"*
+    content: "Create a PR for these changes on branch fix/login-validation with title 'Fix: add login input validation'"
+    ```
 
-    *"Read the contents of src/auth.js"*
+    The response streams back and includes the PR URL when complete:
+
+    ```
+    PR created: https://github.com/owner/repo/pull/42
+    Branch: fix/login-validation
+    Commit: a3f9c12
+    ```
   </Step>
 </Steps>
 
 ---
 
-## Available Tools
+## How tokens are stored
 
-The GitHub integration provides 6 tools. See <a href="/agents/tools-reference#github-tools" className="mode-link">GitHub Tools</a> in the Tools Reference for full documentation.
+<ParamField path="User OAuth token" type="PostgreSQL">
+  Encrypted at rest using Fernet symmetric encryption. Linked to your Potpie account on connection.
+</ParamField>
 
-| Tool | Description |
-|------|-------------|
-| <a href="/agents/tools-reference#github-issue-fetcher" className="mode-link">Issue Fetcher</a> | Fetch issues and pull requests |
-| <a href="/agents/tools-reference#github-file-reader" className="mode-link">File Reader</a> | Read file contents |
-| <a href="/agents/tools-reference#github-branch-creator" className="mode-link">Branch Creator</a> | Create branches |
-| <a href="/agents/tools-reference#github-file-committer" className="mode-link">File Committer</a> | Modify and commit files |
-| <a href="/agents/tools-reference#github-pr-creator" className="mode-link">PR Creator</a> | Create pull requests |
-| <a href="/agents/tools-reference#github-pr-commenter" className="mode-link">PR Commenter</a> | Add PR comments |
+<ParamField path="GitHub App private key" type="Environment variable">
+  Stored in the `GITHUB_PRIVATE_KEY` environment variable on the server. Never exposed to clients.
+</ParamField>
 
----
+<ParamField path="Installation token" type="In-memory">
+  Generated fresh per request and never persisted. Scoped to the specific installation.
+</ParamField>
 
-## Self-Hosted Setup
+<ParamField path="GH_TOKEN_LIST" type="Environment variable">
+  Stored in the `GH_TOKEN_LIST` env var. Tokens are rotated automatically across requests.
+</ParamField>
 
-For self-hosted Potpie instances, configure GitHub App credentials and authentication in addition to the cloud installation steps above.
-
-### Backend Configuration
-
-Add these environment variables to your deployment:
-
-```bash
-GITHUB_APP_ID=your_app_id
-GITHUB_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
-CODE_PROVIDER_TOKEN=fallback_personal_access_token
-CODE_PROVIDER_TOKEN_POOL=token1,token2,token3
-```
-
-- `GITHUB_PRIVATE_KEY` — the raw PEM content of the private key generated in your GitHub App settings
-- `CODE_PROVIDER_TOKEN` — a personal access token used as a fallback for unauthenticated operations
-- `CODE_PROVIDER_TOKEN_POOL` — optional comma-separated list of tokens for distributing API rate limits
-
-### GitHub App Setup
-
-#### Installation Process
-
-1. **Navigate to App Installation**
-   - Go to <a href="https://github.com/apps/potpie-ai" className="mode-link">github.com/apps/potpie-ai</a>
-   - Or in repository: Settings → GitHub Apps
-
-2. **Grant Permissions**
-   The Potpie GitHub App requests:
-   - **Read**: Repository contents, pull requests, issues
-   - **Write**: Pull requests, branches, commit status
-   - **Admin**: Webhooks (optional)
-
-3. **Select Repositories**
-   ```
-   ○ All repositories
-   ● Only select repositories
-     ☑ my-project
-     ☑ backend-api
-     ☐ private-repo
-   ```
-
-4. **Installation ID**
-   After installation, GitHub provides an **installation ID**. Potpie uses this to authenticate API calls.
-
-### Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Potpie
-    participant GitHub
-
-    User->>GitHub: Install Potpie App
-    GitHub->>User: Show permission request
-    User->>GitHub: Approve installation
-    GitHub->>Potpie: Webhook: installation created
-    Potpie->>Potpie: Store installation ID
-    User->>Potpie: Request repo operation
-    Potpie->>Potpie: Generate JWT from App credentials
-    Potpie->>GitHub: Exchange JWT for installation token
-    GitHub->>Potpie: Return installation access token
-    Potpie->>GitHub: Make API call with token
-    GitHub->>Potpie: Return data
-    Potpie->>User: Show results
-```
-
-### Key Concepts
-
-**GitHub App vs OAuth App:**
-- **GitHub App**: Installation-based, fine-grained permissions, app-level auth
-- **OAuth App**: User-based, broader permissions, user-level auth
-
-**Installation Token:**
-- Short-lived (1 hour)
-- Generated from a **JWT** signed with the private key
-- Scoped to installed repositories only
-
-**JWT Creation:**
-```python
-import jwt
-import time
-
-payload = {
-    'iat': int(time.time()),
-    'exp': int(time.time()) + 600,  # 10 minutes
-    'iss': GITHUB_APP_ID
-}
-
-jwt_token = jwt.encode(payload, private_key, algorithm='RS256')
-```
-
-### API Integration Details
-
-**JWT Generation:**
-```python
-# 1. Create JWT
-jwt_token = create_jwt(
-    app_id=GITHUB_APP_ID,
-    private_key=PRIVATE_KEY
-)
-
-# 2. Get installation token
-response = requests.post(
-    f"https://api.github.com/app/installations/{installation_id}/access_tokens",
-    headers={"Authorization": f"Bearer {jwt_token}"}
-)
-
-installation_token = response.json()["token"]
-```
-
-**API Calls:**
-```python
-# Use installation token for API calls
-headers = {
-    "Authorization": f"Bearer {installation_token}",
-    "Accept": "application/vnd.github.v3+json"
-}
-
-response = requests.get(
-    "https://api.github.com/repos/owner/repo/pulls/123",
-    headers=headers
-)
-```
+<ParamField path="CODE_PROVIDER_TOKEN" type="Environment variable">
+  Stored in the `CODE_PROVIDER_TOKEN` env var. Used as a single fallback when no other source resolves.
+</ParamField>

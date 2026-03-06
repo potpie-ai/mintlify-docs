@@ -1,78 +1,34 @@
 ---
 title: 'Build a Feature'
+description: "**Potpie's code generation interface**"
 sidebarTitle: 'Build'
 ---
 
-Potpie reads existing patterns, conventions, and dependencies from the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before writing a line of code. It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. Code reaches the repository only after diff approval.
+<img src="/images/Build-Pull.png" alt="Final review before PR" />
 
-## Workflow
+Potpie reads existing patterns, conventions, and dependencies from the [knowledge graph](/concepts/knowledge-graph) before initiating a line of code.
 
-<Steps>
-  <Step title="Describe the feature">
-    Enter a description of the feature to build. Potpie asks clarifying questions before generating anything.
+It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. The code it produces fits naturally into what already exists.
 
-    <img src="/images/feature-description-input.png" alt="Feature description input" />
-  </Step>
+See [Make Code Changes](/tutorials/make-code-changes) for a complete walkthrough from writing code to opening a pull request.
 
-  <Step title="Clarifying questions">
-    Potpie surfaces a set of clarifying questions as multiple choice options. Answers lock in the scope and requirements before the specification begins.
+## How It Works
 
-    <img src="/images/code-agent-clarifying-questions.png" alt="Clarifying questions" />
-  </Step>
+Build starts by probing **clarifying questions** to lock-in the scope to generate a **specification** covering every file that needs to be created or modified.
 
-  <Step title="Specification">
-    Potpie parses the codebase against the confirmed requirements and generates a specification covering every file to create or modify, implementation details for each change, and dependency relationships between affected components.
+During exploration, it reads files directly by path with optional line ranges, reads multiple files simultaneously when working across related modules, and performs **grep-style content searches** to identify naming conventions, import patterns, and existing usage across the codebase.
 
-    <img src="/images/code-agent-spec-page.png" alt="Specification page" />
-  </Step>
+It then produces a **plan** showing what changes, in what order, and how new components relate to existing ones. Code is presented as a **diff** for every file touched.
 
-  <Step title="Plan">
-    Once the spec is confirmed, Potpie generates a plan.
+Based upon the complexity of what's being built, Potpie automatically determines whether a **single agent** can handle the full task or whether **specialized subagents** should split the research and coding work.
 
-    <Tabs>
-      <Tab title="Summary">
-        An explanation of what changes, which parts of the codebase are in scope, and how the new code fits the existing system.
 
-        <img src="/images/code-agent-plan-summary.png" alt="Plan summary tab" />
-      </Tab>
-      <Tab title="Architecture">
-        A dependency graph showing how new components wire into existing services, data models, and API boundaries as they exist in the repository.
+## What It Produces
 
-        <img src="/images/build-architecture1.png" alt="Architecture tab" />
-      </Tab>
-      <Tab title="Plan items">
-        Each task lists the target file, implementation intent, dependency order, and the verification criteria checked after each diff is generated.
+Every change is shown as a diff. Once approved, Potpie creates the **pull request**.
 
-        <img src="/images/code-agent-plan-items.png" alt="Plan items tab" />
-      </Tab>
-    </Tabs>
-  </Step>
+Nothing is generated speculatively. If a referenced file cannot be located in the codebase, Build is instructed to request clarification rather than fabricate code or assumptions that do not exist.
 
-  <Step title="Code generation">
-    Potpie generates the code and presents every change as a **diff**. Changes match the existing code style and conventions identified during **specification**.
-
-    <img src="/images/build-codegen.png" alt="Code generation diff view" />
-  </Step>
-
-  <Step title="Pull request">
-    Clicking **Create PR** pushes the full diff to the repository.
-
-    <img src="/images/Build-Pull.png" alt="Final review before PR" />
-  </Step>
-</Steps>
-
-## Multi-agent mode
-
-Potpie runs in two modes depending on request complexity:
-
-- **Single agent:** Potpie handles the full request from start to finish.
-- **Multi agent:** Potpie's subagents can do research as well as coding.
-
-Potpie determines the mode automatically.
-
-## Using the API
-
-The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a session against a <a href="/concepts/parsing" className="mode-link">parsed</a> project and returns the specification and plan in a single call.
 
 ## Example uses
 
