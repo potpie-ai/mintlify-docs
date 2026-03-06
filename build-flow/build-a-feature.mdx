@@ -4,15 +4,19 @@ description: "**Potpie's code generation interface**"
 sidebarTitle: 'Build'
 ---
 
-Potpie reads existing patterns, conventions, and dependencies from the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> before initiating a line of code.
+<img src="/images/Build-Pull.png" alt="Final review before PR" />
+
+Potpie reads existing patterns, conventions, and dependencies from the [knowledge graph](/concepts/knowledge-graph) before initiating a line of code.
 
 It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. The code it produces fits naturally into what already exists.
 
-If you intend to generate code, that fits  existing patterns and review every change as a diff before it reaches the repository, follow the <a href="/tutorials/make-code-changes" className="mode-link">Make Code Changes tutorial</a>.
+See [Make Code Changes](/tutorials/make-code-changes) for a complete walkthrough from writing code to opening a pull request.
 
 ## How It Works
 
-Build starts by probing **clarifying questions** to lock- in the scope to generate a **specification** covering every file that needs to be created or modified.
+Build starts by probing **clarifying questions** to lock-in the scope to generate a **specification** covering every file that needs to be created or modified.
+
+During exploration, it reads files directly by path with optional line ranges, reads multiple files simultaneously when working across related modules, and performs **grep-style content searches** to identify naming conventions, import patterns, and existing usage across the codebase.
 
 It then produces a **plan** showing what changes, in what order, and how new components relate to existing ones. Code is presented as a **diff** for every file touched.
 
@@ -23,12 +27,8 @@ Based upon the complexity of what's being built, Potpie automatically determines
 
 Every change is shown as a diff. Once approved, Potpie creates the **pull request**.
 
-Nothing is generated speculatively, For instance, iff a referenced file cannot be located in the codebase, Build pauses execution and requests clarification rather than fabricating code or assumptions that do not exist.
+Nothing is generated speculatively. If a referenced file cannot be located in the codebase, Build is instructed to request clarification rather than fabricate code or assumptions that do not exist.
 
-
-## Using the API
-
-The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a session against a <a href="/concepts/parsing" className="mode-link">parsed</a> project and returns the specification and plan in a single call.
 
 ## Example uses
 

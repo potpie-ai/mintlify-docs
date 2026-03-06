@@ -1,54 +1,173 @@
 ---
 title: "GitHub Integration"
-description: "Potpie connects to GitHub to access repositories and create pull requests from agent-generated changes."
+description: "Connect your GitHub account to let Potpie access repositories and push agent-generated changes as pull requests."
 ---
 
-## Connecting a GitHub Account
+## Before you begin
 
-1. Go to <a href="https://app.potpie.ai/sign-in" className="mode-link">Potpie </a>  → **Settings** → **Integrations**
-2. Click **Connect GitHub**
-3. Once completed with OAuth flow , Potpie stores your access token encrypted in PostgreSQL and links it to your account
+Make sure you have:
+- <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">A Potpie account </a>
+- <a href="https://github.com/login" className="mode-link" target="_blank" rel="noopener noreferrer">A GitHub account</a>
 
-<Note>A GitHub account already connected to a different Potpie user cannot be merged or transferred.</Note>
+---
 
+## Connect your GitHub account
 
+<Steps>
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Settings** → **Integrations**.
+  </Step>
+  <Step title="Authorize GitHub">
+    Click **Connect GitHub** and complete the OAuth flow. Potpie stores your access token encrypted in PostgreSQL and links it to your account.
+  </Step>
+</Steps>
 
-## Repository Access
+<Note>
+  A GitHub account already connected to a different Potpie user cannot be merged or transferred.
+</Note>
 
-Potpie resolves authentication for every repository request through the following priority order:
+---
 
-| Priority | Source |
-|---|---|
-| 1 | GitHub App installation token |
-| 2 | `CODE_PROVIDER_TOKEN_POOL` |
-| 3 | `CODE_PROVIDER_TOKEN` |
-| 4 | `GH_TOKEN_LIST` |
-| 5 | `CODE_PROVIDER_USERNAME` / `CODE_PROVIDER_PASSWORD` |
+## How Potpie authenticates repository requests
 
-For local repositories, the filesystem path is used directly without token resolution. 
+Every repository request resolves authentication using the following priority order. Potpie tries each source in sequence and uses the first one that succeeds:
 
+<ParamField path="1" type="Highest priority">
+  **GitHub App installation token** — used when a GitHub App is installed on the target organization or repository. A short-lived token is generated fresh per request and never stored.
+</ParamField>
 
-## Listing Repositories
+<ParamField path="2" type="">
+  **`GH_TOKEN_LIST`** — a comma-separated list of personal access tokens. One is picked at random per request to distribute load across GitHub rate limits. GitHub only.
+</ParamField>
 
-`GET /github/user-repos` returns all repositories accessible to the authenticated user. Both the repositories available to parse and repositories already parsed as projects in Potpie.
-```bash
+<ParamField path="3" type="">
+  **`CODE_PROVIDER_TOKEN`** — a single personal access token. Works across all provider types (GitHub, GitBucket, GitLab, Bitbucket).
+</ParamField>
+
+<ParamField path="4" type="Lowest priority">
+  **`CODE_PROVIDER_USERNAME` / `CODE_PROVIDER_PASSWORD`** — basic auth, used only when no token source is available. Primarily for self-hosted GitBucket installs.
+</ParamField>
+
+For **local repositories**, Potpie uses the filesystem path directly — no token resolution occurs.
+
+---
+
+## List accessible repositories
+
+<ResponseField name="GET /github/user-repos" type="endpoint">
+  Returns all repositories accessible to the authenticated user.
+</ResponseField>
+
+<CodeGroup>
+```bash cURL
 curl http://localhost:8001/api/v2/github/user-repos \
   -H "x-api-key: YOUR_API_KEY"
 ```
 
+```python Python
+import requests
 
+response = requests.get(
+    "http://localhost:8001/api/v2/github/user-repos",
+    headers={"x-api-key": "YOUR_API_KEY"}
+)
+```
 
-## Pull Request Creation
+```javascript Node
+const response = await fetch("http://localhost:8001/api/v2/github/user-repos", {
+  headers: { "x-api-key": "YOUR_API_KEY" }
+});
+```
+</CodeGroup>
 
-When the <a href="/agents/code-generation-agent" className="mode-link">Code Generation Agent</a> creates a PR, it stages all changes, commits under `Potpie <hi@potpie.ai>`, pushes to the remote, and opens the PR on GitHub or GitBucket. The PR URL is streamed back to the user on completion.
+**Query parameters**
 
+<ParamField query="search" type="string">
+  Filter repositories by name. Returns only repositories whose name contains the search string.
+</ParamField>
 
-## Token Storage
+<ParamField query="limit" type="integer">
+  Maximum number of repositories to return in a single response.
+</ParamField>
 
-| Token | Where stored |
-|---|---|
-| User OAuth token | PostgreSQL with Fernet encryption |
-| GitHub App private key | `GITHUB_PRIVATE_KEY` env var | 
-| Installation token | In-memory, generated per request | 
-| `GH_TOKEN_LIST` | Env var | 
-| `CODE_PROVIDER_TOKEN` | Env var | 
+<ParamField query="offset" type="integer" default="0">
+  Number of results to skip. Use with `limit` to paginate through results.
+</ParamField>
+
+---
+
+## Create a pull request from agent changes
+
+PR creation happens through a conversation with the [Code Generation Agent](/agents/code-generation-agent) — not through a direct API call. You ask the agent to make code changes, then explicitly ask it to open a PR.
+
+<Note>
+  The agent only creates a PR when you explicitly ask for one. It will not open one automatically after making changes.
+</Note>
+
+<Steps>
+  <Step title="Start a conversation with the Code Generation Agent">
+    ```bash
+    POST /api/v2/conversations
+    Content-Type: application/json
+
+    {
+      "project_id": "your_project_id",
+      "agent_id": "code_generation_agent"
+    }
+    ```
+  </Step>
+
+  <Step title="Request your code change">
+    Send a message describing what you want changed. The agent will analyze the codebase and prepare the modification.
+
+    ```bash
+    POST /api/v2/conversations/{conversation_id}/message
+    Content-Type: multipart/form-data
+
+    content: "Add input validation to the login function"
+    ```
+  </Step>
+
+  <Step title="Ask the agent to create the PR">
+    Once you're happy with the proposed changes, ask the agent to open a pull request. Specify the branch name and title.
+
+    ```bash
+    POST /api/v2/conversations/{conversation_id}/message
+    Content-Type: multipart/form-data
+
+    content: "Create a PR for these changes on branch fix/login-validation with title 'Fix: add login input validation'"
+    ```
+
+    The response streams back and includes the PR URL when complete:
+
+    ```
+    PR created: https://github.com/owner/repo/pull/42
+    Branch: fix/login-validation
+    Commit: a3f9c12
+    ```
+  </Step>
+</Steps>
+
+---
+
+## How tokens are stored
+
+<ParamField path="User OAuth token" type="PostgreSQL">
+  Encrypted at rest using Fernet symmetric encryption. Linked to your Potpie account on connection.
+</ParamField>
+
+<ParamField path="GitHub App private key" type="Environment variable">
+  Stored in the `GITHUB_PRIVATE_KEY` environment variable on the server. Never exposed to clients.
+</ParamField>
+
+<ParamField path="Installation token" type="In-memory">
+  Generated fresh per request and never persisted. Scoped to the specific installation.
+</ParamField>
+
+<ParamField path="GH_TOKEN_LIST" type="Environment variable">
+  Stored in the `GH_TOKEN_LIST` env var. Tokens are rotated automatically across requests.
+</ParamField>
+
+<ParamField path="CODE_PROVIDER_TOKEN" type="Environment variable">
+  Stored in the `CODE_PROVIDER_TOKEN` env var. Used as a single fallback when no other source resolves.
+</ParamField>

@@ -4,89 +4,53 @@ title: "Code Generation Agent"
 
 The Code Generation Agent reads your codebase's existing patterns and conventions before writing a single line, then generates code that fits naturally into what already exists.
 
-if specific `node_ids` are referenced in the query, it fetches their source code and appends it as code context.
+If specific nodes are referenced in the query, it fetches their source code and appends it as code context.
 
 ## How It Works
 
 ### Understand the Task
 
-The agent classifies every incoming task into one of five types: 
-- **new feature**
-- **modification** 
-- **refactor**
-- **bug fix** 
-- **multi-file change**
- 
- It extracts target files, classes, functions, scope, and dependencies.
+The agent classifies every incoming task into one of five types:
 
-<Note> For **multi-file or complex tasks**, it upfront identifies all impacted files and determines the order changes that need to happen, and thereby resolving dependencies for the files . </Note>
+- **New feature**
+- **Modification**
+- **Refactor**
+- **Bug fix**
+- **Multi-file change**
 
+It extracts target files, classes, functions, scope, and dependencies.
+
+<Note>For multi-file or complex tasks, the agent upfront identifies all impacted files and determines the order in which changes need to happen, resolving dependencies across files before writing anything.</Note>
 
 ### Explore the Codebase
 
-The agent reads the codebase prior to writing anything:
+The agent reads the codebase before writing anything. It starts by finding where the relevant feature or functionality lives, then understands the directory layout and module organization. 
 
-- `ask_knowledge_graph_queries` : finds where the relevant feature or functionality lives
-- `get_code_file_structure` : understands directory layout and module organization
-- `get_code_from_probable_node_name` : retrieves specific named classes or functions
-- `get_code_from_multiple_node_ids` : batch-fetches all relevant nodes collected so far
-- `get_node_neighbours_from_node_id` : maps all call relationships
-- `fetch_file` / `fetch_files_batch` : retrieves full files or specific line ranges
-- `web_search_tool` / `webpage_extractor` : retrieves domain best practices when relevant
-- `get_nodes_from_tags` : used as a last resort if no relevant files are found
+It retrieves specific named classes or functions, maps all call relationships, and fetches full files or specific line ranges as needed. It reads multiple files simultaneously when working across related modules, and also performs grep style content searches to surface naming conventions, import patterns, and usage sites across the codebase.
+
+If the task involves domain best practices not present in the repo, it retrieves external references to inform the implementation. If no relevant files are found through normal navigation, it falls back to a tag-based search across the graph.
 
 ### Analyze Patterns
 
-Prior to  writing, the agent captures exact indentation, import order, naming conventions, string literal formats, and docstring style from the existing codebase.
+Before writing, the agent captures exact indentation, import order, naming conventions, string literal formats, and docstring style from the existing codebase.
 
 It maps every import that needs to change, identifies all impacted files including tests, and documents any database schema or API contract changes.
 
 ### Write Code
 
-Changes are written through the **Code Changes Manager** (a Redis-backed session). The agent begins by calling `checkout_worktree_branch`, which creates or reuses a dedicated branch named `agent/edits-{sanitized_conversation_id}`.
+Changes are written into a dedicated branch created at the start of every session. The agent works against a live view of each file as it evolves, re-fetching the current state before every operation so line numbers are always accurate after prior inserts or deletes.
 
-The conversation ID is sanitized before branch creation by replacing forward slashes, backslashes, and spaces with hyphens to ensure the branch name is valid and safe. Changes are then written using:
-- `add_file_to_changes` : for new files
-- `update_file_lines`, `replace_in_file`, `insert_lines`, `delete_lines` : for modifications
-
-Before every line-based operation, the agent calls `get_file_from_changes` with `with_line_numbers=true` so it always works against the current state of the file and never assumes line numbers after a prior insert or delete.
-
-<Note> After every operation, it re-fetches to verify the change applied correctly.</Note>
+After every operation, it re-fetches to verify the change applied correctly.
 
 ### Review and Apply
 
-The agent calls `show_diff` to display all changes as unified diffs, then immediately invokes `apply_changes`to persist them.
-Until `apply_changes` is executed, all changes exist only within the Redis session and are not written to disk.
+The agent displays all changes as a unified diff for you to review. Until you confirm, no changes are written to disk.
 
-**PR creation** only happens upon explicit user confirmation. The agent presents the **diff**, asks the user to confirm, and waits. Upon confirmation, it calls `create_pr_workflow`, a single composite operation that applies the patches, creates or updates the branch, commits the changes, pushes them to the remote repository, and opens a pull request on GitHub or GitLab.
-
----
-
-## Calling the Agent
-```bash
-curl -X POST https://localhost:8001/api/v2/conversations/ \
-  -H "x-api-key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_ids": ["proj_abc123"],
-    "agent_ids": ["code_generation_agent"]
-  }'
-```
-
-Once you have a `conversation_id`, send your instruction:
-```bash
-curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
-  -H "x-api-key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "Add rate limiting to the authentication endpoints",
-    "node_ids": ["node_abc123"]
-  }'
-```
+PR creation only happens upon your explicit confirmation. Once confirmed, the agent applies the patches, commits the changes, pushes them to the remote repository, and opens a pull request on GitHub or GitLab in a single step.
 
 ---
 
 ## Next Steps
 
-- See <a href="/agents/codebase-qna-agent" className="mode-link">Codebase Q&A Agent</a> to ask questions about your codebase
-- See <a href="/agents/debugging-agent" className="mode-link">Debugging Agent</a> to trace and fix issues
+- See [Codebase Q&A Agent](/agents/qna-agent) to ask questions about your codebase
+- See [Debugging Agent](/agents/debugging-agent) to trace and fix issues

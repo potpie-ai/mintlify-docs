@@ -3,26 +3,77 @@ title: "Sentry Integration"
 description: "Connect Sentry to Potpie to make your organization's projects and issues accessible from your codebase conversations."
 ---
 
-## Connecting Sentry
+## Before you begin
 
-1. Go to <a href="https://app.potpie.ai/sign-in" className="mode-link">Potpie</a> → **Integrations**
-2. Click **Connect Sentry**
-3. Complete the OAuth consent screen on Sentry's side
-4. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Sentry organization
+Make sure you have:
+- A <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie account</a>
+- A Sentry account with permission to authorize OAuth applications on your organization
 
-<Note>The same Sentry organization cannot be connected more than once per user. Attempting to reconnect the same organization returns a duplicate error.</Note>
+<Note>
+  The same Sentry organization cannot be connected more than once per user. If you attempt to reconnect an already-linked organization, Potpie will return a duplicate error. Delete the existing integration first.
+</Note>
 
+---
 
-## What It Provides
+## Connect your Sentry account
 
-Unlike other integrations, Sentry does not expose agent-callable tools. Instead, connecting Sentry makes your organization's data accessible to the service layer — projects, issues, and events can be retrieved and used as context in conversations.
+<Steps>
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Integrations**.
+  </Step>
+  <Step title="Authorize Sentry">
+    Click **Connect Sentry** and complete the OAuth consent screen on Sentry's side. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Sentry organization.
+  </Step>
+</Steps>
 
+---
 
-## Token Refresh
+## What Sentry data becomes accessible
 
-Potpie automatically refreshes the Sentry access token when it expires. No action is required from the user.
+Unlike the Jira and Confluence integrations, Sentry does not expose agent-callable tools. Instead, connecting Sentry makes your organization's data available to the service layer — projects, issues, and events can be retrieved and used as context in conversations.
 
+The following data endpoints become active once you connect:
+
+<ParamField path="GET /integrations/sentry/{id}/organizations" type="endpoint">
+  Lists all Sentry organizations accessible to the connected account.
+</ParamField>
+
+<ParamField path="GET /integrations/sentry/{id}/organizations/{org}/projects" type="endpoint">
+  Lists all projects within a specific organization.
+</ParamField>
+
+<ParamField path="GET /integrations/sentry/{id}/organizations/{org}/projects/{project}/issues" type="endpoint">
+  Returns issues for a specific project. Use this to retrieve error context for conversations about a codebase.
+</ParamField>
+
+<ParamField path="POST /integrations/sentry/{id}/api/{any_sentry_endpoint}" type="endpoint">
+  Generic passthrough to any Sentry API endpoint. All requests go through Potpie's token layer, so your credentials are never exposed directly.
+</ParamField>
+
+---
+
+## Token refresh
+
+Potpie automatically refreshes your Sentry access token when it expires. No action is required from you — data access continues without interruption across token cycles.
+
+---
 
 ## Webhooks
 
-Sentry can send an issue and project events to Potpie in real time. Webhook registration is done manually on Sentry's side — Potpie does not register webhooks automatically at connection time.
+Sentry can push issue and project events to Potpie in real time. A few things to know:
+
+- **Registration is manual** — Potpie does not register webhooks automatically at connection time. You need to add the webhook URL on Sentry's side yourself.
+- **All event types are accepted** — Potpie does not filter by event type. Any event Sentry sends is received and queued for processing.
+- **Webhook endpoint:**
+
+```
+POST /api/v1/integrations/sentry/webhook
+```
+
+To set this up, add the above URL as a webhook in your Sentry project settings under **Settings → Integrations → WebHooks**.
+
+---
+
+## Disconnect Sentry
+
+To remove the integration, go to **Settings → Integrations** in Potpie and disconnect Sentry. You can reconnect at any time — just note that reconnecting the same organization requires the previous integration to be deleted first.

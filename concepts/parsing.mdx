@@ -1,6 +1,6 @@
 ---
 title: "Parsing"
-description: "With Potpie, you can with ease, parse through repository’s complex source code, build a structured dependency graph & seamlessly capture every symbol along with their inter relationship."
+description: "With Potpie, you can with ease, parse through repository’s complex source code, build a structured dependency graph & seamlessly capture every symbol along with their relationship."
 ---
 
 <img
@@ -10,9 +10,9 @@ description: "With Potpie, you can with ease, parse through repository’s compl
 
 ## Repo Onboarding
 
-As you add repository, Potpie instantly validates the current parsed `status`.
+As you add a repository, Potpie instantly validates the current parsed `status`.
 
-If parsed graph exists, then potpie uses the existing graph, else the acquired repository is passed to the **File Analysis**.
+If parsed graph exists, then potpie uses the existing graph, else the repository is passed to the **File Analysis**.
 
 
 ## File Analysis
@@ -21,11 +21,11 @@ Every file in the repository is evaluated before parsing action is initiated.
 - Files without meaningful source code, such as images, binaries, or notebooks, are excluded early on to avoid unnecessary processing.
 - Files with recognized source extensions are accepted as valid inputs and forwarded for structured analysis.
 
-Symbols are extracted by matching the accepted file to language grammar.
+
 
 ## AST Querying
 
-Each file is parsed into an abstract syntax tree and queried for symbols.  
+Each file is parsed into an abstract syntax tree and queried for symbols, which are extracted by matching the file against the language grammar.
 - Every `function`, `class`, `method`, or `interface` discovered is recorded with its exact name and precise location in the codebase.  
 - Each symbol is also classified to indicate whether it represents an **original definition** or a **reference** to a definition elsewhere.
 
@@ -38,5 +38,5 @@ This creates a navigable structural map of the codebase that captures not only w
 
 ## Storage
 
-- The repository is marked as ‘ready’ only when all nodes & relationships are persisted.
+- The repository is marked as `ready` only when all nodes & relationships are persisted.
 - Any subsequent request for the same commit skips parsing entirely and queries the existing graph directly.

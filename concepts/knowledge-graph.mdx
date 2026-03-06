@@ -17,22 +17,15 @@ Once the knowledge graph is fully annotated, agents can begin querying it.
 
 ## Search and Traversal
 
-Agents have 3 ways to explore nodes in the graph:
+Agents have 2 ways to explore nodes in the graph:
 
-1. **Vector search :** 
-    - converts a natural language question into an embedding and finds the nodes whose descriptions are most semantically similar to it. 
+1. **Vector search :**
+    - converts a natural language question into an embedding and finds the nodes whose descriptions are most semantically similar to it.
     - When the agent works within a specific part of the codebase, the search is scoped to nodes connected to that context rather than the entire graph.
 
-2. **Structural traversal :** 
+2. **Structural traversal :**
    - Starts from a known node and follows all relationships outward, returning the complete subgraph of everything connected to it.
-   - No filtering is applied returning the full structure as a nested tree.
-
-3. **Filtered traversal :** 
-   
-   works the similarity but scores each connected node by architectural relevance before returning it.
-   - Core business logic and frontend components score highest.
-   - Noise like logs, mocks, and test stubs score lowest and are pruned. 
-   - Only nodes above a relevance threshold are included, giving the agent a cleaner view of what matters.
+   - No filtering is applied, returning the full structure as a nested tree.
 
 
 ## Graph Navigation

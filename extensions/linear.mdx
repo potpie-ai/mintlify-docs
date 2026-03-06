@@ -11,7 +11,7 @@ Integrate with **Linear** to enable Potpie agents to fetch issue details, update
 3. Complete the OAuth consent screen on Linear's side
 4. Potpie stores your access token encrypted in PostgreSQL, linked to your Linear organization
 
-<Note>One Linear organization maps to one integration per user. Reconnecting the same organization updates the existing record in place.</Note>
+<Note>One Linear organization maps to one integration per user.</Note>
 
 ## What Agents Can Do
 
@@ -19,7 +19,7 @@ Once connected, agents can use two Linear tools when included in the agent's too
 
 | Tool | What it does |
 |---|---|
-| `get_linear_issue` | Fetches an issue by ID by title, description, status, assignee, team, priority, and URL |
+| `get_linear_issue` | Fetches an issue by ID returning title, description, status, assignee, team, priority, URL, `created_at`, and `updated_at` |
 | `update_linear_issue` | Updates any combination of title, description, status, assignee, or priority. Adding a `comment` creates a separate comment and does not overwrite the description. |
 
 These tools can be accessed by both the custom agents and the pre-built agents.

@@ -103,7 +103,7 @@ openapi: 'POST /api/v2/integrations/save'
 
 ```typescript TypeScript
 const response = await fetch(
-  'https://localhost:8001/api/v2/integrations/save',
+  'http://localhost:8001/api/v2/integrations/save',
   {
     method: 'POST',
     headers: {
@@ -143,7 +143,7 @@ if (result.success) {
 import requests
 
 response = requests.post(
-    'https://localhost:8001/api/v2/integrations/save',
+    'http://localhost:8001/api/v2/integrations/save',
     headers={
         'x-api-key': 'YOUR_API_KEY',
         'Content-Type': 'application/json'
@@ -177,7 +177,7 @@ else:
 
 ```bash cURL
 curl -X POST \
-  'https://localhost:8001/api/v2/integrations/save' \
+  'http://localhost:8001/api/v2/integrations/save' \
   -H 'x-api-key: YOUR_API_KEY' \
   -H 'Content-Type: application/json' \
   -d '{

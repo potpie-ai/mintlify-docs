@@ -3,7 +3,9 @@ title: 'Local Setup'
 description: 'Run Potpie locally on your own infrastructure.'
 ---
 
-## Prerequisites
+## Before you begin
+
+Make sure you have the following installed:
 
 - [Docker](https://docker.com) installed and running
 - [Git](https://git-scm.com) installed
@@ -11,7 +13,7 @@ description: 'Run Potpie locally on your own infrastructure.'
 
 ---
 
-## Installation
+## Install Potpie
 
 <Steps>
   <Step title="Clone the repository">
@@ -26,43 +28,13 @@ description: 'Run Potpie locally on your own infrastructure.'
     cp .env.template .env
     ```
 
-    Edit `.env` with the following required values:
+    Open `.env` and fill in the values — see `.env.template` in the repository for all required and optional fields including LLM provider, database, Redis, and storage settings.
 
-    ```bash
-    # App & Environment
-    isDevelopmentMode=enabled
-    ENV=development
-    defaultUsername=defaultuser
-
-    # AI / LLM Configuration
-    LLM_PROVIDER=openai                    # openai | ollama | anthropic | openrouter
-    OPENAI_API_KEY=sk-proj-your-key
-    CHAT_MODEL=gpt-4o
-    INFERENCE_MODEL=gpt-4o-mini
-
-    # Database
-    POSTGRES_SERVER=postgresql://postgres:mysecretpassword@localhost:5432/momentum
-    NEO4J_URI=bolt://127.0.0.1:7687
-    NEO4J_USERNAME=neo4j
-    NEO4J_PASSWORD=mysecretpassword
-
-    # Redis & Background Jobs
-    REDISHOST=127.0.0.1
-    REDISPORT=6379
-    BROKER_URL=redis://127.0.0.1:6379/0
-    CELERY_QUEUE_NAME=dev
-
-    # Project & Repo Management
-    PROJECT_PATH=projects
-    ```
-
-    `CHAT_MODEL` is used for agent reasoning. `INFERENCE_MODEL` is used for knowledge graph generation. Model names follow the `provider/model_name` format as expected by [LiteLLM](https://docs.litellm.ai/docs/providers).
+    Set `isDevelopmentMode=enabled` to parse local repositories directly, or `isDevelopmentMode=disabled` to use GitHub-connected repos.
 
     <Tip>
-      Using Ollama? Set `LLM_PROVIDER=ollama` and use `CHAT_MODEL=ollama_chat/qwen2.5-coder:7b` and `INFERENCE_MODEL=ollama_chat/qwen2.5-coder:7b`.
+      Using Ollama? Set `LLM_PROVIDER=ollama` and use `ollama_chat/qwen2.5-coder:7b` for both `CHAT_MODEL` and `INFERENCE_MODEL`.
     </Tip>
-
-    See `.env.template` in the repository for the full list of optional configuration — logging, feature flags, object storage, email, and analytics.
   </Step>
 
   <Step title="Install dependencies">
@@ -80,7 +52,7 @@ description: 'Run Potpie locally on your own infrastructure.'
     ./scripts/start.sh
     ```
 
-    This starts Docker services, waits for PostgreSQL to be ready, applies database migrations, starts the FastAPI application, and starts the Celery worker.
+    The script starts Docker services, waits for PostgreSQL to be ready, applies database migrations, starts the FastAPI application, and starts the Celery worker.
   </Step>
 
   <Step title="Verify the server is running">
@@ -98,7 +70,7 @@ To stop all services:
 
 ---
 
-## Frontend Setup
+## Set up the frontend
 
 ```bash
 cd potpie-ui
@@ -108,26 +80,21 @@ pnpm build && pnpm start
 
 ---
 
-## GitHub Authentication
+## Configure GitHub authentication
 
-Potpie supports three methods for accessing GitHub repositories. Set `GITHUB_AUTH_MODE` to `app`, `pat`, or `none` to select the method.
+Potpie supports three methods for accessing GitHub repositories. The method is selected automatically based on which environment variables are set.
 
-| Method | Configuration | Best For |
-|---|---|---|
-| **GitHub App** | `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY` | Production |
-| **PAT Pool** | `GH_TOKEN_LIST=ghp_token1,ghp_token2` | Development / Higher rate limits |
-| **Unauthenticated** | No configuration required | Public repositories only (60 req/hr) |
+**GitHub App** *(recommended for production)*
 
-**GitHub App (recommended for production)**
+<ParamField body="GITHUB_APP_ID" type="string">
+  Your GitHub App's numeric ID. Found in the app's settings page on GitHub.
+</ParamField>
 
-Create a GitHub App in your organization. Set the following in `.env`:
+<ParamField body="GITHUB_PRIVATE_KEY" type="string">
+  The private key generated when you created the GitHub App.
+</ParamField>
 
-```bash
-GITHUB_APP_ID=your-app-id
-GITHUB_PRIVATE_KEY=your-private-key
-```
-
-Required permissions:
+Create a GitHub App in your organization with the following permissions, then set the variables above in `.env`:
 
 | Scope | Permission |
 |---|---|
@@ -139,42 +106,62 @@ Required permissions:
 | Organization Members | Read only |
 | Account Email address | Read only |
 
-From the app's sidebar, select **Install App** and install it on the target organization or user account.
-
-**Personal Access Token Pool**
-
-Create one or more GitHub PATs with `repo` scope and add them to `.env`:
-
-```bash
-GH_TOKEN_LIST=ghp_token1,ghp_token2,ghp_token3
-```
-
-Potpie randomly selects from the pool for load balancing. Each token allows 5,000 requests/hour.
+Once the app is created, select **Install App** from its sidebar and install it on your target organization or user account.
 
 ---
 
-## Self-Hosted Git Providers
+**Personal Access Token Pool** *(recommended for development)*
 
-For self-hosted Git servers such as GitBucket or GitLab, set the following in `.env`:
+<ParamField body="GH_TOKEN_LIST" type="string">
+  A comma-separated list of GitHub personal access tokens with `repo` scope. Potpie randomly selects from the pool for load balancing. Each token allows 5,000 requests per hour.
 
-```bash
-CODE_PROVIDER=github         # Options: github, gitbucket
-CODE_PROVIDER_BASE_URL=http://your-git-server.com/api/v3
-CODE_PROVIDER_TOKEN=your-token
-```
-
-`GH_TOKEN_LIST` tokens are always used for GitHub.com regardless of `CODE_PROVIDER_BASE_URL`.
+  ```bash
+  GH_TOKEN_LIST=ghp_token1,ghp_token2,ghp_token3
+  ```
+</ParamField>
 
 ---
 
-## Logfire Tracing (Optional)
+**Unauthenticated** *(public repositories only)*
 
-Logfire provides observability and LLM trace monitoring for Potpie. Get a token at [logfire.pydantic.dev](https://logfire.pydantic.dev) and add it to `.env`:
+No configuration required. Rate-limited to 60 requests per hour. Not recommended for anything beyond initial testing.
 
-```bash
-LOGFIRE_TOKEN=your_token_here
-```
+---
 
-Tracing is initialized automatically on startup. View traces at [logfire.pydantic.dev](https://logfire.pydantic.dev).
+## Use a self-hosted Git provider
 
-Set `LOGFIRE_SEND_TO_CLOUD=false` to disable sending traces to Logfire cloud.
+For self-hosted Git servers such as GitBucket, set the following in `.env`:
+
+<ParamField body="CODE_PROVIDER" type="string">
+  The Git provider to use. Accepted values: `github`, `gitbucket`.
+</ParamField>
+
+<ParamField body="CODE_PROVIDER_BASE_URL" type="string">
+  Base URL of your self-hosted Git server's API.
+
+  ```bash
+  CODE_PROVIDER_BASE_URL=http://your-git-server.com/api/v3
+  ```
+</ParamField>
+
+<ParamField body="CODE_PROVIDER_TOKEN" type="string">
+  Access token for your self-hosted Git server.
+</ParamField>
+
+<Note>
+  `GH_TOKEN_LIST` tokens are always used for GitHub.com requests regardless of what `CODE_PROVIDER_BASE_URL` is set to.
+</Note>
+
+---
+
+## Enable observability with Logfire *(optional)*
+
+[Logfire](https://logfire.pydantic.dev) provides LLM trace monitoring for Potpie. Get a token at [logfire.pydantic.dev](https://logfire.pydantic.dev) and add it to `.env`:
+
+<ParamField body="LOGFIRE_TOKEN" type="string">
+  Your Logfire project token. Tracing is initialized automatically on startup once this is set. View traces at [logfire.pydantic.dev](https://logfire.pydantic.dev).
+</ParamField>
+
+<ParamField body="LOGFIRE_SEND_TO_CLOUD" type="boolean" default="true">
+  Set to `false` to disable sending traces to Logfire cloud and keep all trace data local.
+</ParamField>

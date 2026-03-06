@@ -2,70 +2,68 @@
 title: "Debugging Agent"
 ---
 
-The Debugging Agent traces issues through the knowledge graph from where they surface to where they originate, identifies the root cause, and returns a targeted fix.
+The Debugging Agent traces issues through the [knowledge graph](/concepts/knowledge-graph) from where they surface to where they originate, identifies the root cause, and returns a targeted fix.
 
 For a bug report, it runs a structured investigation that follows the issue to its source and systematically evaluates every viable fix location before recommending the most appropriate resolution.
 
-
-Prior to the agent run, if `node_ids` are referenced in the query, it fetches their source code and appends it as code context.
-
+If specific nodes are referenced in the query, it fetches their source code and appends it as code context.
 
 ## How It Works
 
 ### Understand the Problem
 
-The agent immediately separates the reported symptom from any ‘user suggested’ Fix. The suggested fix is noted and set aside but only the observed symptom is carried forward.
+The agent immediately separates the reported symptom from any suggested fix. The suggested fix are noted and only the observed symptom is carried forward into the investigation.
 
-It calls `add_requirements` to document the real problem, the debugging principles. It will follow the success criteria. It calls `add_todo` to break investigation into traceable tasks prior to any navigation. 
+It documents the real problem, the debugging principles it will follow, and the success criteria. It then breaks the investigation into traceable tasks before any navigation begins.
 
 ### Explore and Hypothesize
 
-The agent formulates candidate hypothesis for what could cause the symptom. Each hypothesis is tracked as a todo and marked confirmed or eliminated as the investigation progress.
+The agent formulates candidate hypotheses for what could cause the symptom. Each hypothesis is tracked and marked confirmed or eliminated as the investigation progresses.
 
-Navigation follows the same broad-to-narrow pattern as the Q&A Agent:
-
-- `ask_knowledge_graph_queries` : locates where relevant functionality lives in the graph
-- `get_code_file_structure` : understands directory layout and module organization
-- `get_code_from_probable_node_name` : retrieves specific named classes or functions
-- `get_code_from_multiple_node_ids` : batch-fetches all relevant nodes collected so far
-- `get_node_neighbours_from_node_id` : maps all call relationships
-- `fetch_file` / `fetch_files_batch` : retrieves full files or specific line ranges
+Navigation follows the same broad-to-narrow pattern as the Q&A Agent, moving from finding where relevant functionality lives in the [knowledge graph](/concepts/knowledge-graph) -> understanding directory layout and module organization -> retrieving specific files, functions, and call relationships. It reads files directly by path with optional line ranges, reads multiple files simultaneously when tracing across modules, and searches file contents by pattern to follow state through code paths not fully captured in the graph.
 
 ### Identify Root Cause
 
-The agent traces in both directions from the symptom:
+The agent traces in both directions from the symptom.
 
-- **Upstream** : follows the call chain backward to find where bad state was first introduced
-- **Downstream** : identifies what consumes this code's output and what assumptions consumers make
+**Upstream** it follows the call chain backward to find where bad state was first introduced. **Downstream** it identifies what consumes the code's output and what assumptions those consumers make.
 
 Whenever a reported bug represents a broader category rather than a single isolated case, the agent treats it as a pattern, enumerates all sibling instances across the codebase, and evaluates each one to determine whether the same issue is present elsewhere.
 
 ### Generalize
 
-Prior to designing a fix, the agent translates the specific bug into the general pattern it represents and evaluates every candidate fix location:
 
-- **Origin fix** : prevents bad state from being created. Preferred.
-- **Transformation fix** : corrects the issue during natural processing. Acceptable.
-- **Symptom fix** : patches where the bug manifests. Avoided.
-- **Consumer guard** : defensive checks in every consumer. Red flag.
+The agent evaluates every candidate fix location before recommending one. Different types of fix locations are : 
 
-Two tests are applied to validate the chosen location:
+- A **origin fix** prevents bad state from being created. This is always the preferred approach.
 
-- **Spreading knowledge test**: after the fix, does any other code still need to know about this edge case? If yes, the fix is too far downstream.
-- **Future bug test**: if a new caller is added, does it automatically get the fix? If no, the fix is too shallow.
+- A **transformation fix** corrects the issue during normal data processing. This is acceptable.
+
+- A **boundary fix** validates inputs at API or module boundaries. This is acceptable.
+
+- A **symptom fix** patches the issue where the bug appears rather than where it originates. This should be avoided.
+
+- A **consumer guard** adds defensive checks in every consumer. This is considered a red flag.
+
+After this two validation tests are used to confirm the fix is applied at the correct location.
+
+
+1. The **Spreading Knowledge Test** asks whether other parts of the code still need to know about the edge case after the fix. If yes, the fix is too far downstream.
+
+2. The **Future Bug Test** asks whether a new caller would automatically benefit from the fix. If no, the fix is too shallow.
 
 ### Design and Implement
 
-Prior to introducing any changes, the agent searches the codebase for existing patterns such as similar fixes, utility functions, or reusable helpers to ensure consistency with the current architecture. The fix targets the origin or transformation point.
+The fix targets the origin or transformation point, reusing existing utilities and helpers where they exist.
 
-In debug mode, the agent explains the fix with file path and line citations. 
+The agent explains the fix with file path and line citations. Before returning, it verifies that the generalized issue, all affected components, and the designed fix are fully addressed.
 
-Prior to returning, the agent calls `get_requirements` and `read_todos` to verify the generalized issue, all affected components, and the design fix are fully addressed.
-
+---
 
 ## Calling the Agent
+
 ```bash
-curl -X POST https://localhost:8001/api/v2/conversations/ \
+curl -X POST http://localhost:8001/api/v2/conversations/ \
   -H "x-api-key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -75,18 +73,19 @@ curl -X POST https://localhost:8001/api/v2/conversations/ \
 ```
 
 Once you have a `conversation_id`, describe the issue:
+
 ```bash
-curl -X POST https://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
+curl -X POST http://localhost:8001/api/v2/conversations/conv_xyz789/message/ \
   -H "x-api-key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "content": "The auth token resets on every redirect. Happens only on OAuth flows.",
-    "node_ids": ["node_abc123"]
+    "content": "The auth token resets on every redirect. Happens only on OAuth flows."
   }'
 ```
 
+---
 
 ## Next Steps
 
-- See <a href="/agents/codebase-qna-agent" className="mode-link">Codebase Q&A Agent</a> to ask questions about your codebase
-- See <a href="/agents/code-generation-agent" className="mode-link">Code Generation Agent</a> to generate and modify code
+- See [Codebase Q&A Agent](/agents/qna-agent) to ask questions about your codebase
+- See [Code Generation Agent](/agents/code-changes-agent) to generate and modify code

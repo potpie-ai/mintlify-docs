@@ -84,19 +84,6 @@
                 ]
               },
               "custom-agents/introduction",
-              {
-                "group": "Integrations",
-                "pages": [
-                  "extensions/overview",
-                  "extensions/github",
-                  "extensions/linear",
-                  "extensions/jira",
-                  "extensions/confluence",
-                  "extensions/sentry",
-                  "extensions/slack",
-                  "extensions/vscode"
-                ]
-              },
               "self-hosting/setup",
               "agents/tools-reference"
             ]
@@ -104,15 +91,18 @@
           {
             "group": "Example Uses",
             "pages": [
+              "examples/overview",
               "examples/impact-analysis",
               "examples/code-migration",
-              "examples/race-conditions",
               "examples/auth-flow",
               "examples/refactor-scope",
-              "examples/api-endpoint",
+              "examples/rate-limiting",
               "examples/auth-middleware",
               "examples/null-pointer",
-              "examples/memory-leak"
+              "examples/memory-leak",
+              "examples/race-conditions",
+              "examples/code-review",
+              "examples/api-endpoint"
             ]
           }
         ]

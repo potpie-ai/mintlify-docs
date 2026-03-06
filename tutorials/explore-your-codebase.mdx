@@ -5,24 +5,24 @@ sidebarTitle: 'Ask Your Codebase'
 
 In this tutorial, you'll learn how to use Ask in Potpie to get cited answers grounded in your actual source code, with exact file paths and line numbers for every claim.
 
-To understand how Ask works, see the <a href="/build-flow/ask-a-question" className="mode-link">Ask mode page</a>.
+To understand how Ask works, see the [Ask mode page](/build-flow/ask-a-question).
 
 <Steps>
   <Step title="Ask your question">
-    Type a natural language question about the codebase. **Ask** handles **flow tracing**, **dependency mapping**, and **pattern analysis**.
+    Type a natural language question about the codebase. **Ask** handles **flow tracing** and **dependency mapping**.
 
-    <img src="/images/new-chat-interface.png" alt="Chat interface" />
+    <img src="/images/new-chat-interface1.png" alt="Chat interface" />
   </Step>
 
   <Step title="Review the response">
-    Potpie returns an answer with exact file paths and line references for every claim.
+    Potpie returns an answer with file paths and line references where relevant.
 
     <img src="/images/ask-review1.png" alt="Response in progress" />
 
     <img src="/images/ask-review2.png" alt="Completed response with citations" />
 
     <Note>  
-      When a question involves a third-party library, it retrieves external documentation via web-Fetch.
+      When a question involves a third-party library, it retrieves external documentation via `web search`.
     </Note>
   </Step>
 </Steps>

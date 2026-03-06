@@ -1,0 +1,46 @@
+---
+title: 'Code Review'
+description: 'Understand exactly what a PR changes across the full codebase before approving it.'
+---
+
+Reviewing a pull request from the diff alone misses what it actually affects. A two-line change to a shared utility can break a dozen callers across the codebase. This guide shows you how to map the full impact of any PR before you approve it.
+
+## Before you begin
+
+- Your repository is connected and indexed in Potpie ([quickstart](/quickstart))
+- You have a pull request open that you want to review
+
+## Run the analysis
+
+<Steps>
+  <Step title="Open Ask on your codebase">
+    Go to [Potpie](https://app.potpie.ai) → **Ask** and select your repository.
+  </Step>
+  <Step title="Ask about the PR changes">
+    Describe what the PR modifies and ask what it affects:
+```
+What does changing the UserService.updateProfile method affect across the codebase?
+```
+
+    Ask traverses the [knowledge graph](/concepts/knowledge-graph) from every modified function outward, mapping all callers, dependents, and transitive effects.
+  </Step>
+  <Step title="Review the impact map">
+    Ask returns:
+
+    - Every function, class, and module that depends on the changed code
+    - Each call site with its exact file path and line number
+    - Areas of the codebase most likely to regress from this change
+  </Step>
+</Steps>
+
+## Results
+
+Once you have the impact map, you have two paths:
+
+**Approve with confidence** by using the file paths and line numbers to verify each affected call site is handled correctly in the PR diff.
+
+If any affected path looks risky, **hand off to Debug** by opening a [Debug](/build-flow/debug-an-issue) conversation and tracing the code path to verify no regression was introduced.
+
+## Try it on your codebase
+
+→ [Explore your codebase with Ask](/tutorials/explore-your-codebase)

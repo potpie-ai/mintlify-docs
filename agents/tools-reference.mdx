@@ -2,28 +2,28 @@
 title: 'Tools Reference'
 ---
 
-**Custom agents** access specialized tools across six categories: **Knowledge Graph**, **Code Access**, **External**, **Project Management**, **Integration**, and **Task Management**. Assign tools per task at agent creation to control what the agent can access during execution.
+**Custom agents** access specialized tools across six categories: **Knowledge Graph**, **Code Access**, **External**, **Project Management**, **Integration**, and **Code Changes**. Assign tools per task at agent creation to control what the agent can access during execution.
 
 ## Tool Categories
 
 | Category | Description |
 |---|---|
-| <a href="#knowledge-graph-tools" className="mode-link">Knowledge Graph</a> | Query and traverse the codebase by node, tag, name, or semantic meaning |
-| <a href="#code-access-tools" className="mode-link">Code Access</a> | Retrieve file contents, directory structures, and analyzed code element breakdowns |
-| <a href="#external-tools" className="mode-link">External</a> | Search the web and extract content from external URLs |
-| <a href="#project-management-tools" className="mode-link">Project Management</a> | Track tasks, requirements, and manage session-based workflows |
-| <a href="#integration-tools" className="mode-link">Integration</a> | Connect with external services like GitHub, Jira, Linear, and Confluence |
-| <a href="#code-changes-management-tools" className="mode-link">Code Changes</a> | Manage code modifications through a session-based change tracking system. Available exclusively to the Code Agent |
+| [Knowledge Graph](#knowledge-graph-tools) | Query and traverse the codebase by node, tag, name, or semantic meaning |
+| [Code Access](#code-access-tools) | Retrieve file contents, directory structures, and analyzed code element breakdowns |
+| [External](#external-tools) | Search the web and extract content from external URLs |
+| [Project Management](#project-management-tools) | Track tasks, requirements, and manage session-based workflows |
+| [Integration](#integration-tools) | Connect with external services like GitHub, Jira, Linear, and Confluence |
+| [Code Changes](#code-changes-management-tools) | Manage code modifications through a session-based change tracking system. Available exclusively to the Code Agent |
 
 ## Knowledge Graph Tools
 
-Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
+Query and traverse the [knowledge graph](/concepts/knowledge-graph) by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
 
 <AccordionGroup>
   <Accordion title="Semantic Search">
     `ask_knowledge_graph_queries`
 
-    Execute natural language queries against the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> using **vector similarity search** over docstring <a href="/concepts/inference" className="mode-link">embeddings</a>. The primary tool for semantic codebase search.
+    Execute natural language queries against the [knowledge graph](/concepts/knowledge-graph) using **vector similarity search** over docstring [embeddings](/concepts/inference). The primary tool for semantic codebase search.
 
     **Parameters:**
     - `query` (string, required): Natural language or structured query
@@ -108,7 +108,7 @@ Query and traverse the <a href="/concepts/knowledge-graph" className="mode-link"
   <Accordion title="Node Neighbors">
     `get_node_neighbours_from_node_id`
 
-    Retrieve the immediate neighboring nodes in the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a> for a given node ID.
+    Retrieve the immediate neighboring nodes in the [knowledge graph](/concepts/knowledge-graph) for a given node ID.
 
     **Parameters:**
     - `node_id` (string, required): Node ID to retrieve neighbors for
@@ -306,6 +306,16 @@ Available exclusively to the **Code Agent**. A **Redis-backed session** tracks a
 
     **Returns:** Summary including file count, line changes, and change types
   </Accordion>
+  <Accordion title="PR Changes">
+    `get_changes_for_pr`
+
+    Retrieve a summary of all code changes for a given conversation. Used in delegated PR flows to verify changes exist in the session before calling `create_pr_workflow`.
+
+    **Parameters:**
+    - `conversation_id` (string, required): Conversation ID where changes are stored
+
+    **Returns:** List of changed files with change types and counts
+  </Accordion>
   <Accordion title="Export Changes">
     `export_changes`
 
@@ -401,7 +411,7 @@ Track tasks, requirements, and manage session-based workflows for complex multi-
 
 <AccordionGroup>
   <Accordion title="Create Todo">
-    `create_todo`
+    `add_todo`
 
     Create a todo item to track work in the current session.
 
@@ -433,7 +443,7 @@ Track tasks, requirements, and manage session-based workflows for complex multi-
     **Returns:** Todo details including title, description, status, and notes
   </Accordion>
   <Accordion title="List Todos">
-    `list_todos`
+    `read_todos`
 
     List all todo items tracked in the current session.
 

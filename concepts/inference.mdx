@@ -1,35 +1,39 @@
 ---
 title: "Inference"
-description: "Potpie parses repository's source code & builds a structured dependency graph, capturing every symbol and the relationships between them as a navigable map it reasons over."
+description: "Inference in Potpie is the process of interpreting parsed code to understand what each symbol does and how it behaves in the system."
 ---
+
+After the repository graph is built, Potpie runs inference on each node to generate descriptions, tags, and semantic meaning that agents can reason over.
+
 <img
   src="/images/Inference.png"
   alt="a simple image showing code to graph text"
 />
 
-## Node Preparation
+## Inference Setup
 
-Post Parsing, Potpie ensures every node in the graph is prepared for understanding.
+Post parsing, Potpie ensures every node in the graph is prepared for understanding.
 
-Each node carries the raw source code of represented symbol. Prior to any processing, concerned source text is fully resolved, ensuring every node contains complete, self-contained code rather than references to other nodes.
+Each node carries the raw source code of the represented symbol. Prior to any processing, the concerned source text is fully resolved, ensuring every node contains complete, self contained code rather than references to other nodes.
 
 ## Cache Resolution
 
-Prior to sending any code to LLM, Potpie verifies if exact source is referred earlier.
-- Nodes with no change in code since previous run, are retrieved directly from cache, & inference is skipped.
-- Only nodes with new or changed code proceed to **LLM processing**.
+Prior to sending any code to an LLM, Potpie verifies if the exact source was processed in a previous run.
 
+Nodes with no change in code since the previous run are retrieved directly from cache and inference is skipped. Only nodes with new or changed code proceed to LLM processing.
 
 ## LLM Processing
 
-Every uncached node is sent to LLM, which then does a short description of what the code does & a set of `tag` classifying its role, across the multiple actions like authentication, database access, UI rendering, state management, and so on... 
+Every uncached node is sent to an LLM, which produces a short description of what the code does and a set of tags classifying its role across actions like authentication, database access, UI rendering, and state management.
 
-Large nodes are split into chunks, processed separately, and then merged back into a single result before moving ahead.
+Large nodes are split into chunks, processed separately, and merged back into a single result before moving ahead.
 
+## Inference Indexing
 
+Once every node has a description and tags, Potpie generates a semantic embedding from each description and writes everything back to the knowledge graph.
 
-## Storage and Indexing
+The result is a fully annotated graph where every node is searchable by name, by role, and by meaning ready for agents to navigate and query.
 
-Once every node has a description and `tag` , Potpie generates a semantic embedding from each description and writes everything back to the knowledge graph. 
- 
-The result is a fully annotated graph wherein every node is searchable by name, by role, and by meaning `ready` for agents to navigate and query.
+## Inference Outcome
+
+The descriptions, tags, and embeddings produced during inference are what allow agents to do more than pattern match on raw code. Inference is what turns a graph of code into a graph of meaning.

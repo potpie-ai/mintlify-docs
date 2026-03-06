@@ -1,38 +1,71 @@
 ---
 title: "Confluence Integration"
+description: "Connect Confluence to Potpie to give agents the ability to read, search, and update pages directly from your codebase conversations."
 ---
 
-Connect Confluence to Potpie to give agents the ability to read, search, and update pages directly from your codebase conversations.
+## Before you begin
 
-## Connecting Confluence
+Make sure you have:
+- A <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie account</a>
+- A <a href="https://id.atlassian.com/login" className="mode-link" target="_blank" rel="noopener noreferrer">Confluence Cloud</a> account with permission to authorize OAuth applications on your Atlassian organization
 
-1. Go to <a href="https://app.potpie.ai/sign-in" className="mode-link">Potpie</a> → **Integrations**
-2. Click **Connect Confluence**
-3. Complete the OAuth consent screen on Atlassian's side
-4. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Confluence Cloud site
+---
 
-<Note>Once connected, agents can use the following Confluence tools whenever they are included to the agent's tool list.</Note>
+## Connect your Confluence account
 
-## What Agents Can Do
+<Steps>
+  <Step title="Open Integrations">
+    Go to <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">Potpie</a> → **Integrations**.
+  </Step>
+  <Step title="Authorize Confluence">
+    Click **Connect Confluence** and complete the OAuth consent screen on Atlassian's side. Potpie stores your access and refresh tokens encrypted in PostgreSQL, linked to your Confluence Cloud site.
+  </Step>
+</Steps>
 
-Once connected, agents can use the following Confluence tools when they are included in the agent's tool list.
+<Note>
+  Once connected, agents can use Confluence tools whenever they are included in the agent's tool list.
+</Note>
 
-| Tool | What it does |
-|---|---|
-| `get_confluence_spaces` | Lists all accessible spaces |
-| `get_confluence_space_pages` | Lists pages within a space |
-| `get_confluence_page` | Reads full page content and version number |
-| `search_confluence_pages` | CQL-based full-text search across spaces |
-| `create_confluence_page` | Creates a new page in a space |
-| `update_confluence_page` | Updates a page's title or body |
-| `add_confluence_comment` | Posts a footer comment or threaded reply |
+---
 
-All tools require an active Confluence integration. If none is found, the tool returns an error prompting the user to connect Confluence first.
+## What agents can do with Confluence
 
-<Note>`update_confluence_page` always requires calling `get_confluence_page` first to obtain the current version number. Confluence rejects updates that do not include the correct incremented version.</Note>
+Each tool below becomes available to any agent that has it included in its tool list. All tools require an active Confluence connection — if none is found, the tool returns an error prompting you to connect Confluence first.
 
+**Reading and searching pages**
 
-## Token Refresh
+<ParamField path="get_confluence_spaces" type="tool">
+  Lists all Confluence spaces accessible to the connected account.
+</ParamField>
 
-Potpie automatically refreshes the Confluence access token before it expires. No action is required from the user.
+<ParamField path="get_confluence_space_pages" type="tool">
+  Lists pages within a specific space. Use this to browse available content before reading or updating a page.
+</ParamField>
 
+<ParamField path="get_confluence_page" type="tool">
+  Reads the full content of a page, including its body and current version number. Always call this before updating a page — Confluence requires the correct incremented version in update requests.
+</ParamField>
+
+<ParamField path="search_confluence_pages" type="tool">
+  Searches pages using CQL (Confluence Query Language) with full-text search across spaces. Use this to find relevant documentation by keyword, label, or space.
+</ParamField>
+
+**Creating and updating pages**
+
+<ParamField path="create_confluence_page" type="tool">
+  Creates a new page in a specified space. Requires a title, body content, and a valid space key.
+</ParamField>
+
+<ParamField path="update_confluence_page" type="tool">
+  Updates a page's title or body. You must call `get_confluence_page` first to obtain the current version number — Confluence rejects updates that do not include the correct incremented version.
+</ParamField>
+
+<ParamField path="add_confluence_comment" type="tool">
+  Posts a footer comment or a threaded reply to an existing page.
+</ParamField>
+
+---
+
+## Token refresh
+
+Potpie automatically refreshes your Confluence access token before it expires. No action is required from you — agents will continue working without interruption across token cycles.

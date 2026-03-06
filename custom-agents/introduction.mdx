@@ -1,60 +1,125 @@
 ---
 title: "Custom Agents"
+description: "Build an agent with a defined role, goal, and task set that runs against your codebase."
 ---
 
-A custom agent runs a defined `role`, `goal`, and `task` set against your codebase. You control which tools it uses, who can access it, and what it produces. Get started in <a href="/tutorials/configure-custom-agents" className="mode-link">5 min quickstart</a>.
+A custom agent runs a defined `role`, `goal`, and `task` set against your codebase. You control which tools it uses, who can access it, and what it produces.
 
+---
 
-## Configuration
+## Before you begin
 
+- <a href="https://app.potpie.ai/sign-in" className="mode-link" target="_blank" rel="noopener noreferrer">A Potpie account</a>
+- Your repository parsed and `ready` . If you haven't done this yet see [API Access](/agents/api-access) .
 
-### Agent Attributes
+---
 
-A custom agent is defined by four required attributes.
+## Define the agent
 
-| Field | Required | Description |
-|---|---|---|
-| `role` | Yes | The professional function the agent adopts. Shapes how it frames analysis. |
-| `goal` | Yes | The primary objective, stated specifically and measurably. |
-| `backstory` | Yes | Professional context that informs decision-making — experience, methodology, standards. |
-| `system_prompt` | Yes | High-level instructions applied across all tasks — output format, edge case handling, quality standards. |
+A custom agent is built from four required attributes that together determine how it thinks, what it prioritizes, and how it formats its output.
 
+<ParamField body="role" type="string" required>
+  The professional function the agent adopts. Shapes how it frames analysis and what expertise it draws on. Be specific — "Senior Automated Code Review Agent" produces more focused output than "Code Reviewer."
+</ParamField>
 
+<ParamField body="goal" type="string" required>
+  The primary objective, stated specifically and measurably. The agent uses this to evaluate whether a task is complete. Vague goals produce vague results.
+</ParamField>
 
-### Task Configuration
+<ParamField body="backstory" type="string" required>
+  Professional context that informs the agent's decision-making — experience level, methodology, domain standards. This shapes judgment calls the agent makes when instructions are ambiguous.
+</ParamField>
 
-Each agent requires one to five tasks.
+<ParamField body="system_prompt" type="string" required>
+  High-level instructions applied across all tasks — output format, edge case handling, quality standards. Use this to enforce consistent structure across every response the agent produces.
+</ParamField>
 
-| Field | Required | Description |
-|---|---|---|
-| `description` | Yes | What the task accomplishes, focused on outcomes. Automatically enhanced with step-by-step reasoning before the agent runs. |
-| `tools` | Yes | Array of tool IDs. At least one required. See <a href="/agents/tools-reference" className="mode-link">Tools Reference</a> for all valid IDs. |
-| `expected_output` | No | JSON object specifying the format and structure of the task result. Defaults to `{"result": "string"}`. |
-| `mcp_servers` | No | MCP server configs per task. Schema is accepted but MCP execution is not active in the current release. |
+---
 
+## Configure tasks
 
+Each agent requires between one and five tasks. A task defines what the agent does, which tools it can use, and what its output should look like.
 
-### Full Example
+<ParamField body="description" type="string" required>
+  What the task accomplishes, focused on outcomes rather than steps. Potpie automatically enhances this with step-by-step reasoning before the agent runs, so you don't need to enumerate every action — describe the goal.
+</ParamField>
 
-**User prompt:** I need an agent that can help software developers with code reviews. It should analyze pull requests, identify potential bugs, suggest improvements for code quality, and ensure best practices are followed
+<ParamField body="tools" type="array of strings" required>
+  Tool IDs the agent can use for this task. At least one is required. See [Tools Reference](/agents/tools-reference) for all valid IDs and what each tool does.
+</ParamField>
 
-**Role:** Senior Automated Code Review & Pull Request Quality Agent
+<ParamField body="expected_output" type="object">
+  A JSON object specifying the format and structure of the task result. Use this to enforce consistent output — for example, a markdown report with specific sections, or a JSON object with defined keys.
+</ParamField>
 
-**Goal:** Help software developers by reviewing pull requests end-to-end — analyze changes, identify potential bugs and security issues, suggest concrete improvements for code quality and maintainability, and ensure team best practices are followed.
+<ParamField body="mcp_servers" type="array">
+  MCP server configurations scoped to this task. The schema is accepted but MCP execution is not active in the current release.
+</ParamField>
 
-**Backstory:** A staff-level software engineer and code quality specialist with deep experience across backend, frontend, and DevOps stacks. Has led large-scale code review programs, authored secure coding standards, and mentored teams on maintainability, testing discipline, and performance.
+---
 
-**System prompt:** Return all findings as markdown. Prioritize by impact. Show evidence from diffs. Provide minimal, safe patches or precise suggestions for every blocker.
+## Set access permissions
 
-**Task:**
-- **Description:** Perform a comprehensive pull request code review — analyze the diff, identify bugs and security issues, suggest concrete improvements, evaluate testing and rollout risk, and optionally post inline review comments and create follow-up issues.
-- **Tools:** `change_detection`, `get_changes_for_pr`, `get_file_diff`, `get_code_file_structure`, `analyze_code_structure`, `fetch_file`, `fetch_files_batch`, `intelligent_code_graph`, `ask_knowledge_graph_queries`, `get_code_graph_from_node_id`, `get_node_neighbours_from_node_id`, `get_code_from_node_id`, `execute_terminal_command`, `show_diff`, `apply_changes`, `github_add_pr_comments`, `create_jira_issue`, `get_linear_issue`
-- **Expected output:** Markdown PR review report with PR overview, risk assessment, prioritized findings (Blocker / Major / Minor / Nit) with file citations and suggested fixes, tests and quality gates, best practices checklist, and links to any created issues or PR comments.
+Agent access can be scoped to just you, shared with specific teammates by email, or made available to everyone in your organization.
 
+---
 
-Agent access can be configured as private for individual use, shared with specific teammates by email with run only permissions, or public for organization wide availability.
+## Full example: Code review agent
 
-## Next Steps
+The following example shows a complete agent built from a plain-language prompt.
 
-- <a href="/build-flow/forge" className="mode-link">Learn about what we offer</a> to build further. 
-- For advanced workflows, explore <a href="/extensions/overview" className="mode-link">integrations</a> with external services like GitHub, Sentry , and Jira
+**User prompt**
+
+> I need an agent that can help software developers with code reviews. It should analyze pull requests, identify potential bugs, suggest improvements for code quality, and ensure best practices are followed.
+
+---
+
+**role**
+```
+Senior Automated Code Review & Pull Request Quality Agent
+```
+
+**goal**
+```
+Help software developers by reviewing pull requests end-to-end — analyze changes, identify 
+potential bugs and security issues, suggest concrete improvements for code quality and 
+maintainability, and ensure team best practices are followed.
+```
+
+**backstory**
+```
+A staff-level software engineer and code quality specialist with deep experience across 
+backend, frontend, and DevOps stacks. Has led large-scale code review programs, authored 
+secure coding standards, and mentored teams on maintainability, testing discipline, and 
+performance.
+```
+
+**system_prompt**
+```
+Return all findings as markdown. Prioritize by impact. Show evidence from diffs. 
+Provide minimal, safe patches or precise suggestions for every blocker.
+```
+
+---
+
+**Task**
+
+<ParamField body="description" type="string">
+  Perform a comprehensive pull request code review — analyze the diff, identify bugs and security issues, suggest concrete improvements, evaluate testing and rollout risk, and optionally post inline review comments and create follow-up issues.
+</ParamField>
+
+<ParamField body="tools" type="array of strings">
+  `change_detection`, `get_changes_for_pr`, `get_file_diff`, `get_code_file_structure`, `analyze_code_structure`, `fetch_file`, `fetch_files_batch`, `intelligent_code_graph`, `ask_knowledge_graph_queries`, `get_code_graph_from_node_id`, `get_node_neighbours_from_node_id`, `get_code_from_node_id`, `execute_terminal_command`, `show_diff`, `apply_changes`, `github_add_pr_comments`, `create_jira_issue`, `get_linear_issue`
+</ParamField>
+
+<ParamField body="expected_output" type="object">
+  Markdown PR review report containing: PR overview, risk assessment, prioritized findings (Blocker / Major / Minor / Nit) with file citations and suggested fixes, tests and quality gates, best practices checklist, and links to any created issues or PR comments.
+</ParamField>
+
+---
+
+## What to do next
+
+- Follow the step-by-step walkthrough → [Configure a Custom Agent](/tutorials/configure-custom-agents)
+- See what Potpie's built-in agents can do → [Forge](/build-flow/forge)
+- Connect external services to extend your agent → [Integrations](/extensions/overview)

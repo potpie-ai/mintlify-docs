@@ -3,17 +3,21 @@ title: 'Ask'
 description: "**Potpie's Q&A interface**"
 ---
 
-**Ask** answers questions about your codebase by navigating the <a href="/concepts/knowledge-graph" className="mode-link">knowledge graph</a>  to find exactly what you need to know.
+<img src="/images/ask-review2.png" alt="Completed response with citations" />
 
-When a question involves a third-party library, it retrieves external documentation via web-Fetch. Follow-up questions in the same session retain full context from what came earlier
+**Ask** answers questions about your codebase by navigating the [knowledge graph](/concepts/knowledge-graph)  to find exactly what you need to know.
 
-To start using Ask, see the <a href="/tutorials/explore-your-codebase" className="mode-link">Explore Your Codebase tutorial</a>.
+When a question involves a third-party library, it retrieves external documentation via `web search` if required. Follow-up questions in the same session retain full context from what came earlier
+
+To start using Ask, see the [Explore Your Codebase tutorial](/tutorials/explore-your-codebase).
 
 
 ## How It Navigates
 
-Prior to  generating a response, Ask first classifies the question to determine whether it concerns behaviour, implementation, location, or design intent.
+Prior to  generating a response, Ask first classifies the question by type: **what** something does, **how** it works, **where** it lives, or **why** it was built that way.
 Complex questions are broken into components and addressed one after other.
+
+Beyond the knowledge graph, Ask reads files directly by path with optional line ranges, reads multiple files at once when broad context is needed, and searches file contents by pattern to pinpoint exact usage sites and definitions.
 
 ## How It Responds
 
@@ -22,7 +26,7 @@ Answers are structured with headers, code snippets, and citations to exact file 
 
 ## Using the API
 
-The <a href="/api-reference/endpoint/create-conversation-and-message" className="mode-link">Create Conversation and Message</a> endpoint opens a session against a <a href="/concepts/parsing" className="mode-link">parsed</a> project and returns a cited, markdown formatted answer in a single call.
+The [Create Conversation and Message](/api-reference/endpoint/create-conversation-and-message) endpoint opens a session against a `ready` project and returns a cited, markdown formatted answer in a single call.
 
 ## Example uses
 
