@@ -13,7 +13,7 @@
   ],
   "openapi": "/api-reference/openapi.json",
   "api": {
-    "baseUrl": "https://production-api.potpie.ai",
+    "baseUrl": "http://localhost:8001",
     "auth": {
       "method": "key",
       "name": "x-api-key"
