@@ -5,7 +5,7 @@ description: 'Add rate limiting to existing routes with full middleware chain aw
 
 Adding rate limiting to an existing API without mapping every route, middleware chain, and configuration surface leaves gaps. Some routes get protected. Others don't. Limits set in one place conflict with defaults defined elsewhere.
 
-**Build** reads the full routing structure through the [knowledge graph](/concepts/knowledge-graph), identifies every entry point that needs a limit, and generates a **specification** covering every file to create or modify before writing a line.
+**Build** reads the full routing structure through the [context graph](/concepts/context-engine), identifies every entry point that needs a limit, and generates a **specification** covering every file to create or modify before writing a line.
 
 **Request:**
 ```

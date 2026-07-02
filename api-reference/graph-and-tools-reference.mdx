@@ -1,0 +1,204 @@
+---
+title: 'Graph & Tooling Reference'
+description: 'Graph service DTOs, backend capability ports, semantic mutations, and legacy tool caveats.'
+---
+
+This page focuses on the active graph and tooling contracts in `potpie/context-engine/`. Legacy knowledge-graph and code-change tools still exist under `legacy/app/...`, but the current engine contract is the CLI-first context graph surface.
+
+## Graph Surface Lite
+
+`GraphService` exposes the current Graph Surface Lite methods in addition to the four-tool agent contract. These methods are CLI-facing in the current architecture and are designed to move toward the explicit Graph V2 workbench.
+
+**Source surface:** `potpie/context-engine/domain/ports/services/graph_service.py`
+
+### `GraphCatalogRequest`
+
+Discovers the graph contract for a pot.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `pot_id` | `str` | Yes | Pot scope |
+| `task` | `str \| None` | No | Accepted for forward compatibility; currently informational |
+| `subgraph` | `str \| None` | No | Optional subgraph filter |
+
+**Returns:** `GraphCatalogResult` with contract version, ontology version, command names, truth classes, mutation operations, views, entity types, predicates, match mode, and source authorities.
+
+### `GraphReadRequest`
+
+Reads a named subgraph/view.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `pot_id` | `str` | Yes | Pot scope |
+| `subgraph` | `str` | Yes | Ontology partition to read |
+| `view` | `str` | Yes | Named read view |
+| `query` | `str \| None` | No | Natural-language or keyword filter |
+| `scope` | `Mapping[str, Any]` | No | Structured scope |
+| `limit` | `int` | No | Defaults to `12` |
+| `as_of`, `since`, `until` | `datetime \| None` | No | Time controls |
+| `include_invalidated` | `bool` | No | Include invalidated claims |
+| `freshness_preference` | `str` | No | Defaults to `balanced` |
+| `detail` | `str` | No | `compact` or `full` |
+| `relations` | `str` | No | `summary` or `full` |
+
+**Returns:** `GraphReadResult` with items, coverage, freshness, quality, source refs, match mode, graph/ontology versions, subgraph versions, unsupported items, and warnings.
+
+### `GraphEntitySearchRequest`
+
+Resolves entity identity before reads or writes.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `pot_id` | `str` | Yes | Pot scope |
+| `query` | `str` | Yes | Name, alias, external ID, or search text |
+| `type` | `str \| None` | No | Optional entity type filter |
+| `predicate` | `str \| None` | No | Optional predicate filter |
+| `subgraph` | `str \| None` | No | Optional subgraph filter |
+| `truth` | `str \| None` | No | Optional truth-class filter |
+| `source_system` | `str \| None` | No | Optional source-system filter |
+| `limit` | `int` | No | Defaults to `10` |
+| `supporting_claims` | `int` | No | Number of supporting claims to include |
+
+**Returns:** `GraphEntitySearchResult` with entity candidates, match mode, graph/ontology versions, and subgraph versions.
+
+## Semantic Mutation Contract
+
+Semantic mutations are the graph write contract above backend-specific mutation batches. Agents and CLI callers describe intent with semantic operations; validators and lowerers handle risk classification and backend writes.
+
+**Source surface:** `potpie/context-engine/domain/semantic_mutations.py`
+
+### `SemanticMutationRequest`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `pot_id` | `str` | Yes | Pot scope |
+| `operations` | `tuple[SemanticMutation, ...]` | Yes | Batch of semantic operations |
+| `graph_contract_version` | `str` | No | Defaults to current graph contract version |
+| `idempotency_key` | `str \| None` | No | Optional duplicate-write guard |
+| `created_by` | `MutationActor` | No | Author surface, harness, and user metadata |
+| `dry_run` | `bool` | No | Validate and preview without applying |
+| `allow_review_required` | `bool` | No | Permit review-required operations |
+| `approved_by` | `str \| None` | No | Reviewer/operator approving a guarded write |
+
+The parser accepts either the canonical batch shape:
+
+```json
+{
+  "pot_id": "current",
+  "operations": [
+    {
+      "op": "assert_claim",
+      "subgraph": "decisions",
+      "subject": { "key": "repo:potpie" },
+      "predicate": "prefers",
+      "value": "Use the context graph CLI for graph reads",
+      "evidence": ["doc:architecture"]
+    }
+  ]
+}
+```
+
+or a single-operation alias with top-level `operation`/`op`, which is normalized into `operations`.
+
+### `SemanticMutationResult`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `ok` | `bool` | Whether validation/application succeeded |
+| `status` | `str` | `applied`, `validated`, `rejected`, `review_required`, or `error` |
+| `risk` | `str` | Risk classification |
+| `pot_id` | `str` | Pot scope |
+| `would_apply` | `bool \| None` | Present for dry-runs |
+| `operations_accepted` | `int` | Accepted operations count |
+| `operations_applied` | `int` | Applied operations count |
+| `preview` | `Mapping[str, int] \| None` | Dry-run mutation counts |
+| `claim_keys` | `tuple[str, ...]` | Deterministic affected claim identities |
+| `subgraphs` | `tuple[str, ...]` | Affected subgraphs |
+| `warnings` | `tuple[str, ...]` | Non-fatal feedback |
+| `issues` | `tuple[SemanticMutationValidationIssue, ...]` | Validation findings |
+
+## Backend Capability Ports
+
+### `GraphBackend`
+
+`GraphBackend` is a swappable storage capability bundle, not a database handle. Application services depend on this protocol and its narrow ports.
+
+**Source surface:** `potpie/context-engine/domain/ports/graph/backend.py`
+
+| Capability | Property | Source of truth? | Notes |
+| --- | --- | --- | --- |
+| Mutation | `mutation` | Yes | Applies validated graph mutations |
+| Claim query | `claim_query` | Yes | Reads canonical claims |
+| Semantic search | `semantic` | No | Rebuildable projection |
+| Inspection | `inspection` | No | Neighborhoods, paths, graph slices |
+| Analytics | `analytics` | No | Counts, freshness, quality, repair |
+| Snapshot | `snapshot` | No | Export/import and portability |
+
+`BackendCapabilities` reports which of these ports a concrete profile implements. Unbuilt capabilities are expected to raise structured capability errors rather than widening the public agent contract.
+
+### Backend Profiles
+
+The active source describes these profiles:
+
+| Profile | Role |
+| --- | --- |
+| `in_memory` | Tests and conformance |
+| `falkordb_lite` | OSS local default on Python `>=3.12` |
+| `embedded` | JSON-persisted local fallback |
+| `falkordb` | External FalkorDB profile |
+| `neo4j` | Shape-first production target delegating to existing Neo4j code |
+| `hosted` | Managed profile, still marked as TODO in the backend contract |
+
+## Legacy Tool Surfaces
+
+The following symbols exist in `legacy/app/...` and may still matter for hosted or older agent flows, but they should not be presented as the current context-engine API.
+
+### `KnowledgeGraphQueryTool`
+
+**Legacy source surface:** `legacy/app/modules/intelligence/tools/kg_based_tools/ask_knowledge_graph_queries_tool.py`
+
+The exported `StructuredTool` is named `Ask Knowledge Graph Queries` and uses `MultipleKnowledgeGraphQueriesInput`:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `queries` | `List[str]` | Yes | Natural-language questions |
+| `project_id` | `str` | Yes | Project UUID |
+
+The class's internal `run` method accepts `node_ids`, but the exported args schema does not expose `node_ids` on `MultipleKnowledgeGraphQueriesInput`.
+
+### `GetCodeFromProbableNodeNameTool`
+
+**Legacy source surface:** `legacy/app/modules/intelligence/tools/kg_based_tools/get_code_from_probable_node_name_tool.py`
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `project_id` | `str` | Yes | Project UUID |
+| `probable_node_names` | `List[str]` | Yes | Values in `file_path:function_name`, `file_path:class_name`, or `file_path` format |
+
+**Returns:** matching node code, file path metadata, line ranges, docstring when available, or a structured error.
+
+### `create_code_changes_management_tools`
+
+**Legacy source surface:** `legacy/app/modules/intelligence/tools/code_changes_manager/tools.py`
+
+This function no longer returns the old file-edit tool pack. The current legacy file marks those editing tools as deprecated after the sandbox cutover. The function name remains for compatibility and returns LocalServer terminal tools only:
+
+- `execute_terminal_command`
+- `terminal_session_output`
+- `terminal_session_signal`
+
+Do not document `add_file_to_changes`, `update_file_in_changes`, `replace_in_file`, `show_diff`, or similar retired code-change manager tools as current engine-reference tools unless they are reintroduced through a current registered surface.
+
+## Which Surface To Use
+
+| Need | Current surface |
+| --- | --- |
+| Agent-facing context retrieval | `AgentContextPort.resolve` / `context_resolve` |
+| Narrow follow-up search | `AgentContextPort.search` / `context_search` |
+| Durable project learning | `AgentContextPort.record` / `context_record` |
+| Readiness and skill drift | `AgentContextPort.status` / `context_status` |
+| Graph workbench discovery | `GraphService.catalog` / `potpie graph catalog` |
+| Named graph reads | `GraphService.read` / `potpie graph read` |
+| Entity identity lookup | `GraphService.search_entities` / `potpie graph search-entities` |
+| Semantic graph writes | `GraphService.mutate` / `potpie graph mutate` |
+| Storage implementation | `GraphBackend` capability ports |

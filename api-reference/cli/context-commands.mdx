@@ -1,0 +1,117 @@
+---
+title: "Context Commands"
+description: "Task-oriented context retrieval and durable learning commands: resolve, search, and record."
+---
+
+These commands are the smallest stable user-facing surface for interacting with Potpie's context engine.
+
+## Command Family
+
+| Command | Purpose |
+| --- | --- |
+| `potpie resolve` | Pull a bounded context package for a task. |
+| `potpie search` | Run a narrow follow-up lookup against known entities or phrases. |
+| `potpie record` | Persist a durable project learning back into the graph. |
+
+Internally, these are treated as the core context contract. New use cases tend to become new option values rather than brand-new top-level commands.
+
+## `potpie resolve`
+
+```bash
+potpie resolve [OPTIONS] TASK
+```
+
+Pulls the context an agent or developer should read before starting work.
+
+### Arguments
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| `task` | `str` | The task to pull context for. Required. |
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--intent` | `str` | Work intent. Defaults to `feature`. |
+| `--include` | `str` | Comma-separated include families to constrain the returned context. |
+| `--mode` | `str` | Retrieval mode: `fast`, `balanced`, `verify`, or `deep`. |
+| `--pot` | `str` | Pot to resolve against. |
+
+### Examples
+
+```bash
+potpie resolve "what should I know before working in this repository?"
+potpie resolve "trace the authentication flow" --intent debug --mode deep
+potpie resolve "prepare for a refactor of billing webhooks" --include code,history,decisions
+```
+
+## `potpie search`
+
+```bash
+potpie search [OPTIONS] QUERY
+```
+
+Use this when you already know the rough phrase, entity, workflow, bug, or convention you need to narrow down.
+
+### Arguments
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| `query` | `str` | Phrase or entity to look up. Required. |
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--include` | `str` | Include-family filter. |
+| `--pot` | `str` | Pot to search. |
+
+### Examples
+
+```bash
+potpie search "authentication flow"
+potpie search "deploy rollback runbook"
+potpie search "rate limiter middleware" --include code,docs
+```
+
+## `potpie record`
+
+```bash
+potpie record [OPTIONS]
+```
+
+Writes a durable project learning back into the context system.
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--type` | `str` | Record type such as `fix`, `decision`, or `preference`. Required. |
+| `--summary` | `str` | The durable learning to persist. Required. |
+| `--scope` | `str` | Scope in `key:value` form, for example `service:inventory-svc`. |
+| `--pot` | `str` | Pot to write into. |
+
+### Examples
+
+```bash
+potpie record --type decision --summary "Prefer the context-engine CLI for graph work"
+potpie record --type fix --summary "Invoice retries depend on Stripe webhook idempotency" --scope service:billing
+potpie record --type preference --summary "Use feature flags for staged rollouts" --scope team:platform
+```
+
+## When To Use Which
+
+| Need | Command |
+| --- | --- |
+| "I am about to work on X. Give me the bounded context." | `resolve` |
+| "I know the name or phrase. Narrow it down." | `search` |
+| "This is important enough to keep in the project memory." | `record` |
+
+## Typical Flow
+
+```bash
+potpie resolve "debug intermittent webhook failures" --intent debug --mode verify
+potpie search "stripe retry handler"
+potpie record --type fix --summary "Webhook retries fan into the async retry worker" --scope service:payments
+```

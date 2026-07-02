@@ -5,7 +5,7 @@ description: 'Understand how authentication works before building a protected en
 
 Adding a protected endpoint on top of an unmapped auth implementation risks mismatched token validation, broken access rules, or bypassed middleware. Reading through the codebase manually to map the full flow leaves gaps.
 
-**Ask** traces the full **authentication flow** through the [knowledge graph](/concepts/knowledge-graph), from incoming request to token validation to access enforcement, and returns every file involved with exact line ranges.
+**Ask** traces the full **authentication flow** through the [context graph](/concepts/context-engine), from incoming request to token validation to access enforcement, and returns every file involved with exact line ranges.
 
 **Question:**
 ```

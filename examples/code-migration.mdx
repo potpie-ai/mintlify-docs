@@ -5,7 +5,7 @@ description: 'Migrate a module to a new pattern with full dependency awareness.'
 
 Migrating a module to a new pattern requires knowing every file that needs to change before starting. A change that appears isolated often touches dozens of consumers, interfaces, and tests across layers.
 
-**Build** reads the existing module through the [knowledge graph](/concepts/knowledge-graph), maps every dependent service and interface, and generates a **specification** listing every file to create or modify before a line of code is written.
+**Build** reads the existing module through the [context graph](/concepts/context-engine), maps every dependent service and interface, and generates a **specification** listing every file to create or modify before a line of code is written.
 
 **Request:**
 ```

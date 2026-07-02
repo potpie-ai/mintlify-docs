@@ -1,0 +1,633 @@
+---
+title: "CLI Manual"
+description: "Complete reference manual for the potpie command-line interface."
+---
+
+## NAME
+
+**potpie** — context-graph CLI for AI agents and local developer workflows.
+
+## SYNOPSIS
+
+```
+potpie [--json] [--verbose | -v] [--version] [--help] COMMAND [ARGS...]
+```
+
+## DESCRIPTION
+
+`potpie` is the primary interface for the Potpie context engine. It provisions a local daemon, manages workspace boundaries (pots), registers source systems, retrieves bounded context for coding tasks, and administers the underlying project-memory graph.
+
+The engine runs locally as a detached daemon or in-process. The same command surface routes to a managed backend when a managed pot is active.
+
+## GLOBAL OPTIONS
+
+| Option | Description |
+| --- | --- |
+| `--json` | Emit all output as machine-readable JSON. |
+| `--verbose`, `-v` | Show full tracebacks on errors. |
+| `--version` | Print version, Python version, and executable path, then exit. |
+| `--help` | Print help and exit. Available on every subcommand. |
+
+## COMMANDS
+
+### setup
+
+```
+potpie setup [OPTIONS]
+```
+
+Idempotent first-run provisioning: config, storage, daemon, default pot, and agent skills. Safe to re-run. Presents an interactive wizard on TTYs.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `--repo` | PATH | `.` | Repository path to register during setup. |
+| `--pot` | NAME | `default` | Initial pot name to create or use. |
+| `--agent` | HARNESS | `claude` | Agent harness to configure (`claude`, `codex`, `cursor`, `opencode`). |
+| `--backend` | PROFILE | `falkordb_lite` | Graph backend profile for this setup run. |
+| `--scan` | flag | off | Enable source scanning during setup. |
+| `--dry-run` | flag | off | Preview setup steps without executing them. Returns a `SetupPreview`. |
+| `--yes`, `-y` | flag | off | Assume yes for all prompts (non-interactive). |
+| `--daemon` / `--in-process` | flag | `daemon` | Provision a detached daemon or run in-process. |
+
+### status
+
+```
+potpie status [OPTIONS]
+```
+
+Integration auth status by default. Use `--host` for daemon, pot, backend, and skills readiness.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--verify` | off | Verify integration credentials with a lightweight API check. |
+| `--host` | off | Show host-level readiness instead of integration auth. |
+| `--intent` | `feature` | Intent for host-status shaping. Only with `--host`. |
+| `--harness` | `claude` | Harness for host-status checks. Only with `--host`. |
+| `--pot` | active | Pot scope. Only with `--host`. |
+
+### doctor
+
+```
+potpie doctor
+```
+
+Run a full local diagnostic: daemon mode and health, CLI install paths, backend profile and capability readiness, active pot, and ledger binding.
+
+### whoami
+
+```
+potpie whoami
+```
+
+Print the currently authenticated identity, mode (`local` or `managed`), and detail. Local installs report a `none` identity.
+
+### resolve
+
+```
+potpie resolve TASK [OPTIONS]
+```
+
+Pull bounded context for a task description. Takes a natural-language task, queries the project-memory graph, and returns a scoped context envelope.
+
+| Argument | Required | Description |
+| --- | --- | --- |
+| `TASK` | yes | Natural-language description of the coding task. |
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--intent` | `feature` | Intent family: `feature`, `debug`, `review`, `ops`. |
+| `--include` | none | Comma-separated include families (e.g. `architecture,dependencies`). |
+| `--mode` | `fast` | Retrieval depth: `fast`, `balanced`, `verify`, `deep`. |
+| `--pot` | active | Pot scope. |
+
+### search
+
+```
+potpie search QUERY [OPTIONS]
+```
+
+Narrow follow-up lookup on a known phrase, symbol name, or entity.
+
+| Argument | Required | Description |
+| --- | --- | --- |
+| `QUERY` | yes | A known phrase, symbol name, file path, or entity to look up. |
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--include` | none | Comma-separated include families. |
+| `--pot` | active | Pot scope. |
+
+### record
+
+```
+potpie record [OPTIONS]
+```
+
+Write a durable project learning to the graph.
+
+| Option | Required | Description |
+| --- | --- | --- |
+| `--type` | yes | Record type: `decision`, `fix`, `preference`, `constraint`. |
+| `--summary` | yes | Short summary of the learning. |
+| `--scope` | no | Structured scope as `key:value` pairs, comma-separated (e.g. `service:inventory-svc`). |
+| `--pot` | no | Pot scope. Defaults to active pot. |
+
+### use
+
+```
+potpie use REF [OPTIONS]
+```
+
+Set the active pot by name or id. Top-level alias for `potpie pot use`.
+
+| Option | Description |
+| --- | --- |
+| `--local` | Force selection of a local-origin pot. |
+| `--managed` | Select a managed-origin pot. |
+
+### login
+
+```
+potpie login [OPTIONS]
+```
+
+Sign in to Potpie. Opens a browser-based session by default, or stores an API key with `--api-key`.
+
+| Option | Description |
+| --- | --- |
+| `--api-key`, `-k` | Potpie API key. Skips browser login. |
+| `--url`, `-u` | Potpie API base URL. Only with `--api-key`. |
+
+### logout
+
+```
+potpie logout
+```
+
+Remove Potpie account credentials from local storage.
+
+### ui
+
+```
+potpie ui [OPTIONS]
+```
+
+Launch the local graph-explorer UI served by the daemon.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--open` / `--no-open` | `--open` | Open the explorer in the default browser. |
+| `--pot` | none | Open the explorer against a specific pot. |
+
+## COMMAND GROUPS
+
+### pot
+
+```
+potpie pot SUBCOMMAND [OPTIONS]
+```
+
+Manage workspace boundaries. A pot is a named scope that groups sources, graph data, and agent context.
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | List all pots. |
+| `info` | Show the active pot. |
+| `create NAME` | Create a new pot. |
+| `use REF` | Set the active pot. |
+| `linked` | Show pots linked to the current repo. |
+| `rename REF NEW-NAME` | Rename a pot. |
+| `reset [REF] --confirm` | Reset graph state for a pot. |
+| `archive REF` | Archive a pot. |
+| `default show` | Show repo-local default pot. |
+| `default set REF` | Bind the current repo to a default pot. |
+| `default clear` | Remove repo-local default binding. |
+| `linear-team ingest TEAM` | One-shot Linear team ingestion into the active pot. |
+| `linear-team diff-sync TEAM` | Incremental Linear team graph diff-sync. |
+| `jira-project ingest PROJECT` | One-shot Jira project ingestion into the active pot. |
+| `jira-project diff-sync PROJECT` | Incremental Jira project graph diff-sync. |
+
+### source
+
+```
+potpie source SUBCOMMAND [OPTIONS]
+```
+
+Register and inspect source systems within a pot. `source add` records metadata only — it does not ingest or scan.
+
+| Subcommand | Description |
+| --- | --- |
+| `add KIND LOCATION` | Register a source (`repo`, `github`, or `document`). |
+| `list` | List sources for the active pot. |
+| `status SOURCE_ID` | Inspect one source record. |
+| `remove SOURCE_ID` | Remove a source record. |
+
+### github
+
+```
+potpie github SUBCOMMAND [OPTIONS]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `login [--force]` | Authenticate with GitHub (device flow). |
+| `logout` | Remove stored GitHub credentials. |
+| `repos` | List accessible GitHub repositories. |
+
+### linear
+
+```
+potpie linear SUBCOMMAND [OPTIONS]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `login [--force] [--add]` | Authenticate with Linear (PKCE OAuth). `--add` connects an additional workspace. |
+| `logout [--all]` | Remove stored Linear credentials. `--all` removes all workspaces. |
+| `ls [--limit N]` | List connected Linear workspaces. |
+| `select [--org ORG] [--key KEY] [--limit N]` | Select a team and fetch issues. |
+
+### jira
+
+```
+potpie jira SUBCOMMAND [OPTIONS]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `login [--force] [--email EMAIL] [--api-token TOKEN] [--site-subdomain SUB]` | Authenticate with Jira using an Atlassian API token. |
+| `logout` | Remove stored Jira credentials. |
+| `ls [--limit N]` | List connected Jira projects. |
+| `select [--key KEY] [--limit N]` | Select a project and fetch issues. |
+
+### confluence
+
+```
+potpie confluence SUBCOMMAND [OPTIONS]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `login [--force] [--email EMAIL] [--api-token TOKEN] [--site-subdomain SUB]` | Authenticate with Confluence using an Atlassian API token. |
+| `logout` | Remove stored Confluence credentials. |
+| `ls [--limit N]` | List connected Confluence spaces. |
+| `select [--key KEY] [--limit N]` | Select a space and fetch pages. |
+
+### daemon
+
+```
+potpie daemon SUBCOMMAND
+```
+
+Local daemon lifecycle. These are recovery and inspection tools; normal use does not require them.
+
+| Subcommand | Description |
+| --- | --- |
+| `start` | Start the detached daemon. |
+| `status` | Print daemon PID, uptime, mode, and health. |
+| `logs [--follow]` | Print daemon logs. `--follow` tails in real time. |
+| `restart` | Restart the daemon. |
+| `stop` | Stop the daemon. |
+
+### service
+
+```
+potpie service SUBCOMMAND
+```
+
+Control supporting services managed by the daemon. Only meaningful when a detached daemon is running.
+
+| Subcommand | Description |
+| --- | --- |
+| `up NAME` | Start a named supporting service. |
+| `down NAME` | Stop a named supporting service. |
+| `status` | List all managed services and their status. |
+| `logs NAME [-f]` | Print logs for a named service. `-f` tails in real time. |
+
+### ledger
+
+```
+potpie ledger SUBCOMMAND [OPTIONS]
+```
+
+Inspect and manage the Event Ledger binding and consumer cursor.
+
+| Subcommand | Description |
+| --- | --- |
+| `status` | Show ledger binding and availability. |
+| `use BINDING [URL]` | Bind a ledger: `managed` or `self-hosted <url>`. |
+| `disconnect` | Clear the Event Ledger binding. |
+| `query [OPTIONS]` | Inspect ledger event history. Read-only; does not advance the cursor. |
+| `pull --source SOURCE` | Pull events and advance the consumer cursor. |
+| `sources list [--pot]` | List ledger source connectors for a pot. |
+
+`ledger query` options:
+
+| Option | Description |
+| --- | --- |
+| `--source` | Filter by source ID. |
+| `--type` | Normalized event kind filter. |
+| `--since` | ISO 8601 instant lower bound. |
+| `--until` | ISO 8601 instant upper bound. |
+| `--limit` | Maximum events. Default: `100`. |
+| `--pot` | Pot scope. |
+
+### graph
+
+```
+potpie graph SUBCOMMAND [OPTIONS]
+```
+
+Graph workbench: reads, writes, quality checks, inbox, and administration.
+
+| Subcommand | Description |
+| --- | --- |
+| `status [--pot]` | Graph data-plane readiness and health. |
+| `catalog [--subgraph] [--profile] [--format] [--pot]` | Discover graph contract: versions, views, mutation ops, ontology. |
+| `describe SUBGRAPH [--view VIEW] [--examples] [--pot]` | Describe a subgraph or named view. |
+| `read --subgraph SUB --view VIEW [OPTIONS]` | Read over a named view. |
+| `search-entities QUERY [OPTIONS]` | Resolve entity or claim identity. |
+| `neighborhood --entity KEY [OPTIONS]` | Read a local neighborhood around an entity. `--entity` is required. |
+| `propose [--file FILE] [--ttl TTL] [--pot]` | Stage a validated graph mutation plan. `--ttl` sets plan expiry (e.g. `1h`, `2d`). |
+| `commit PLAN_ID [--verify] [--approved-by USER] [--pot]` | Commit a staged plan. `--verify` runs post-commit quality checks. |
+| `mutate [--file FILE] [--dry-run] [--allow-review-required] [--approved-by USER] [--pot]` | Validate and apply a semantic mutation in one step. |
+| `mutation-template --kind KIND` | Print a schema-only mutation skeleton. |
+| `nudge --event EVENT --session ID [OPTIONS]` | Deterministic event-to-action policy: inject context, prompt a write, or stay silent. |
+| `history [OPTIONS]` | Inspect graph mutation history. |
+| `inspect [OPTIONS]` | Inspect graph internals or raw payloads. |
+| `inbox add` | Add a pending work item. |
+| `inbox list` | List pending inbox items. |
+| `inbox show` | Inspect one inbox item. |
+| `inbox claim` | Claim an inbox item for processing. |
+| `inbox mark-applied` | Mark an inbox item as applied. |
+| `inbox mark-rejected` | Mark an inbox item as rejected. |
+| `inbox close` | Close an inbox item. |
+| `quality summary [--pot]` | Read-only quality summary report. |
+| `quality duplicate-candidates` | Find likely duplicate entities. |
+| `quality stale-facts` | Detect stale claims. |
+| `quality conflicting-claims` | Surface conflicting claims. |
+| `quality orphan-entities` | Find orphaned entities. |
+| `quality low-confidence` | Show low-confidence graph material. |
+| `quality projection-drift` | Detect projection drift. |
+| `bulk apply [--file]` | Apply many semantic mutations in chunked propose/commit steps. |
+| `export` | Export graph data. |
+| `import` | Import graph data. |
+| `repair [OPTIONS]` | Run graph repair flows. |
+
+`graph read` options:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--subgraph` | — | Canonical subgraph (e.g. `debugging`). **Required.** |
+| `--view` | — | Named view within `--subgraph`. **Required.** |
+| `--query` | none | Text filter for the view. |
+| `--scope` | none | `key:value[,key:value]` scope hints. |
+| `--current` | off | Resolve pot from the current repo directory. Does not add repo scope. |
+| `--repo` | none | Repo scope: `owner/repo`, URL, or `current`. |
+| `--since` / `--until` | none | ISO 8601 instant time bounds. |
+| `--time-window` | none | Relative lookback: `24h`, `7d`, `2w`. Ignored when `--since` is set. |
+| `--environment` | none | Environment filter. |
+| `--source-ref` | none | Exact claim source ref (repeatable). |
+| `--depth` | none | Traversal depth for neighborhood views. |
+| `--direction` | none | `out`, `in`, or `both`. |
+| `--limit` | `12` | Maximum items. |
+| `--sort` | `auto` | `auto`, `score`, `occurred_at`. |
+| `--dedupe` | `auto` | `auto`, `none`, `source_ref`, `activity`. |
+| `--format` | `auto` | `auto`, `raw`, `events`, `table`, `jsonl`. |
+| `--detail` | `compact` | `compact` or `full`. |
+| `--relations` | `summary` | `summary` or `full`. |
+| `--pot` | active | Pot scope. |
+
+`graph search-entities` options:
+
+| Option | Description |
+| --- | --- |
+| `--type` | Entity label filter (e.g. `Service`). |
+| `--predicate` | Predicate filter. |
+| `--subgraph` | Subgraph filter. |
+| `--scope` | Scope hints in `key:value` form. |
+| `--truth` | Truth-value filter. |
+| `--source-system` | Source system filter. |
+| `--source-family` | Source family filter. |
+| `--external-id` | External ID filter. |
+| `--source-ref` | Exact claim source ref (repeatable). |
+| `--since` / `--until` | ISO 8601 instant time bounds. |
+| `--environment` | Environment filter. |
+| `--supporting-claims N` | Number of supporting claims to include. Default: `0`. |
+| `--limit` | Maximum entities. Default: `10`. |
+
+`graph mutation-template` supported `--kind` values:
+
+`bug-fix` · `decision` · `feature` · `infra-snapshot` · `preference` · `preference-policy` · `repo-baseline` · `timeline-change` · `timeline-event`
+
+### timeline
+
+```
+potpie timeline SUBCOMMAND [OPTIONS]
+```
+
+| Subcommand | Description |
+| --- | --- |
+| `recent [OPTIONS]` | Recent project events from the active pot across all repo sources. |
+
+`timeline recent` options:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--query` | none | Text query filter. |
+| `--since` / `--until` | none | ISO 8601 instant bounds. |
+| `--time-window` | none | Relative lookback (e.g. `7d`). |
+| `--service` | none | Service scope. Omit for project-wide results. |
+| `--limit` | `12` | Maximum events. |
+| `--format` | `auto` | `auto`, `events`, `table`, `raw`, `jsonl`. |
+| `--detail` | `compact` | `compact` or `full`. |
+| `--relations` | `summary` | `summary` or `full`. |
+| `--pot` | active | Pot scope. |
+
+### backend
+
+```
+potpie backend SUBCOMMAND
+```
+
+Graph backend profile selection and health checks.
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | List available backend profiles. |
+| `status` | Show current backend status and capabilities. |
+| `use PROFILE` | Switch the active backend profile. |
+| `doctor` | Run detailed backend readiness diagnostics. |
+
+### skills
+
+```
+potpie skills SUBCOMMAND [OPTIONS]
+```
+
+Manage CLI-installed agent skills. Skills are installed into agent harnesses; they are not graph data and not additional agent tools.
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | List installed and available skills. |
+| `install [SKILL_ID]` | Install skill(s) for a harness. |
+| `update [--all]` | Update installed skills. |
+| `remove [SKILL_ID] [--all]` | Remove installed skills. |
+| `status` | Show installed, missing, and outdated skill state. |
+| `add SOURCE` | Add a skill source by path or URL. |
+
+Common options:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--agent` | `claude` | Target agent harness. |
+| `--scope` | `global` | `global` or `project`. Auto-selects `project` when `--path` is set. |
+| `--path` | none | Repo path for project-scoped skill installation. |
+
+### cloud
+
+```
+potpie cloud SUBCOMMAND
+```
+
+Managed profile and sync commands. All subcommands currently return a structured not-implemented response.
+
+| Subcommand | Description |
+| --- | --- |
+| `login` | Managed profile login. |
+| `status` | Cloud sync status. |
+| `push [--pot]` | Push local pot state to cloud. |
+| `pull [--pot]` | Pull cloud state to local. |
+| `skills sync [--agent]` | Sync managed skill catalog into a harness. |
+
+### config
+
+```
+potpie config SUBCOMMAND
+```
+
+Read or write local configuration entries. Persisted to `~/.potpie/config.json`.
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | List all non-secret config entries. |
+| `get [KEY]` | Print a single value, or all values if KEY is omitted. |
+| `set KEY VALUE` | Set a configuration value. |
+
+### telemetry
+
+```
+potpie telemetry SUBCOMMAND
+```
+
+Control product analytics and error reporting preferences.
+
+| Subcommand | Description |
+| --- | --- |
+| `status` | Show current telemetry status (crash reports, analytics). |
+| `enable` | Enable anonymous CLI telemetry. |
+| `disable` | Disable all outbound CLI telemetry. |
+
+## EXIT STATUS
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Success. |
+| `1` | General error or validation failure. Use `--verbose` for traceback. |
+| `2` | Service unavailable — daemon or backend not reachable. |
+| `3` | Degraded — completed with one or more non-fatal failures. |
+| `4` | Authentication error. |
+
+## ENVIRONMENT
+
+| Variable | Description |
+| --- | --- |
+| `CONTEXT_ENGINE_HOST_MODE` | Override host mode: `daemon` (default) or `in_process`. |
+| `POTPIE_HOME` | Override the default config and data directory. |
+| `NO_COLOR` | Disable ANSI colour output. |
+
+## FILES
+
+| Path | Description |
+| --- | --- |
+| `~/.potpie/config.json` | Main configuration file. |
+| `~/.potpie/credentials/` | Stored integration tokens (GitHub, Linear, Jira, Confluence). |
+| `~/.potpie/data/` | Local graph storage and ledger data. |
+| `~/.potpie/skills/` | Installed agent skill bundles. |
+| `.potpie.toml` | Repository-local pot routing config (repo root). |
+
+## EXAMPLES
+
+```bash
+# Install and run first-time setup
+uv tool install potpie
+potpie setup --repo . --agent claude
+
+# Preview setup without executing
+potpie setup --dry-run
+
+# Check integration auth; verify credentials live
+potpie status
+potpie status --verify
+
+# Check host readiness (daemon, pot, graph, skills)
+potpie status --host
+
+# Run full local diagnostics
+potpie doctor
+
+# Connect GitHub and register a repository
+potpie github login
+potpie source add repo .
+
+# Connect Linear and list workspaces
+potpie linear login
+potpie linear ls
+
+# Connect Jira (non-interactive)
+potpie jira login --email me@corp.com --api-token ATATT... --site-subdomain myteam
+
+# Retrieve context for a task
+potpie resolve "add rate limiting to the /api/payments endpoint"
+
+# Retrieve context with deep mode and JSON output
+potpie resolve "trace all callers of AuthService.verify" --mode deep --json | jq '.items'
+
+# Narrow search for a known entity
+potpie search "RateLimiter"
+
+# Record a project decision
+potpie record --type decision --summary "All new endpoints must use the shared rate-limiter middleware"
+
+# Switch pots and read the graph
+potpie use my-other-pot
+potpie graph catalog
+potpie graph read --subgraph architecture --view service_map
+
+# Resolve entity identity before a write
+potpie graph search-entities "AuthService" --type Service --supporting-claims 3
+
+# Read recent timeline events
+potpie timeline recent --time-window 7d --format events
+
+# Install skills for a harness
+potpie skills install --agent claude
+potpie skills status --agent cursor --scope project --path .
+
+# Launch the local graph UI
+potpie ui
+
+# Ledger: bind and query
+potpie ledger status
+potpie ledger query --source github --type push --since 2026-06-01T00:00:00Z --limit 20
+```
+
+## SEE ALSO
+
+- [CLI Reference](/api-reference/cli/overview) — Command families and install flow.
+- [Setup & Lifecycle](/api-reference/cli/setup-and-lifecycle) — Setup, status, doctor, and config in depth.
+- [Context Commands](/api-reference/cli/context-commands) — `resolve`, `search`, and `record` in depth.
+- [Integrations & Auth](/api-reference/cli/integrations-and-auth) — Provider login flows.
+- [Pots & Sources](/api-reference/cli/pots-and-sources) — Workspace routing and source registration.
+- [Graph & Operations](/api-reference/cli/graph-and-operations) — Graph workbench and operational commands.
+- [GitHub Repository](https://github.com/potpie-ai/potpie) — Source code and architecture notes.

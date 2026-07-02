@@ -11,21 +11,10 @@
   "customCSS": [
     "/styles/custom.css"
   ],
-  "openapi": "/api-reference/openapi.json",
-  "api": {
-    "baseUrl": "http://localhost:8001",
-    "auth": {
-      "method": "key",
-      "name": "x-api-key"
-    },
-    "playground": {
-      "mode": "show"
-    }
-  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Overview",
         "groups": [
           {
             "group": "Get Started",
@@ -37,9 +26,8 @@
           {
             "group": "Concepts",
             "pages": [
-              "concepts/parsing",
-              "concepts/inference",
-              "concepts/knowledge-graph"
+              "concepts/context-engine",
+              "concepts/parsing"
             ]
           },
           {
@@ -101,27 +89,32 @@
               "examples/null-pointer",
               "examples/memory-leak",
               "examples/race-conditions",
-              "examples/code-review",
-              "examples/api-endpoint"
+              "examples/code-review"
             ]
           }
         ]
       },
       {
-        "tab": "Reference",
+        "tab": "CLI",
         "groups": [
           {
-            "group": "Potpie API",
+            "group": "Get Started",
             "pages": [
-              "api-reference/overview",
-              "api-reference/endpoint/parse-directory",
-              "api-reference/endpoint/get-parsing-status",
-              "api-reference/endpoint/create-conversation",
-              "api-reference/endpoint/post-message",
-              "api-reference/endpoint/create-conversation-and-message",
-              "api-reference/endpoint/list-projects",
-              "api-reference/endpoint/list-agents",
-              "api-reference/endpoint/save-integration"
+              "context-engine/introduction",
+              "context-engine/installation",
+              "context-engine/how-to-use"
+            ]
+          },
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "api-reference/cli/overview",
+              "api-reference/cli/setup-and-lifecycle",
+              "api-reference/cli/context-commands",
+              "api-reference/cli/pots-and-sources",
+              "api-reference/cli/integrations-and-auth",
+              "api-reference/cli/graph-and-operations",
+              "api-reference/cli/manual"
             ]
           }
         ]

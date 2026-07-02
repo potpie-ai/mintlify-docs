@@ -1,0 +1,154 @@
+---
+title: 'Runtime Architecture'
+description: 'Core service contracts, host facade, and lifecycle DTOs used by the Potpie context engine.'
+---
+
+This page documents the active runtime contracts in the open-source Potpie repository. Potpie is now CLI-first: the `potpie` package installs the CLI entry points, while the active engine implementation is the `potpie-context-engine` workspace package under `potpie/context-engine/`.
+
+Older custom-agent runtime files still exist under `legacy/app/...` in the repository history. They are not the primary engine contract for the current CLI-first architecture.
+
+## Package Entry Points
+
+The root package exposes three console entry points:
+
+| Command | Entry point | Role |
+| --- | --- | --- |
+| `potpie` | `adapters.inbound.cli.host_cli:main` | Main CLI surface |
+| `potpie-mcp` | `adapters.inbound.mcp.server:main` | MCP compatibility server |
+| `potpie-daemon` | `host.daemon_main:main` | Local daemon process |
+
+The `potpie-context-engine` package builds these modules from top-level packages such as `domain`, `application`, `adapters`, `bootstrap`, and `host`.
+
+## Host Facade
+
+### `HostShell`
+
+`HostShell` is the in-process facade that inbound adapters bind to. CLI commands, MCP handlers, and managed-host adapters should reach services through this facade rather than calling storage adapters directly.
+
+**Source surface:** `potpie/context-engine/host/shell.py`
+
+| Field | Type | Role |
+| --- | --- | --- |
+| `agent_context` | `AgentContextPort` | Four-tool agent contract |
+| `graph` | `GraphService` | Data plane for graph reads and writes |
+| `graph_workbench` | `GraphWorkbenchService` | Plan/propose/commit workflow |
+| `pots` | `PotManagementService` | Pot and source control plane |
+| `skills` | `SkillManager` | CLI-managed skill catalog and install layer |
+| `backend` | `GraphBackend` | Active graph storage capability bundle |
+| `ledger` | `LedgerFacade` | Event ledger read/cursor facade |
+| `daemon` | `Daemon` | Local host lifecycle |
+| `setup` | `SetupOrchestrator` | First-run setup sequence |
+
+## Agent Contract
+
+### `AgentContextPort`
+
+`AgentContextPort` is the public agent-facing surface. The current contract is intentionally limited to four tools:
+
+| Method | Request | Returns | Purpose |
+| --- | --- | --- | --- |
+| `resolve` | `ResolveRequest` | `AgentEnvelope` | Bounded context retrieval for a task |
+| `search` | `SearchRequest` | `AgentEnvelope` | Narrow follow-up lookup |
+| `record` | `RecordRequest` | `RecordReceipt` | Durable project learning |
+| `status` | `StatusRequest` | `StatusReport` | Cheap readiness, active pot, backend, source, and skill state |
+
+**Source surface:** `potpie/context-engine/domain/ports/agent_context.py`
+
+<ParamField body="pot_id" type="str">
+  Pot scope for the operation. Use the active pot unless a command explicitly selects another pot.
+</ParamField>
+
+<ParamField body="scope" type="Mapping[str, Any]" optional>
+  Structured scope such as repo, path, source, ticket, environment, or time window.
+</ParamField>
+
+<ParamField body="source_policy" type="str" optional>
+  Evidence policy such as `references_only`, `summary`, `verify`, or `snippets`.
+</ParamField>
+
+## Service Contracts
+
+### `GraphService`
+
+`GraphService` is the data-plane protocol behind context reads, search, records, and Graph Surface Lite commands. It depends on `GraphBackend` capabilities, not on a concrete database.
+
+**Source surface:** `potpie/context-engine/domain/ports/services/graph_service.py`
+
+| Method | Request | Returns | Notes |
+| --- | --- | --- | --- |
+| `resolve` | `ResolveRequest` | `AgentEnvelope` | Expands intent/includes, runs readers, ranks, and assembles context |
+| `search` | `SearchRequest` | `AgentEnvelope` | Narrow lookup using the same envelope shape |
+| `record` | `RecordRequest` | `RecordReceipt` | Lowers a durable record into a semantic mutation |
+| `data_plane_status` | `pot_id: str` | `DataPlaneStatus` | Backend readiness, coverage, freshness, and quality |
+| `catalog` | `GraphCatalogRequest` | `GraphCatalogResult` | Returns the graph contract, ontology, views, and operations |
+| `read` | `GraphReadRequest` | `GraphReadResult` | V2-style named-view read |
+| `search_entities` | `GraphEntitySearchRequest` | `GraphEntitySearchResult` | Identity/entity lookup before writes |
+| `mutate` | `SemanticMutationRequest` | `SemanticMutationResult` | Validates, risk-classifies, dry-runs, or applies semantic mutations |
+
+### `PotManagementService`
+
+`PotManagementService` owns the control plane for pots and sources. A pot is the workspace boundary for every query, source, record, claim, and graph operation.
+
+**Source surface:** `potpie/context-engine/domain/ports/services/pot_management.py`
+
+| Area | Methods |
+| --- | --- |
+| Lifecycle | `init` |
+| Pots | `list_pots`, `active_pot`, `create_pot`, `use_pot`, `rename_pot`, `reset_pot`, `archive_pot` |
+| Sources | `add_source`, `list_sources`, `source_status`, `remove_source` |
+| Repo defaults | `repo_default`, `set_repo_default`, `clear_repo_default`, `list_repo_defaults` |
+| Status | `aggregate_status` |
+
+### `SkillManager`
+
+`SkillManager` manages CLI-installed harness recipes. Skills are not graph facts and are not additional agent tools. Agents only receive an advisory `SkillNudge` through status output.
+
+**Source surface:** `potpie/context-engine/domain/ports/services/skill_manager.py`
+
+| Method | Purpose |
+| --- | --- |
+| `list` | Show catalog skills and installed state |
+| `install` | Install a skill or the recommended set for an agent harness |
+| `update` | Update one or all installed skills |
+| `remove` | Remove one or all installed skills |
+| `status` | Report installed-vs-recommended drift |
+| `nudge` | Return the advisory status block |
+| `add` | Register a local-path or URL skill into the catalog |
+
+## Lifecycle DTOs
+
+### `SetupPlan`
+
+`SetupPlan` is the first-run intent built from CLI flags and executed by the setup orchestrator.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `mode` | `str` | No | Local setup mode; managed login uses `LoginPlan` instead |
+| `host_mode` | `str` | No | `daemon` or `in_process` |
+| `backend` | `str` | No | Defaults to `falkordb_lite` |
+| `repo` | `str \| None` | No | Repository to register; defaults to `.` |
+| `pot` | `str` | No | Initial pot name; defaults to `default` |
+| `agent` | `str` | No | Harness target; defaults to `claude` |
+| `scan` | `bool` | No | Whether setup should scan immediately |
+| `assume_yes` | `bool` | No | Non-interactive confirmation flag |
+| `defer_default_pot` | `bool` | No | Skip default pot creation |
+| `defer_skills` | `bool` | No | Skip skill installation |
+
+### `StepResult`, `SetupReport`, And `SetupPreview`
+
+| DTO | Purpose |
+| --- | --- |
+| `StepResult` | Outcome of one setup step: `done`, `skipped`, `not_implemented`, `failed`, or `planned` |
+| `SetupReport` | Executed setup run with all step results and hard-step success |
+| `SetupPreview` | Dry-run output with planned steps, not executed step results |
+| `LoginPlan` | Managed-backend login intent, separate from local setup |
+
+## Current Boundary Notes
+
+- The CLI is the primary user and agent surface.
+- `HostShell` hosts service modules; service business logic should not live in the daemon shell.
+- `AgentContextPort` is the public four-tool agent contract.
+- `GraphService` owns the data plane.
+- `PotManagementService` owns the control plane.
+- `GraphBackend` owns physical storage capabilities behind narrow ports.
+- Legacy custom-agent classes under `legacy/app/...` should be documented only as legacy runtime surfaces, not as the current engine API.

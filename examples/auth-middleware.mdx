@@ -5,7 +5,7 @@ description: 'Update authentication middleware consistently across every protect
 
 Updating authentication middleware with unmapped route dependencies leaves some routes on the old implementation. In a large API, manually auditing every route for middleware usage is error-prone.
 
-**Build** maps every route that depends on the middleware through the [knowledge graph](/concepts/knowledge-graph), generates the updated implementation, and surfaces every affected file as a **diff** before applying anything.
+**Build** maps every route that depends on the middleware through the [context graph](/concepts/context-engine), generates the updated implementation, and surfaces every affected file as a **diff** before applying anything.
 
 **Request:**
 ```

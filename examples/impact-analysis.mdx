@@ -23,7 +23,7 @@ Changing a core service without knowing its dependents turns a contained refacto
     What depends on PaymentService and what breaks if I change its interface?
 ```
 
-    Ask traverses the [knowledge graph](/concepts/knowledge-graph) outward from the target service, mapping every dependent function, class, and module across the repository.
+    Ask traverses the [context graph](/concepts/context-engine) outward from the target service, mapping every dependent function, class, and module across the repository.
   </Step>
   <Step title="Review the dependency map">
     Ask returns:

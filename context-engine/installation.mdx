@@ -1,0 +1,258 @@
+---
+title: "Installation"
+sidebarTitle: "Installation"
+description: "Install the Potpie CLI, run first-time setup, and verify your environment."
+---
+
+This page covers everything you need to go from zero to a working local Context Engine: prerequisites, installation, first-time setup, supported harnesses, and how to verify the installation.
+
+## Prerequisites
+
+| Requirement | Details |
+|---|---|
+| **Python** | 3.12 or newer |
+| **Package manager** | `uv` (recommended) or `pip` |
+| **Operating system** | macOS, Linux, or WSL2 on Windows |
+| **AI coding harness** | Claude Code, OpenAI Codex, Cursor, or OpenCode (at least one) |
+
+<Note>
+`uv tool install` is recommended for CLI installs. It isolates the Potpie tool environment from your project Python environments and prevents version conflicts.
+</Note>
+
+## Step 1: Install the CLI
+
+### Using uv (recommended)
+
+```bash
+uv tool install potpie
+```
+
+### Using pip
+
+```bash
+python3 -m pip install --user potpie
+```
+
+After installation, confirm the CLI is available:
+
+```bash
+potpie --version
+```
+
+You should see output like:
+
+```
+potpie-context-engine 2.x.x  Python 3.12.x  /path/to/potpie
+```
+
+If `potpie` is not found after a `pip` install, ensure `~/.local/bin` (or the equivalent `pip --user` scripts directory) is on your `PATH`.
+
+## Step 2: Run First-Time Setup
+
+```bash
+potpie setup
+```
+
+On a TTY, this launches an interactive wizard. You can also pass flags directly to skip prompts:
+
+```bash
+potpie setup --repo . --agent claude
+```
+
+**What setup does:**
+
+| Step | What happens |
+|---|---|
+| Daemon install | Installs and starts the local background daemon service |
+| Config | Creates `~/.potpie/config.json` and sets defaults |
+| Graph backend | Provisions the local graph/vector store (default: `falkordb_lite`) |
+| Pot creation | Creates a local `default` pot and marks it active |
+| Local auth | Initialises local identity (no cloud account needed) |
+| Source registration | Registers the `--repo` path as a source for the default pot |
+| Skills | Installs Potpie guidance into the configured `--agent` harness |
+
+<Note>
+`potpie setup` is idempotent. You can re-run it safely. Each step is `ensure`-shaped: it skips what is already done and only fixes what is missing.
+</Note>
+
+### Setup options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `--repo` | `PATH` | `.` | Repository path to register during setup. |
+| `--pot` | `NAME` | `default` | Name for the initial pot. |
+| `--agent` | `HARNESS` | `claude` | AI coding harness to configure. One of `claude`, `codex`, `cursor`, `opencode`. |
+| `--backend` | `PROFILE` | `falkordb_lite` | Graph backend profile. |
+| `--dry-run` | flag | off | Preview setup steps without executing them. |
+| `--yes`, `-y` | flag | off | Assume yes for all prompts (non-interactive). |
+| `--daemon` / `--in-process` | flag | `daemon` | Detached daemon mode (default) or in-process mode. |
+
+### Preview before running
+
+To see exactly what setup will do without executing anything:
+
+```bash
+potpie setup --dry-run
+```
+
+This returns a `SetupPreview` document listing each planned step, its owner, and whether it is a hard or soft dependency.
+
+## Step 3: Verify the Installation
+
+### Check integration auth status
+
+```bash
+potpie status
+```
+
+### Check host readiness (daemon, pot, graph backend, skills)
+
+```bash
+potpie status --host
+```
+
+You should see a readiness report grouped by component: `host`, `pot`, `graph_service`, `backend`, `ledger`, and `skills`.
+
+### Run full local diagnostics
+
+```bash
+potpie doctor
+```
+
+`doctor` checks daemon health, CLI install paths, backend profile, and capability readiness. It also surfaces recommended follow-up commands.
+
+## Supported Agent Harnesses
+
+Setup installs **skills** into your AI coding harness. Skills are CLI-managed recipes that teach your agent how to use the Context Engine before editing code.
+
+| Harness | `--agent` value | Skills path (global) |
+|---|---|---|
+| Claude Code | `claude` | `~/.claude/skills/<skill>/SKILL.md` |
+| OpenAI Codex | `codex` | `~/.agents/skills/<skill>/SKILL.md` |
+| Cursor | `cursor` | `~/.cursor/skills/<skill>/SKILL.md` |
+| OpenCode | `opencode` | `~/.config/opencode/skills/<skill>/SKILL.md` |
+
+To install or refresh skills after setup:
+
+```bash
+potpie skills install --agent claude
+potpie skills status --agent cursor
+```
+
+Use `--scope project --path .` to install project-scoped skills that travel with a repository:
+
+```bash
+potpie skills install --agent claude --scope project --path .
+```
+
+## Graph Backend Profiles
+
+Potpie uses a pluggable `GraphBackend`. The default profile for Python ≥3.12 is `falkordb_lite` — an embedded local graph with vector search that requires no external services.
+
+| Profile | When to use |
+|---|---|
+| `falkordb_lite` | Default. Embedded FalkorDB Lite with vector search. Requires Python ≥3.12. |
+| `embedded` | JSON-persisted local fallback. No Docker or external dependencies. |
+| `neo4j` | Optional. Requires a running Neo4j instance. |
+| `postgres` | Optional. Requires a running Postgres instance with the `pgvector` extension. |
+| `in_memory` | Tests and conformance only. State is not persisted. |
+
+To switch profiles after setup:
+
+```bash
+potpie config set backend.profile embedded
+potpie backend doctor
+```
+
+## Optional: Connect Integrations
+
+Source integrations let agents query GitHub PRs, Linear issues, Jira tickets, and Confluence runbooks alongside code. These are **opt-in** and not required for local graph use.
+
+```bash
+potpie github login        # GitHub device flow
+potpie linear login        # Linear OAuth (PKCE)
+potpie jira login          # Jira Atlassian API token
+potpie confluence login    # Confluence Atlassian API token
+```
+
+Verify integration status:
+
+```bash
+potpie status
+potpie status --verify     # lightweight live API check
+```
+
+## Optional: Managed Backend Login
+
+By default, Potpie runs entirely locally. If you have a Potpie account or a compatible self-hosted backend, you can log in to access managed pots:
+
+```bash
+potpie login
+```
+
+To point the CLI at a self-hosted or custom managed backend:
+
+```bash
+potpie config set cloud.backend_url https://potpie.example.com
+potpie login
+```
+
+After login, managed pots appear in the same `potpie pot list` and `potpie use` flows as local pots.
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `CONTEXT_ENGINE_HOST_MODE` | Override host mode: `daemon` (default) or `in_process`. |
+| `POTPIE_HOME` | Override the default config and data directory (default: `~/.potpie`). |
+| `NO_COLOR` | Disable ANSI colour output. |
+
+## Local File Paths
+
+| Path | Description |
+|---|---|
+| `~/.potpie/config.json` | Main configuration file. |
+| `~/.potpie/credentials/` | Stored integration tokens (GitHub, Linear, Jira, Confluence). |
+| `~/.potpie/data/` | Local graph storage and ledger data. |
+| `~/.potpie/skills/` | Installed agent skill bundles. |
+| `.potpie.toml` | Repository-local pot routing config (repo root). Overrides the active pot when present. |
+
+## Troubleshooting
+
+### `potpie` not found after install
+
+- With `uv`: run `uv tool list` to confirm it was installed, then check `which -a potpie`.
+- With `pip --user`: ensure `~/.local/bin` is in your `PATH`.
+
+### Daemon not starting
+
+```bash
+potpie doctor
+potpie daemon status
+potpie daemon restart
+```
+
+### Backend not ready
+
+```bash
+potpie backend doctor
+potpie backend status
+```
+
+### Skills missing or outdated
+
+```bash
+potpie skills status --agent claude
+potpie skills install --agent claude
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="How to Use" icon="play" href="/context-engine/how-to-use">
+    Learn common workflows: onboarding a repo, resolving context for a task, debugging, and recording learnings.
+  </Card>
+  <Card title="Setup & Lifecycle" icon="list" href="/api-reference/cli/setup-and-lifecycle">
+    Full reference for `setup`, `status`, `doctor`, `whoami`, `ui`, and `config`.
+  </Card>
+</CardGroup>

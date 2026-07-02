@@ -2,7 +2,7 @@
 title: "Debugging Agent"
 ---
 
-The Debugging Agent traces issues through the [knowledge graph](/concepts/knowledge-graph) from where they surface to where they originate, identifies the root cause, and returns a targeted fix.
+The Debugging Agent traces issues through the [context graph](/concepts/context-engine) from where they surface to where they originate, identifies the root cause, and returns a targeted fix.
 
 For a bug report, it runs a structured investigation that follows the issue to its source and systematically evaluates every viable fix location before recommending the most appropriate resolution.
 
@@ -20,7 +20,7 @@ It documents the real problem, the debugging principles it will follow, and the 
 
 The agent formulates candidate hypotheses for what could cause the symptom. Each hypothesis is tracked and marked confirmed or eliminated as the investigation progresses.
 
-Navigation follows the same broad-to-narrow pattern as the Q&A Agent, moving from finding where relevant functionality lives in the [knowledge graph](/concepts/knowledge-graph) -> understanding directory layout and module organization -> retrieving specific files, functions, and call relationships. It reads files directly by path with optional line ranges, reads multiple files simultaneously when tracing across modules, and searches file contents by pattern to follow state through code paths not fully captured in the graph.
+Navigation follows the same broad-to-narrow pattern as the Q&A Agent, moving from finding where relevant functionality lives in the [context graph](/concepts/context-engine) -> understanding directory layout and module organization -> retrieving specific files, functions, and call relationships. It reads files directly by path with optional line ranges, reads multiple files simultaneously when tracing across modules, and searches file contents by pattern to follow state through code paths not fully captured in the graph.
 
 ### Identify Root Cause
 

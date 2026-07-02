@@ -5,7 +5,7 @@ description: 'Trace and fix race conditions causing intermittent failures in pro
 
 Race conditions leave intermittent, hard to reproduce failures in production. The stack trace shows where the failure surfaces, while the unsafe shared state originates elsewhere.
 
-**Debug** walks the [knowledge graph](/concepts/knowledge-graph) through every concurrent code path involved in the failure, identifies the exact timing window where state is shared unsafely, and returns a targeted fix pinpointing the precise file and line that needs a guard.
+**Debug** walks the [context graph](/concepts/context-engine) through every concurrent code path involved in the failure, identifies the exact timing window where state is shared unsafely, and returns a targeted fix pinpointing the precise file and line that needs a guard.
 
 **Issue:**
 ```

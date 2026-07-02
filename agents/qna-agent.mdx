@@ -3,7 +3,7 @@ title: "Codebase Q&A Agent"
 sidebarTitle: "Q&A Agent"
 ---
 
-The Codebase Q&A Agent answers questions about your codebase by navigating the [knowledge graph](/concepts/knowledge-graph) to find relevant code, trace dependencies, and return cited answers.
+The Codebase Q&A Agent answers questions about your codebase by navigating the [context graph](/concepts/context-engine) to find relevant code, trace dependencies, and return cited answers.
 
 Before the agent runs, it prepares two pieces of context automatically. If specific nodes are referenced in the query, it fetches their source code and appends it as code context. It also fetches the full file structure of the project. Both are injected into context before the agent processes your message.
 

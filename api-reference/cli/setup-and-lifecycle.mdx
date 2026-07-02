@@ -1,0 +1,139 @@
+---
+title: "Setup & Lifecycle"
+description: "Setup, readiness, diagnostics, local identity, UI launch, and local config commands."
+---
+
+This page covers the commands you use to install, bootstrap, inspect, and operate a local Potpie environment.
+
+## `potpie setup`
+
+```bash
+potpie setup [OPTIONS]
+```
+
+Idempotent first-run provisioning for config, storage, daemon, default pot, and skills.
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--repo` | `str` | Repository path to bind during setup. Defaults to `.`. |
+| `--pot` | `str` | Default pot name to create or use. Defaults to `default`. |
+| `--agent` | `str` | Harness/agent profile to configure. Defaults to `claude`. |
+| `--backend` | `str` | Graph backend profile for this setup run. |
+| `--scan` | `bool` | Enable scanning during setup when supported. |
+| `--dry-run` | `bool` | Preview setup steps without executing them. |
+| `--yes`, `-y` | `bool` | Assume yes for prompts. |
+| `--daemon` / `--in-process` | `bool` | Choose detached daemon mode or in-process mode. |
+
+### Examples
+
+```bash
+potpie setup
+potpie setup --repo . --agent claude
+potpie setup --repo . --agent codex --backend falkordb
+potpie setup --dry-run
+```
+
+## `potpie status`
+
+```bash
+potpie status [OPTIONS]
+```
+
+By default this shows **integration auth status**. Use `--host` for daemon, pot, backend, and skills readiness.
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--verify` | `bool` | Verify integration credentials with lightweight API checks. |
+| `--host` | `bool` | Switch from auth status to host/pot readiness. |
+| `--intent` | `str` | Host-status intent, default `feature`. |
+| `--harness` | `str` | Harness used for host-status checks, default `claude`. |
+| `--pot` | `str` | Pot to evaluate for host status. |
+
+### Examples
+
+```bash
+potpie status
+potpie status --verify
+potpie status --host
+potpie status --host --pot default --intent feature --harness claude
+```
+
+## `potpie doctor`
+
+```bash
+potpie doctor
+```
+
+Runs local diagnostics across:
+
+- daemon mode and uptime
+- backend readiness and implemented capabilities
+- active pot visibility
+- ledger availability
+- skill drift or readiness nudges
+
+## `potpie whoami`
+
+```bash
+potpie whoami
+```
+
+Shows the current host identity. In local OSS mode this typically reports a `none`-style identity rather than a managed account subject.
+
+## `potpie ui`
+
+```bash
+potpie ui [OPTIONS]
+```
+
+Launches the local graph explorer served by the daemon.
+
+### Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--open` / `--no-open` | `bool` | Open the explorer in a browser. |
+| `--pot` | `str` | Open the explorer against a specific pot. |
+
+### Examples
+
+```bash
+potpie ui
+potpie ui --pot default
+potpie ui --no-open
+```
+
+## `potpie config`
+
+```bash
+potpie config COMMAND [ARGS]...
+```
+
+Local config is persisted to `<home>/config.json`.
+
+### Subcommands
+
+| Command | Purpose |
+| --- | --- |
+| `potpie config get <key>` | Read a stored config value. |
+| `potpie config set <key> <value>` | Persist a config value. |
+
+### Examples
+
+```bash
+potpie config get backend.profile
+potpie config set backend.profile falkordb
+```
+
+## Recommended Lifecycle Sequence
+
+1. Install the CLI with `uv tool install potpie` or `pip`.
+2. Run `potpie setup`.
+3. Verify readiness with `potpie status --host`.
+4. Connect integrations with provider-specific login commands.
+5. Register the current repository with `potpie source add repo .`.
+6. Use `potpie ui` or `potpie resolve` to start working with the graph.

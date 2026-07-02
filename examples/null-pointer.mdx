@@ -5,7 +5,7 @@ description: 'Trace a null pointer exception to its origin across service and da
 
 A null pointer exception surfacing in a generic service layer shows where the crash happens, while the null value originates elsewhere. Tracing it backwards through multiple service and data layers manually leaves the true origin uncertain.
 
-**Debug** traces the full execution path through the [knowledge graph](/concepts/knowledge-graph) from the point of failure back to the source, identifies exactly where the null value enters without a guard, and returns a targeted fix.
+**Debug** traces the full execution path through the [context graph](/concepts/context-engine) from the point of failure back to the source, identifies exactly where the null value enters without a guard, and returns a targeted fix.
 
 **Issue:**
 ```
