@@ -87,7 +87,7 @@ potpie ui
 ## Important Model
 
 - **`source add` registers metadata only.** It does not ingest or scan the repository by itself. Context is pulled on demand by `resolve`, `search`, agents, or graph reads.
-- **External-system ingestion** runs through pot-attached connector commands such as `pot linear-team ingest` and `pot jira-project ingest`.
+- **External-system sync** runs through pot-attached connector commands such as `pot linear-team diff-sync` and `pot jira-project diff-sync`.
 - **The graph workbench** lives under `potpie graph`. It is a CLI command group, not an HTTP API.
 - **All commands default to the active pot.** Use `--pot <name>` to scope a single command without changing the active pot.
 - **Local and managed pots** use the same CLI surface. After `potpie login`, managed pots appear in `potpie pot list` and `potpie use`.

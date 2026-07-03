@@ -80,26 +80,21 @@ potpie source COMMAND
 
 `potpie source add` **registers metadata only**. It does not ingest, parse, or scan by itself.
 
-The diagram below shows how the three different ways context enters the graph relate to each other:
+The diagram below shows how context enters the graph:
 
 ```mermaid
 flowchart LR
   sourceAdd["potpie source add repo ."]
   resolveCmd["potpie resolve / graph read"]
-  linearIngest["potpie pot linear-team ingest"]
-  jiraIngest["potpie pot jira-project ingest"]
   metadata["source metadata stored\n(no graph write)"]
   onDemand["on-demand context pull\nby agent or developer"]
-  queuedExternal["queued external-system\ningestion into graph"]
 
   sourceAdd --> metadata
   resolveCmd --> onDemand
-  linearIngest --> queuedExternal
-  jiraIngest --> queuedExternal
 ```
 
 <Note>
-`source add` and `ingest` are separate actions by design. You register a repository once; context is pulled when agents or developers actually need it.
+`source add` registers a repository once; context is pulled when agents or developers actually need it.
 </Note>
 
 ### Source commands
@@ -142,35 +137,24 @@ This is where your expectation mattered: ingestion is not a separate generic `in
 
 Instead, ingestion shows up in **pot-attached external-system workflows**:
 
-### Linear team ingestion
+### Linear team sync
 
 ```bash
-potpie pot linear-team ingest TEAM
 potpie pot linear-team diff-sync TEAM
 ```
 
 | Command | Purpose |
 | --- | --- |
-| `ingest` | Queue a one-shot ingestion for a Linear team's recent graph history. |
 | `diff-sync` | Queue an incremental graph-audit diff sync for a Linear team. |
 
-`ingest` options:
-
-| Option | Description |
-| --- | --- |
-| `--pot` | Target pot, defaults to the active pot. |
-| `--count` | Soft per-kind item limit, default `120`. |
-
-### Jira project ingestion
+### Jira project sync
 
 ```bash
-potpie pot jira-project ingest PROJECT
 potpie pot jira-project diff-sync PROJECT
 ```
 
 | Command | Purpose |
 | --- | --- |
-| `ingest` | Queue one-shot Jira project ingestion into a pot. |
 | `diff-sync` | Queue incremental Jira project diff-sync into a pot. |
 
 ## Recommended Workspace Flow
@@ -180,5 +164,4 @@ potpie pot list
 potpie pot create my-repo --repo . --use
 potpie source add repo . --default
 potpie pot linked --repo current
-potpie pot linear-team ingest ENG
 ```
