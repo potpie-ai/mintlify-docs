@@ -17,13 +17,13 @@ title: 'Tools Reference'
 
 ## Knowledge Graph Tools
 
-Query and traverse the [knowledge graph](/concepts/knowledge-graph) by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
+Query and traverse the [context graph](/concepts/context-engine) by node name, ID, tag, or semantic meaning. These tools identify relevant nodes and map the relationships between them.
 
 <AccordionGroup>
   <Accordion title="Semantic Search">
     `ask_knowledge_graph_queries`
 
-    Execute natural language queries against the [knowledge graph](/concepts/knowledge-graph) using **vector similarity search** over docstring [embeddings](/concepts/inference). The primary tool for semantic codebase search.
+    Execute natural language queries against the [context graph](/concepts/context-engine) using **vector similarity search** over docstring [embeddings](/concepts/inference). The primary tool for semantic codebase search.
 
     **Parameters:**
     - `query` (string, required): Natural language or structured query
@@ -108,7 +108,7 @@ Query and traverse the [knowledge graph](/concepts/knowledge-graph) by node name
   <Accordion title="Node Neighbors">
     `get_node_neighbours_from_node_id`
 
-    Retrieve the immediate neighboring nodes in the [knowledge graph](/concepts/knowledge-graph) for a given node ID.
+    Retrieve the immediate neighboring nodes in the [context graph](/concepts/context-engine) for a given node ID.
 
     **Parameters:**
     - `node_id` (string, required): Node ID to retrieve neighbors for

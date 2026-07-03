@@ -5,7 +5,7 @@ description: "**Potpie's bug investigation interface**"
 
 <img src="/images/debug-chat.png" alt="Bug analysis and targeted fix" />
 
-When a reported issue is received, it traverses the [knowledge graph](/concepts/knowledge-graph) across every affected component to determine the true origin of the problem.
+When a reported issue is received, it traverses the [context graph](/concepts/context-engine) across every affected component to determine the true origin of the problem.
 
 It isolates the root cause to a specific file and line of code, and then returns a precise targeted fix, grounded in the actual implementation.
 
@@ -29,7 +29,7 @@ Potpie applies an **eight step methodology** to every issue:
     Confirms the reported behavior against the codebase, identifies every component involved, and establishes what the correct behavior should be at the point of failure.
   </Step>
   <Step title="Explore and hypothesize">
-    Traverses the relevant code paths in the [knowledge graph](/concepts/knowledge-graph) and generates candidate explanations for the failure.
+    Traverses the relevant code paths in the [context graph](/concepts/context-engine) and generates candidate explanations for the failure.
   </Step>
   <Step title="Identify the root cause">
     Pins the failure to a specific file and line, identifying the exact instruction that introduces the faulty state.
@@ -41,7 +41,7 @@ Potpie applies an **eight step methodology** to every issue:
     Generates a targeted fix scoped to the **root cause**.
   </Step>
   <Step title="Scrutinize and refine">
-    Evaluates the fix against edge cases and traces potential side effects through the [dependency graph](/concepts/knowledge-graph).
+    Evaluates the fix against edge cases and traces potential side effects through the [context graph](/concepts/context-engine).
   </Step>
   <Step title="Implement">
     Produces the corrected code with exact file paths and line references.
@@ -57,7 +57,7 @@ The result is a root cause traced to its true origin, a clearly mapped path from
 
 ## Using the API
 
-The [Create Conversation and Message](/api-reference/endpoint/create-conversation-and-message) endpoint opens a debug session against a `ready` project and returns the first investigation response in a single call.
+For local workflows, start with the [CLI Overview](/api-reference/cli/overview), parse the repository, and then inspect the relevant graph slice before debugging through it.
 
 ## Example uses
 

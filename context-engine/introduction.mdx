@@ -1,0 +1,165 @@
+---
+title: "Introduction"
+sidebarTitle: "Introduction"
+description: "What the Potpie Context Engine is, what problems it solves, and how it works."
+mode: "wide"
+---
+
+Potpie turns your codebase and software development lifecycle into a **living context graph** for AI agents. Instead of sending an entire repository to a language model or relying on loose file summaries, the Context Engine builds a structured, queryable, project-specific memory that agents can read before they act.
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/context-engine/installation">
+    Install the CLI, run first-time setup, and verify your environment in minutes.
+  </Card>
+  <Card title="How to Use" icon="play" href="/context-engine/how-to-use">
+    Day-to-day workflows: onboarding a repo, resolving context, debugging, and recording learnings.
+  </Card>
+  <Card title="CLI Manual" icon="terminal" href="/api-reference/cli/manual">
+    Complete command reference with all options, arguments, and exit codes.
+  </Card>
+  <Card title="Graph & Operations" icon="gear" href="/api-reference/cli/graph-and-operations">
+    Graph workbench, daemon, ledger, backend, skills, and cloud operations.
+  </Card>
+</CardGroup>
+
+## The Problem
+
+Most AI coding agents operate at the wrong resolution. They either ingest far too much — flooding the model with repository noise that dilutes precision and inflates cost — or far too little, relying on shallow summaries that drift from the actual codebase.
+
+The result is the same in both cases: agents that produce plausible-sounding but project-unaware output.
+
+The Context Engine addresses this by maintaining a **bounded, project-specific memory** for each workspace. Rather than re-reading the entire repository on every task, it surfaces only the context that is relevant to the work at hand, anchored to real source evidence and scoped to the active workspace.
+
+## How It Works
+
+The Context Engine is **CLI-first**. A local daemon hosts the services. The same services can run behind a managed backend API. The active workspace boundary is called a **pot**, and every operation is scoped to one.
+
+```mermaid
+flowchart TB
+  actor["user or agent"]
+  cli["potpie CLI"]
+  host["Host shell (local daemon or managed API)"]
+  pots["Pot Management"]
+  graph["Graph Service"]
+  skills["Skill Manager"]
+  backend["GraphBackend"]
+  stores[("local or hosted stores")]
+
+  actor --> cli --> host
+  host --> pots
+  host --> graph
+  host --> skills
+  pots --> graph
+  graph --> backend --> stores
+```
+
+**The path every command takes:**
+
+```
+CLI → HostShell → service(s) → domain ports → backend / ledger
+```
+
+The CLI never queries databases directly. It routes through `HostShell`, which composes the services. Services use typed domain ports. Backend adapters implement those ports. This keeps the same command language working across local and managed deployments.
+
+### Deployment Modes
+
+| Mode | How to start | Storage | Auth |
+|---|---|---|---|
+| **Local** | `potpie setup` | Local daemon + embedded graph backend | No cloud account required |
+| **Managed** | `potpie login` | Hosted backend API + hosted graph/search | Potpie account required |
+
+Local and managed pots use the same CLI surface. After `potpie login`, managed pots appear in the same `potpie pot list` and `potpie use` flows. The active pot determines where every command routes.
+
+## Core Concepts
+
+| Term | What it means |
+|---|---|
+| **Pot** | The workspace boundary. Every source, query, claim, and graph mutation is scoped to one pot. After `potpie setup`, a `default` local pot is created and made active. |
+| **Context graph** | The graph-backed memory inside the engine. Stores typed entities, relationships, source-backed claims, provenance, and timeline records. |
+| **Entity** | A typed project object: service, feature, file, owner, issue, decision, runbook, incident, or environment. |
+| **Claim** | A canonical fact about an entity or relationship, with source evidence, truth class, confidence, and time metadata. |
+| **Source ref** | A pointer back to a file, PR, ticket, commit, or external system document. Every claim is evidence-backed. |
+| **Semantic mutation** | The agent-facing write contract. Agents propose intent and evidence; the engine validates, lowers to graph operations, and writes with provenance. |
+| **Skill** | A CLI-managed recipe that teaches an agent harness how to use the Context Engine. Skills are installed into harnesses like Claude Code or Cursor; they are not graph data. |
+| **Event Ledger** | A separate managed or self-hostable service for source events from GitHub, Linear, and similar integrations. The local graph pulls events from the ledger; the ledger does not store graph state. |
+
+## What You Can Do With It
+
+### Context retrieval
+
+Pull the bounded context an agent or developer needs before starting work:
+
+```bash
+potpie resolve "what should I know before working on the billing webhooks?"
+potpie resolve "trace the authentication flow" --intent debug --mode deep
+potpie search "rate limiter middleware"
+```
+
+### Durable project memory
+
+Save facts, decisions, and observations that persist across sessions:
+
+```bash
+potpie record --type decision --summary "All new endpoints require shared rate-limiter middleware"
+potpie record --type fix --summary "Stripe webhook retries fan into async retry worker" --scope service:billing
+```
+
+### Graph workbench
+
+Explicit reads, entity lookups, mutation proposals, history, and quality checks:
+
+```bash
+potpie graph catalog --task "debug refund failures"
+potpie graph read --subgraph debugging --view prior_occurrences --scope service:refunds-api
+potpie graph search-entities "AuthService" --type Service
+potpie graph propose --file mutation.json
+potpie graph commit mutation-plan:01JY8T5C
+```
+
+### Source integrations
+
+Connect GitHub, Linear, Jira, or Confluence so agents can query issues, PRs, decisions, and runbooks alongside code:
+
+```bash
+potpie github login
+potpie source add github potpie-ai/potpie
+```
+
+## Supported Agent Harnesses
+
+Potpie installs **skills** into your AI coding agent to teach it how to read context from the engine before acting. The following harnesses are supported:
+
+| Harness | Install command |
+|---|---|
+| Claude Code | `potpie skills install --agent claude` |
+| OpenAI Codex | `potpie skills install --agent codex` |
+| Cursor | `potpie skills install --agent cursor` |
+| OpenCode | `potpie skills install --agent opencode` |
+
+Skills are installed into the harness's global skills directory by default. Use `--scope project --path .` to commit a project-scoped skill that travels with the repository.
+
+## How It Fits Into Your Workflow
+
+A typical session with Potpie looks like this:
+
+1. **Setup once:** `potpie setup --repo . --agent claude` provisions the local daemon, backend, default pot, and installs Claude Code skills.
+2. **Open your harness:** Claude Code, Cursor, Codex, or OpenCode. The installed skill tells the agent to call Potpie before editing code.
+3. **The agent reads context:** Your agent calls `potpie resolve "<task>"` and uses the scoped context Potpie returns.
+4. **Work normally:** The agent edits, tests, and commits. Context keeps it grounded.
+5. **Record learnings:** Use `potpie record` to save decisions and findings durably. They appear in future `resolve` results.
+
+You do not need to run a manual ingest command on the happy path. The harness and its installed skills coordinate context retrieval and ingestion for each task.
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Installation" icon="download" href="/context-engine/installation">
+    Install the CLI and run `potpie setup`.
+  </Card>
+  <Card title="How to Use" icon="play" href="/context-engine/how-to-use">
+    Practical workflows and examples.
+  </Card>
+  <Card title="CLI Manual" icon="book" href="/api-reference/cli/manual">
+    Full command reference.
+  </Card>
+</CardGroup>

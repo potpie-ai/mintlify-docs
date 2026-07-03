@@ -22,7 +22,7 @@ Reviewing a pull request from the diff alone misses what it actually affects. A 
 What does changing the UserService.updateProfile method affect across the codebase?
 ```
 
-    Ask traverses the [knowledge graph](/concepts/knowledge-graph) from every modified function outward, mapping all callers, dependents, and transitive effects.
+    Ask traverses the [context graph](/concepts/context-engine) from every modified function outward, mapping all callers, dependents, and transitive effects.
   </Step>
   <Step title="Review the impact map">
     Ask returns:

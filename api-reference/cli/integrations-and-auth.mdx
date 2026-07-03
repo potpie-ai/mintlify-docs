@@ -1,0 +1,144 @@
+---
+title: "Integrations & Auth"
+description: "Potpie account auth and provider integrations for GitHub, Linear, Jira, and Confluence."
+---
+
+Potpie separates **Potpie account auth** from **provider integration auth**.
+
+- `potpie login` / `potpie logout` manage Potpie account credentials
+- `potpie github`, `potpie linear`, `potpie jira`, and `potpie confluence` manage provider-specific access
+- `potpie auth` is still present, but it is a deprecated alias surface
+
+## Potpie Account Auth
+
+### `potpie login`
+
+```bash
+potpie login [OPTIONS]
+```
+
+Sign in through browser-based Firebase session flow or store an API key explicitly.
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `--api-key`, `-k` | `str` | Potpie API key. Uses key auth instead of browser login. |
+| `--url`, `-u` | `str` | Potpie API base URL, only used with `--api-key`. |
+
+Examples:
+
+```bash
+potpie login
+potpie login --api-key "$POTPIE_API_KEY"
+potpie login --api-key "$POTPIE_API_KEY" --url http://127.0.0.1:8001
+```
+
+### `potpie logout`
+
+```bash
+potpie logout
+```
+
+Removes locally stored Potpie account credentials.
+
+## Integration Status
+
+Use the shared status command to inspect integration state:
+
+```bash
+potpie status
+potpie status --verify
+```
+
+`--verify` performs lightweight API checks instead of only showing stored auth state.
+
+## GitHub
+
+```bash
+potpie github COMMAND
+```
+
+| Command | Purpose |
+| --- | --- |
+| `potpie github login` | Authenticate with GitHub using device flow. |
+| `potpie github logout` | Remove stored GitHub credentials. |
+| `potpie github repos` | List GitHub repositories accessible to this CLI. |
+
+## Linear
+
+```bash
+potpie linear COMMAND
+```
+
+| Command | Purpose |
+| --- | --- |
+| `potpie linear login` | Authenticate with Linear via OAuth (PKCE). |
+| `potpie linear logout` | Remove stored Linear credentials. |
+| `potpie linear ls` | List connected Linear workspaces. |
+| `potpie linear select` | Select a workspace and team, then fetch issues in the terminal. |
+
+### Notable Options
+
+`potpie linear login`
+
+| Option | Description |
+| --- | --- |
+| `--force` | Re-authenticate the active Linear workspace. |
+| `--add` | Add an additional Linear workspace. |
+
+`potpie linear select`
+
+| Option | Description |
+| --- | --- |
+| `--org`, `-o` | Workspace URL key or name. |
+| `--key`, `-k` | Linear team key. |
+| `--limit`, `-n` | Max issue count, default `10`. |
+
+## Jira
+
+```bash
+potpie jira COMMAND
+```
+
+| Command | Purpose |
+| --- | --- |
+| `potpie jira login` | Authenticate with Jira. |
+| `potpie jira logout` | Remove stored Jira credentials. |
+| `potpie jira ls` | List connected Jira sites or projects, depending on profile. |
+| `potpie jira select` | Select a Jira project and fetch issues in the terminal. |
+
+`potpie jira select`
+
+| Option | Description |
+| --- | --- |
+| `--key`, `-k` | Jira project key. |
+| `--limit`, `-n` | Max issue count, default `10`. |
+
+## Confluence
+
+```bash
+potpie confluence COMMAND
+```
+
+| Command | Purpose |
+| --- | --- |
+| `potpie confluence login` | Authenticate with Confluence. |
+| `potpie confluence logout` | Remove stored Confluence credentials. |
+| `potpie confluence ls` | List connected Confluence spaces or instances. |
+| `potpie confluence select` | Select a space and fetch pages in the terminal. |
+
+`potpie confluence select`
+
+| Option | Description |
+| --- | --- |
+| `--key`, `-k` | Confluence space key. |
+| `--limit`, `-n` | Max page count, default `10`. |
+
+## Deprecated Surface: `potpie auth`
+
+`potpie auth` still exists for backward compatibility.
+
+### Current guidance
+
+- use `potpie github`, `potpie linear`, `potpie jira`, or `potpie confluence`
+- use `potpie status` for auth state
+- avoid building new docs or scripts on top of `potpie auth`

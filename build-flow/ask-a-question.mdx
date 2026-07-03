@@ -5,7 +5,7 @@ description: "**Potpie's Q&A interface**"
 
 <img src="/images/ask-review2.png" alt="Completed response with citations" />
 
-**Ask** answers questions about your codebase by navigating the [knowledge graph](/concepts/knowledge-graph)  to find exactly what you need to know.
+**Ask** answers questions about your codebase by navigating the [context graph](/concepts/context-engine)  to find exactly what you need to know.
 
 When a question involves a third-party library, it retrieves external documentation via `web search` if required. Follow-up questions in the same session retain full context from what came earlier
 
@@ -26,7 +26,7 @@ Answers are structured with headers, code snippets, and citations to exact file 
 
 ## Using the API
 
-The [Create Conversation and Message](/api-reference/endpoint/create-conversation-and-message) endpoint opens a session against a `ready` project and returns a cited, markdown formatted answer in a single call.
+For local workflows, start with the [CLI Overview](/api-reference/cli/overview), parse the repository, and then query the graph directly from the terminal.
 
 ## Example uses
 

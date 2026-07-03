@@ -6,7 +6,7 @@ sidebarTitle: 'Build'
 
 <img src="/images/Build-Pull.png" alt="Final review before PR" />
 
-Potpie reads existing patterns, conventions, and dependencies from the [knowledge graph](/concepts/knowledge-graph) before initiating a line of code.
+Potpie reads existing patterns, conventions, and dependencies from the [context graph](/concepts/context-engine) before initiating a line of code.
 
 It maps the request against what already exists, generates a **specification** and architecture plan, and presents every change as a reviewable **diff**. The code it produces fits naturally into what already exists.
 
@@ -33,10 +33,10 @@ Nothing is generated speculatively. If a referenced file cannot be located in th
 ## Example uses
 
 <CardGroup cols={2}>
-  <Card title="API Endpoint" href="/examples/api-endpoint">
-    Adding a new endpoint with full dependency awareness and matching code style.
-  </Card>
   <Card title="Auth Middleware" href="/examples/auth-middleware">
     Updating authentication middleware across all protected routes.
+  </Card>
+  <Card title="Code Migration" href="/examples/code-migration">
+    Migrating a module with full dependency mapping before touching a line.
   </Card>
 </CardGroup>

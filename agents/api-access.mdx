@@ -14,7 +14,7 @@ Every request to the Potpie API requires an `x-api-key` header.
 
 ## Step 1 : Parse a repository
 
-Parsing builds the [knowledge graph](/concepts/knowledge-graph) for your repository. Every subsequent API call like creating conversations, sending messages requires a `project_id` from this step.
+Parsing builds the [context graph](/concepts/context-engine) for your repository. Every subsequent API call like creating conversations, sending messages requires a `project_id` from this step.
 
 ```bash
 curl -X POST http://localhost:8001/api/v2/parse \

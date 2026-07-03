@@ -5,7 +5,7 @@ description: 'Trace a memory leak in a long running service to its source across
 
 A long running service degrading over time rarely points to the leak in its stack trace. Heap growth across requests can originate in a cache, an event listener, a retained reference, or a closure hiding across multiple files and layers.
 
-**Debug** traces **object lifecycle** and retention patterns across the codebase through the [knowledge graph](/concepts/knowledge-graph), identifies exactly what holds in memory and why, and returns a targeted fix at the source.
+**Debug** traces **object lifecycle** and retention patterns across the codebase through the [context graph](/concepts/context-engine), identifies exactly what holds in memory and why, and returns a targeted fix at the source.
 
 **Issue:**
 ```

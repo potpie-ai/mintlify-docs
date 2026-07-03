@@ -1,0 +1,231 @@
+---
+title: "Graph & Operations"
+description: "Daemon, services, ledger, graph workbench, timeline, backend, skills, and cloud command families."
+---
+
+This page covers the operational and low-level command families that sit below the higher-level setup and context flows.
+
+## Runtime Operations
+
+### `potpie daemon`
+
+Controls the local daemon lifecycle.
+
+| Command | Purpose |
+| --- | --- |
+| `potpie daemon start` | Start the detached daemon. |
+| `potpie daemon status` | Show daemon status. |
+| `potpie daemon logs` | Tail or inspect daemon logs. |
+| `potpie daemon restart` | Restart the daemon. |
+| `potpie daemon stop` | Stop the daemon. |
+
+### `potpie service`
+
+Controls supporting services used by the daemon environment.
+
+| Command | Purpose |
+| --- | --- |
+| `potpie service up` | Start supporting services. |
+| `potpie service down` | Stop supporting services. |
+| `potpie service status` | Inspect service status. |
+| `potpie service logs` | Inspect service logs. |
+
+### `potpie backend`
+
+Controls graph backend profiles and readiness.
+
+| Command | Purpose |
+| --- | --- |
+| `potpie backend list` | List backend profiles. |
+| `potpie backend status` | Show current backend status. |
+| `potpie backend use <profile>` | Select a backend profile. |
+| `potpie backend doctor` | Run backend diagnostics. |
+
+## Event Ledger
+
+```bash
+potpie ledger COMMAND
+```
+
+| Command | Purpose |
+| --- | --- |
+| `potpie ledger status` | Show current ledger binding and availability. |
+| `potpie ledger query` | Inspect ledger event history without advancing the cursor. |
+| `potpie ledger use` | Bind a managed or self-hosted event ledger. |
+| `potpie ledger disconnect` | Clear the current ledger binding. |
+| `potpie ledger pull` | Pull new events from the ledger. |
+| `potpie ledger sources list` | List available ledger source connectors. |
+
+## Graph Workbench
+
+`potpie graph` is the low-level graph surface. This is where reads, search, proposals, commits, inbox review, quality checks, and bulk mutation flows live.
+
+### Top-level graph commands
+
+| Command | Purpose |
+| --- | --- |
+| `catalog` | Discover contract versions, views, mutation ops, and ontology. |
+| `read` | V2-style graph reads over named views. |
+| `search-entities` | Resolve entities and claims before a write. |
+| `mutate` | Legacy wrapper over propose + commit. |
+| `mutation-template` | Emit a schema-only skeleton for `graph propose`. |
+| `nudge` | Deterministic event-to-action policy engine. |
+| `status` | Show graph readiness and status. |
+| `describe` | Describe graph structures or views. |
+| `neighborhood` | Read a local neighborhood around an entity or claim. |
+| `propose` | Stage graph mutations. |
+| `commit` | Commit proposed graph mutations. |
+| `history` | Inspect graph mutation history. |
+| `inspect` | Inspect graph internals or payloads. |
+| `export` | Export graph data. |
+| `import` | Import graph data. |
+| `repair` | Run repair flows. |
+
+### Important read/write helpers
+
+#### `potpie graph read`
+
+Use this for structured reads over a subgraph and named view.
+
+Important options:
+
+| Option | Description |
+| --- | --- |
+| `--subgraph` | Canonical subgraph, for example `debugging`. |
+| `--view` | Named view within that subgraph. |
+| `--query` | Query text. |
+| `--scope` | Scope filter in `key:value[,key:value]` form. |
+| `--repo` / `--current` | Limit to a repo scope. |
+| `--since`, `--until`, `--time-window` | Time filters. |
+| `--depth`, `--direction` | Neighborhood traversal controls. |
+| `--limit`, `--sort`, `--dedupe` | Result shaping. |
+| `--format`, `--detail`, `--relations` | Output formatting controls. |
+| `--pot` | Select a target pot. |
+
+#### `potpie graph search-entities`
+
+Use this before a write when you need exact entity or claim resolution.
+
+Important options:
+
+| Option | Description |
+| --- | --- |
+| `--query` or `QUERY_ARG` | Entity or claim text to match. |
+| `--type` | Entity label filter such as `Service`. |
+| `--predicate` | Predicate filter. |
+| `--subgraph` | Subgraph filter. |
+| `--scope` | Scope filter. |
+| `--truth` | Truth filter. |
+| `--source-system`, `--source-family` | Source filters. |
+| `--source-ref` | Exact source ref such as `github:owner/repo#issue/123`. |
+| `--supporting-claims` | Include supporting claims in JSON output. |
+
+#### `potpie graph mutation-template`
+
+Print a schema-only mutation skeleton for `graph propose`.
+
+Supported `--kind` values include:
+
+- `bug-fix`
+- `decision`
+- `feature`
+- `infra-snapshot`
+- `preference`
+- `preference-policy`
+- `repo-baseline`
+- `timeline-change`
+- `timeline-event`
+
+#### `potpie graph nudge`
+
+Deterministic local event-to-action policy brain. It injects ranked context, prompts writes, or stays silent without calling a model.
+
+| Option | Description |
+| --- | --- |
+| `--event` | Event type such as `session_start`, `pre_edit`, or `test_failed`. Required. |
+| `--session` | Harness session id. Required. |
+| `--path` | File path scope. |
+| `--scope` | Scope filter. |
+| `--query` | Symptom or intent text. |
+| `--limit` | Max injected items, default `5`. |
+| `--pot` | Pot target. |
+
+### Inbox, quality, and bulk mutation flows
+
+#### `potpie graph inbox`
+
+| Command | Purpose |
+| --- | --- |
+| `add` | Add pending graph work. |
+| `list` | List pending work items. |
+| `show` | Inspect one work item. |
+| `claim` | Claim an inbox item. |
+| `mark-applied` | Mark an item as applied. |
+| `mark-rejected` | Mark an item as rejected. |
+| `close` | Close an inbox item. |
+
+#### `potpie graph quality`
+
+| Command | Purpose |
+| --- | --- |
+| `summary` | High-level quality summary. |
+| `duplicate-candidates` | Find likely duplicates. |
+| `stale-facts` | Detect stale facts. |
+| `conflicting-claims` | Surface conflicting claims. |
+| `orphan-entities` | Find orphaned entities. |
+| `low-confidence` | Show low-confidence graph material. |
+| `projection-drift` | Detect drift between projections. |
+
+#### `potpie graph bulk`
+
+| Command | Purpose |
+| --- | --- |
+| `apply` | Apply many semantic mutations through propose/commit chunks. |
+
+## Timeline Reads
+
+### `potpie timeline recent`
+
+Read recent project events from the active or current pot across repo sources.
+
+| Option | Description |
+| --- | --- |
+| `--query` | Query text |
+| `--since`, `--until`, `--time-window` | Time filters |
+| `--service` | Optional service scope |
+| `--limit` | Result count, default `12` |
+| `--format` | `auto`, `events`, `table`, `raw`, or `jsonl` |
+| `--detail` | `compact` or `full` |
+| `--relations` | `summary` or `full` |
+| `--pot` | Pot target |
+
+## Skills & Cloud
+
+### `potpie skills`
+
+| Command | Purpose |
+| --- | --- |
+| `list` | List installed skills for an agent and scope. |
+| `install` | Install a skill or skill set. |
+| `update` | Update skills. |
+| `remove` | Remove one skill or all skills. |
+| `status` | Show skill installation state. |
+| `add` | Add a skill source. |
+
+Common options:
+
+- `--agent` defaults to `claude`
+- `--scope` defaults to `global`
+- `--path` overrides the target path
+
+### `potpie cloud`
+
+Managed profile and sync commands are present but still marked TODO-oriented.
+
+| Command | Purpose |
+| --- | --- |
+| `potpie cloud login` | Authenticate managed profile access. |
+| `potpie cloud status` | Inspect managed profile state. |
+| `potpie cloud push --pot <id>` | Push pot state. |
+| `potpie cloud pull --pot <id>` | Pull pot state. |
+| `potpie cloud skills sync --agent <agent>` | Sync managed skill catalog into a harness. |

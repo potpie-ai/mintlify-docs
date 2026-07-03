@@ -39,13 +39,27 @@ a[href="https://app.potpie.ai/settings"]:active {
   background-image: none !important;
 }
 
-/* Mermaid diagram text color - black */
-.mermaid text,
-.mermaid .label,
-.mermaid .nodeLabel,
-.mermaid .edgeLabel {
+/* Mermaid diagram text — black in light mode, white in dark mode */
+:root:not(.dark) .mermaid text,
+:root:not(.dark) .mermaid .label,
+:root:not(.dark) .mermaid .nodeLabel,
+:root:not(.dark) .mermaid .edgeLabel,
+:root:not(.dark) .mermaid tspan {
   fill: #000000 !important;
   color: #000000 !important;
+}
+
+.dark .mermaid text,
+.dark .mermaid .label,
+.dark .mermaid .nodeLabel,
+.dark .mermaid .edgeLabel,
+.dark .mermaid tspan,
+.dark .mermaid foreignObject,
+.dark .mermaid foreignObject span,
+.dark .mermaid foreignObject p,
+.dark .mermaid .nodeLabel p {
+  fill: #ffffff !important;
+  color: #ffffff !important;
 }
 
 /* Use full width for wide mode pages - remove content max-width constraints */
@@ -201,3 +215,31 @@ table tr:nth-child(even) td {
   background: rgba(0, 0, 0, 0.2) !important;
 }
 
+/* Light mode — active left sidebar: black text, keep theme green background */
+:root:not(.dark) #sidebar-content li[data-active],
+:root:not(.dark) #sidebar-content li[data-active] a,
+:root:not(.dark) #sidebar-content li[data-active] span {
+  color: #000000 !important;
+}
+
+/* Top nav tabs — equal-width green underline for Overview / CLI */
+.nav-tabs .nav-tabs-item {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 7.5rem !important;
+  padding: 0 1.25rem !important;
+  box-sizing: border-box !important;
+}
+
+/* Mintlify renders the underline as an inner div, not border-bottom */
+.nav-tabs .nav-tabs-item > div {
+  width: 100% !important;
+  left: 0 !important;
+  height: 2px !important;
+}
+
+.nav-tabs .nav-tabs-item[data-active] > div {
+  background-color: #B6E343 !important;
+}

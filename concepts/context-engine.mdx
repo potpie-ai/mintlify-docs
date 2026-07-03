@@ -1,0 +1,104 @@
+---
+title: "Context Engine"
+description: "How Potpie turns repositories, source history, and durable project memory into a bounded context system for agents."
+sidebarTitle: "Context Engine"
+---
+
+Potpie's **Context Engine** is the project-context system behind its agents. It gives Potpie a bounded, project-specific understanding of your codebase so agents can answer questions, debug issues, plan changes, and record durable learnings without starting from scratch on every task.
+
+In the implementation used by Potpie today, the Context Engine includes:
+
+- a **pot-scoped** context model for workspace isolation;
+- a **graph-backed memory layer** for entities, claims, source refs, and timelines;
+- a **CLI-first agent surface** exposed through `resolve`, `search`, `record`, and `status`;
+- a lower-level **graph workbench** for explicit reads, proposals, commits, and quality workflows;
+- backend adapters that let the same engine run locally or behind a managed service.
+
+## What The Context Engine Does
+
+The Context Engine is not a generic knowledge graph. In this repository, Potpie consistently describes it as a system for **grounding agents in real project context**.
+
+That means it is responsible for:
+
+- scoping context to a **pot**, so reads and writes stay inside the right workspace;
+- reading from code, repository structure, source history, and other linked systems;
+- retrieving the smallest useful slice of context for a task instead of over-reading the repo;
+- storing durable project memory such as decisions, observations, and validated graph facts;
+- exposing both high-level agent tools and lower-level graph operations over the same underlying model.
+
+## Core Concepts
+
+| Concept | What it means in Potpie |
+| --- | --- |
+| **Pot** | The workspace boundary for context. Sources, reads, claims, mutations, and status are all scoped to one pot. |
+| **Context graph** | The graph-backed memory inside the Context Engine. It stores entities, relationships, claims, evidence, and timeline-style records. |
+| **Entity** | A typed project object such as a service, feature, owner, issue, decision, runbook, or incident. |
+| **Claim** | A canonical fact about an entity or relationship, with provenance and time metadata. |
+| **Source ref** | Evidence that points back to a file, PR, ticket, document, or external system. |
+| **Semantic mutation** | The agent-facing write contract for durable graph updates. Agents propose intent, not raw graph CRUD. |
+| **Workbench** | The lower-level graph command surface for discovery, reads, proposals, commits, history, inbox, and quality checks. |
+
+## Runtime Shape
+
+Potpie's current architecture is **CLI-first**. Users and agents interact with the CLI, MCP server, or HTTP surface, and those surfaces route into the same host shell and service modules.
+
+```mermaid
+flowchart TB
+  actor["user or agent"]
+  surface["CLI / MCP / HTTP"]
+  host["Host shell"]
+  pots["Pot management"]
+  graph["Graph service"]
+  skills["Skill manager"]
+  backend["Graph backend"]
+  stores[("local or hosted stores")]
+
+  actor --> surface --> host
+  host --> pots
+  host --> graph
+  host --> skills
+  pots --> graph
+  graph --> backend --> stores
+```
+
+In local usage, Potpie provisions local config, local storage, and an active default pot. In managed usage, the same graph-oriented services can run behind a backend API on hosted storage. The graph model stays the same; only the host and storage adapters change.
+
+## Agent Surfaces
+
+Most users do not work with the graph workbench directly. The normal entry point is the four-tool context surface:
+
+| Surface | Purpose |
+| --- | --- |
+| `status` | Check readiness, active pot, and recommended next actions |
+| `resolve` | Retrieve bounded context for a task |
+| `search` | Run a narrower follow-up lookup |
+| `record` | Save durable project memory |
+
+These are the tools that let an agent ask, "what should I know before I work on this?" The graph workbench sits underneath them when Potpie needs explicit graph reads, semantic writes, history, or validation.
+
+## Why This Matters
+
+The Context Engine exists to reduce two common failure modes in code agents:
+
+- reading too much of the repository and losing precision;
+- answering from loose summaries instead of project-specific evidence.
+
+By keeping context scoped, sourced, and queryable, Potpie can:
+
+- narrow debugging to the relevant execution surface;
+- map the likely blast radius of a change before editing code;
+- retrieve prior decisions and durable learnings instead of rediscovering them;
+- move from broad task context to exact files only when deeper evidence is required.
+
+## How The Graph Fits In
+
+The graph is an important implementation layer inside the Context Engine, but it is not the whole product.
+
+Use the graph-facing model when you need:
+
+- typed entities and relationships;
+- source-backed claims with provenance;
+- semantic mutation proposals and guarded commits;
+- backend-level capabilities such as graph reads, inspection, analytics, and snapshots.
+
+Use the broader **Context Engine** framing when you are describing how Potpie actually works for users and agents: a CLI-first, pot-scoped context system that turns project signals into usable developer context.

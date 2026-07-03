@@ -1,0 +1,111 @@
+---
+title: "CLI Reference"
+sidebarTitle: "CLI Reference"
+description: "The Potpie CLI command map: setup, context retrieval, integrations, pots, sources, and graph operations."
+mode: "wide"
+---
+
+Potpie is a **CLI-first** product. The command surface is not a thin wrapper around HTTP endpoints — it is the primary interface for local setup, source registration, context retrieval, graph reads, and operational control. Both humans and AI agent harnesses (Claude Code, Cursor, OpenAI Codex, OpenCode) use the same CLI.
+
+<Note>
+New to Potpie? Start with [Introduction](/context-engine/introduction) and [Installation](/context-engine/installation) before diving into the reference.
+</Note>
+
+## Command Families
+
+<CardGroup cols={2}>
+  <Card title="CLI Manual" icon="terminal" href="/api-reference/cli/manual">
+    Complete man-page style reference. All commands, options, exit codes, environment variables, and file paths in one place.
+  </Card>
+  <Card title="Setup & Lifecycle" icon="list" href="/api-reference/cli/setup-and-lifecycle">
+    Install Potpie, run first-time setup, verify readiness, inspect local state, and launch the UI.
+  </Card>
+  <Card title="Context Commands" icon="message" href="/api-reference/cli/context-commands">
+    Pull context for a task, run narrow follow-up searches, and record durable project learnings.
+  </Card>
+  <Card title="Integrations & Auth" icon="plug" href="/api-reference/cli/integrations-and-auth">
+    Sign into Potpie, connect GitHub, Linear, Jira, and Confluence, and inspect integration status.
+  </Card>
+  <Card title="Pots & Sources" icon="folder-tree" href="/api-reference/cli/pots-and-sources">
+    Manage workspace boundaries, repo-local defaults, source registration, and ingestion entry points.
+  </Card>
+  <Card title="Graph & Operations" icon="gear" href="/api-reference/cli/graph-and-operations">
+    Daemon lifecycle, services, event ledger, graph workbench, timeline reads, backend profiles, and skills.
+  </Card>
+</CardGroup>
+
+## Root Command
+
+```bash
+potpie [OPTIONS] COMMAND [ARGS]...
+```
+
+### Global Options
+
+| Option | Description |
+|---|---|
+| `--json` | Emit machine-readable JSON. Useful for piping to `jq` or consuming from agent harnesses. |
+| `--verbose`, `-v` | Show verbose tracebacks on errors. |
+| `--version` | Print `potpie-context-engine` version, Python version, and executable path. |
+| `--help` | Show root help. Available on every subcommand. |
+
+## Command Index
+
+| Family | Commands |
+|---|---|
+| Context | `resolve`, `search`, `record` |
+| Setup & readiness | `setup`, `status`, `doctor`, `whoami`, `ui`, `config` |
+| Auth & integrations | `login`, `logout`, `github`, `linear`, `jira`, `confluence`, `auth` |
+| Workspace routing | `use`, `pot`, `source` |
+| Runtime operations | `daemon`, `service`, `ledger`, `graph`, `timeline`, `backend`, `skills`, `cloud` |
+
+## Recommended First-Run Sequence
+
+```bash
+# Install
+uv tool install potpie
+
+# Set up local environment (interactive wizard on TTY)
+potpie setup --repo . --agent claude
+
+# Verify readiness
+potpie status --host
+
+# Connect GitHub
+potpie github login
+
+# Register the repository as a source
+potpie source add repo .
+
+# Resolve context to confirm everything is working
+potpie resolve "what should I know before working in this repository?"
+
+# Open the graph explorer
+potpie ui
+```
+
+## Important Model
+
+- **`source add` registers metadata only.** It does not ingest or scan the repository by itself. Context is pulled on demand by `resolve`, `search`, agents, or graph reads.
+- **External-system sync** runs through pot-attached connector commands such as `pot linear-team diff-sync` and `pot jira-project diff-sync`.
+- **The graph workbench** lives under `potpie graph`. It is a CLI command group, not an HTTP API.
+- **All commands default to the active pot.** Use `--pot <name>` to scope a single command without changing the active pot.
+- **Local and managed pots** use the same CLI surface. After `potpie login`, managed pots appear in `potpie pot list` and `potpie use`.
+
+## Output Contract
+
+| Format | How to get it |
+|---|---|
+| Human (default) | Action-oriented summary with a recommended next command |
+| JSON | Pass `--json` to any command |
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | Success |
+| `1` | General error |
+| `2` | Usage or argument validation error |
+| `3` | Degraded — setup completed but one or more hard steps failed |
+| `4` | Authentication error |
+| `5` | Service unavailable |
