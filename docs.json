@@ -100,21 +100,21 @@
           {
             "group": "Get Started",
             "pages": [
-              "context-engine/introduction",
-              "context-engine/installation",
-              "context-engine/how-to-use"
+              "cli/introduction",
+              "cli/installation",
+              "cli/how-to-use"
             ]
           },
           {
             "group": "CLI Reference",
             "pages": [
-              "api-reference/cli/overview",
-              "api-reference/cli/setup-and-lifecycle",
-              "api-reference/cli/context-commands",
-              "api-reference/cli/pots-and-sources",
-              "api-reference/cli/integrations-and-auth",
-              "api-reference/cli/graph-and-operations",
-              "api-reference/cli/manual"
+              "cli/reference",
+              "cli/setup-and-lifecycle",
+              "cli/context-commands",
+              "cli/pots-and-sources",
+              "cli/integrations-and-auth",
+              "cli/graph-and-operations",
+              "cli/manual"
             ]
           }
         ]
@@ -125,6 +125,13 @@
   "feedback": {
     "thumbsRating": true
   },
+  "redirects": [
+    { "source": "/context-engine/introduction", "destination": "/cli/introduction" },
+    { "source": "/context-engine/installation", "destination": "/cli/installation" },
+    { "source": "/context-engine/how-to-use", "destination": "/cli/how-to-use" },
+    { "source": "/api-reference/cli/overview", "destination": "/cli/reference" },
+    { "source": "/api-reference/cli/:slug*", "destination": "/cli/:slug*" }
+  ],
   "logo": {
     "light": "/logo/light.png",
     "dark": "/logo/dark.png",
