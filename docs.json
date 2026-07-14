@@ -33,6 +33,7 @@
           {
             "group": "Tutorials",
             "pages": [
+              "tutorials/cli-setup",
               "tutorials/explore-your-codebase",
               "tutorials/make-code-changes",
               "tutorials/trace-and-fix",

@@ -1,0 +1,156 @@
+---
+title: 'CLI setup'
+description: 'Install and configure the Potpie CLI — local setup, cloud login, pot selection, and first commands.'
+sidebarTitle: 'CLI setup'
+keywords:
+  - potpie cli
+  - install
+  - setup
+  - login
+  - doctor
+  - pot
+---
+
+The Potpie CLI (`potpie`) is how you search, resolve, and record project context. Setup is interactive — run one command in your project and follow the prompts.
+
+## Prerequisites
+
+- **Python 3.11+** — `python3 --version`
+- **Git** — your project should be a Git repo
+- **pip** — `python3 -m pip --version`
+
+---
+
+## 1. Install
+
+```bash
+pip install potpie
+```
+
+Verify:
+
+```bash
+potpie --help
+```
+
+<Tip>
+  If `potpie` is not found, add your Python scripts directory to `PATH` (often `~/.local/bin`).
+</Tip>
+
+**Contributors** working in the monorepo:
+
+```bash
+git clone https://github.com/potpie-ai/potpie.git
+cd potpie
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync
+uv run potpie --help
+```
+
+---
+
+## 2. Run setup
+
+Open a terminal in your project directory:
+
+```bash
+cd /path/to/your/project
+potpie setup
+```
+
+The wizard walks you through:
+
+- Local config and storage
+- Creating your first **pot** (workspace)
+- Optional GitHub login and integrations
+- Installing agent skills (Claude, Cursor, etc.)
+
+Setup is **idempotent** — safe to run again.
+
+---
+
+## 3. Verify
+
+```bash
+potpie status
+potpie doctor
+```
+
+You should see a local profile, an active pot, and `backend_ready=True`.
+
+---
+
+## 4. Try it
+
+```bash
+potpie search "authentication flow"
+potpie resolve "add rate limiting to the API" --intent feature
+potpie record --type decision --summary "Use Redis for session cache"
+```
+
+Manage pots:
+
+```bash
+potpie pot list
+potpie pot use my-pot-name
+```
+
+---
+
+## Cloud / remote API (optional)
+
+Use this only if you connect to [Potpie Cloud](https://potpie.ai) or a hosted server — not the default local setup.
+
+**Browser login:**
+
+```bash
+potpie login
+```
+
+**API key:**
+
+```bash
+potpie login --api-key sk-your-key-here --url https://your-potpie-host.com
+```
+
+Use the **base URL only** (no `/api/v2` suffix). Example: `http://127.0.0.1:8001`.
+
+---
+
+## Troubleshooting
+
+**`potpie: command not found`**
+
+```bash
+python3 -m pip install --user potpie
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+**`Pot scope required`**
+
+```bash
+potpie pot list
+potpie pot use my-pot-name
+```
+
+**Setup feels broken**
+
+```bash
+potpie doctor
+potpie setup
+```
+
+**Log out**
+
+```bash
+potpie logout
+```
+
+---
+
+## Next steps
+
+- [Knowledge Graph overview](/concepts/knowledge-graph)
+- `potpie skills install --agent claude`
+- `potpie auth github login`
+- `potpie --help`
